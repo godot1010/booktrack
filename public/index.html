@@ -215,7 +215,7 @@ mark{background:color-mix(in srgb,var(--ribbon) 22%,transparent);color:inherit;b
 .form .group .field,.form .group textarea{background:var(--paper)}
 .check{flex-direction:row!important;align-items:center;gap:8px!important;font-size:15px!important;color:var(--ink)!important}
 .check input{width:18px;height:18px;accent-color:var(--accent)}
-.ways{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:18px}
+.ways{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:18px}
 .way{border:1px solid var(--rule);border-radius:8px;padding:12px 6px;text-align:center;font-size:13px;color:var(--ink-faint);display:flex;flex-direction:column;align-items:center;gap:6px;background:none}
 .way small{font-size:11px}
 button.way{color:var(--ink);font-weight:700}
@@ -624,7 +624,7 @@ function waysBar(cur){
     ? `<div class="way on">${label}<small>${sub}</small></div>`
     : hash ? `<button class="way" type="button" data-go-replace="${hash}">${label}<small>${sub}</small></button>`
     : `<div class="way">${label}<small>${sub}</small></div>`;
-  return `<div class="ways">${way("scan", "바코드", "찍어서 등록", "#/scan")}${way("cover", "표지 사진", "곧 나와요", "")}${way("manual", "직접 입력", "손으로 쓰기", "#/add")}</div>`;
+  return `<div class="ways">${way("scan", "바코드", "찍어서 등록", "#/scan")}${way("manual", "직접 입력", "바코드가 없을 때", "#/add")}</div>`;
 }
 
 // ───────────────────────── 바코드로 등록 ─────────────────────────
