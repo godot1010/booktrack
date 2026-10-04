@@ -176,6 +176,33 @@ textarea.feel{min-height:160px;font-family:var(--f-display);line-height:32px;pad
 .linkbtn{border:0;background:none;color:var(--accent);text-decoration:underline;text-underline-offset:3px;padding:4px}
 .linkbtn.danger{color:var(--ink-faint)}
 
+/* ── 밑줄 표시: 연필로 그은 듯한 빨간 밑줄 */
+.ul{background-image:linear-gradient(transparent 64%,color-mix(in srgb,var(--ribbon) 26%,transparent) 64% 90%,transparent 90%);
+  -webkit-box-decoration-break:clone;box-decoration-break:clone}
+mark{background:color-mix(in srgb,var(--ribbon) 22%,transparent);color:inherit;border-radius:2px;padding:0 1px}
+
+/* ── 오늘의 밑줄 */
+.today{position:relative;margin:0 0 24px;border-radius:6px;padding:16px 16px 12px;
+  background:color-mix(in srgb,var(--c) 13%,var(--sheet));border:1px solid color-mix(in srgb,var(--c) 28%,var(--rule))}
+.today .head-row{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}
+.today .eyebrow{color:color-mix(in srgb,var(--c) 70%,var(--ink))}
+.today .open{display:block;width:100%;border:0;background:none;padding:0;text-align:left}
+.today .open p{margin:0;font-family:var(--f-display);font-size:17.5px;line-height:1.95;overflow-wrap:anywhere}
+.today .src{display:block;margin-top:10px;font-size:12px;color:var(--ink-soft)}
+.shuffle{border:0;background:none;color:var(--ink-soft);font-size:12px;display:flex;align-items:center;gap:4px;padding:4px 2px}
+
+/* ── 찾기 */
+.searchbar{display:flex;align-items:center;gap:8px;flex:1;background:var(--sheet);border:1px solid var(--rule);border-radius:999px;padding:0 14px}
+.searchbar input{flex:1;min-width:0;border:0;background:none;padding:11px 0;font-size:16px;outline:none}
+.searchbar svg{flex:none;color:var(--ink-faint)}
+.result-head{font-family:var(--f-display);font-weight:700;font-size:15px;margin:22px 0 10px;display:flex;align-items:center;gap:10px}
+.result-head::after{content:"";flex:1;height:1px;background:var(--rule)}
+.result-head span{order:2;font-family:var(--f-mono);font-weight:400;font-size:12px;color:var(--ink-faint)}
+.feel-hit{display:block;width:100%;text-align:left;background:var(--sheet);border:1px solid var(--rule);border-radius:6px;padding:12px 14px}
+.feel-hit p{margin:4px 0 0;font-family:var(--f-display);font-size:14.5px;line-height:1.8;color:var(--ink-soft)}
+.feel-hit strong{font-size:14px}
+.hint{color:var(--ink-faint);font-size:14px;text-align:center;padding:30px 10px;line-height:1.8}
+
 /* ── 등록 / 수정 */
 .form{display:flex;flex-direction:column;gap:14px}
 .form label{font-size:13px;color:var(--ink-soft);display:flex;flex-direction:column;gap:5px}
@@ -297,7 +324,9 @@ const EMPTY_ART = `<svg width="88" height="96" viewBox="0 0 88 96" aria-hidden="
   <path d="M10 88h68" stroke="var(--plank)" stroke-width="4" stroke-linecap="round"/></svg>`;
 
 const ICON_BACK = `<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg>`;
-const ICON_GEAR = `<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg>`;
+const ICON_SEARCH = `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="6.5"/><path d="M16 16l4.5 4.5"/></svg>`;
+const ICON_SHUFFLE = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 12a8 8 0 1 1-2.3-5.7"/><path d="M20 4v5h-5"/></svg>`;
+const ICON_GEAR =`<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg>`;
 
 function toast(msg){
   const t = $("#toast"); t.textContent = msg; t.hidden = false;
@@ -349,6 +378,11 @@ function render(animate){
   }
   else if(r.name === "quotes") v.innerHTML = quotesView();
   else if(r.name === "settings") v.innerHTML = settingsView();
+  else if(r.name === "search"){
+    v.innerHTML = searchView();
+    const inp = $("#search-input");
+    if(!searchQuery){ inp.focus(); }
+  }
   else {
     if(["reading", "done", "rec"].includes(r.arg)) lastTab = r.arg;
     v.innerHTML = shelfView();
@@ -384,16 +418,77 @@ function shelfView(){
 
   return `<header class="masthead">
     <div class="top"><span class="eyebrow">${now.getMonth()+1}월 ${now.getDate()}일 ${WEEKDAYS[now.getDay()]}요일</span>
-      <button class="iconbtn" type="button" data-go="#/settings" aria-label="설정과 백업">${ICON_GEAR}</button></div>
+      <span style="display:flex">${books.length ? `<button class="iconbtn" type="button" data-go="#/search" aria-label="찾기">${ICON_SEARCH}</button>` : ""}
+      <button class="iconbtn" type="button" data-go="#/settings" aria-label="설정과 백업">${ICON_GEAR}</button></span></div>
     <h1>내 서재</h1>
     ${books.length ? `<div class="stats">
       <div class="stat"><b class="mono">${reading.length}</b><span>읽는 중</span></div>
       <div class="stat"><b class="mono">${doneThisYear}</b><span>${year}년에 다 읽음</span></div>
       <div class="stat"><b class="mono">${quoteCount}</b><span>밑줄 친 문장</span></div></div>` : ""}
   </header>
+  ${todayCard()}
   <div class="tabs" role="tablist">${tabs.map(([k, l, f]) =>
     `<button class="tab" role="tab" type="button" data-go="#/shelf/${k}" aria-selected="${k === lastTab}">${l}<span class="n">${books.filter(f).length}</span></button>`).join("")}</div>
   ${body}`;
+}
+
+// 오늘의 밑줄: 예전에 그은 밑줄 하나를 다시 보여 준다.
+// 같은 날에는 같은 문장이 나오고(날짜로 고름), '다른 문장'을 누르면 다음 것으로 넘어간다.
+let quoteShift = 0;
+function todayCard(){
+  const all = books.flatMap(b => b.quotes.map(q => ({...q, b})))
+    .sort((x, y) => (x.createdAt || "").localeCompare(y.createdAt || "") || x.id.localeCompare(y.id));
+  if(!all.length) return "";
+  const d = new Date();
+  const q = all[(titleHash(`${d.getFullYear()}-${d.getMonth()}-${d.getDate()}`) + quoteShift) % all.length];
+  return `<div class="today" style="--c:${coverColor(q.b.title)}">
+    <div class="head-row"><span class="eyebrow">오늘의 밑줄</span>
+      ${all.length > 1 ? `<button class="shuffle" type="button" data-shuffle>${ICON_SHUFFLE}다른 문장</button>` : ""}</div>
+    <button class="open" type="button" data-open="${esc(q.b.id)}"><p><span class="ul">${esc(q.text)}</span></p>
+      <span class="src">『${esc(q.b.title)}』 ${esc(q.b.author)}${q.page ? ` · p.${esc(q.page)}` : ""}${q.createdAt ? ` · ${fmtDate(q.createdAt)}에 그음` : ""}</span></button>
+  </div>`;
+}
+
+// ───────────────────────── 찾기 ─────────────────────────
+let searchQuery = "";
+function searchView(){
+  return `<div class="topbar"><button class="back" type="button" data-back aria-label="뒤로">${ICON_BACK}</button>
+    <label class="searchbar">${ICON_SEARCH}<input id="search-input" type="search" placeholder="제목, 지은이, 밑줄, 느낌에서 찾기" value="${esc(searchQuery)}" autocomplete="off" enterkeyhint="search"></label></div>
+  <div id="results">${searchResults()}</div>`;
+}
+
+// 찾은 단어에 표시를 한다 (먼저 안전하게 바꾼 뒤 표시)
+function highlight(text, q){
+  const s = String(text), low = s.toLowerCase(), ql = q.toLowerCase();
+  let out = "", i = 0, j;
+  while((j = low.indexOf(ql, i)) !== -1){ out += esc(s.slice(i, j)) + `<mark>${esc(s.slice(j, j + q.length))}</mark>`; i = j + q.length; }
+  return out + esc(s.slice(i));
+}
+// 긴 글에서 찾은 단어 주변만 잘라 보여 준다
+function around(text, q){
+  const s = String(text).replace(/\s+/g, " "), j = s.toLowerCase().indexOf(q.toLowerCase());
+  const from = Math.max(0, j - 30), to = Math.min(s.length, j + q.length + 50);
+  return (from > 0 ? "…" : "") + highlight(s.slice(from, to), q) + (to < s.length ? "…" : "");
+}
+
+function searchResults(){
+  const q = searchQuery.trim();
+  if(!q) return `<p class="hint">책 제목이나 지은이, 밑줄 친 문장,<br>내가 쓴 느낌 속 단어로 찾아요.</p>`;
+  const has = v => String(v || "").toLowerCase().includes(q.toLowerCase());
+  const bookHits = books.filter(b => has(b.title) || has(b.author) || has(b.publisher));
+  const quoteHits = books.flatMap(b => b.quotes.filter(x => has(x.text)).map(x => ({...x, b})));
+  const feelHits = books.filter(b => has(b.feeling) || has(b.summary));
+  if(!bookHits.length && !quoteHits.length && !feelHits.length)
+    return `<p class="hint">‘${esc(q)}’이(가) 들어간 기록이 없어요.</p>`;
+  let html = "";
+  if(quoteHits.length) html += `<div class="result-head">밑줄<span>${quoteHits.length}</span></div><div class="list">${quoteHits.map(x =>
+    `<button class="quote" type="button" data-open="${esc(x.b.id)}"><p>${highlight(x.text, q)}</p>
+     <div class="src"><span class="book" style="--c:${coverColor(x.b.title)}"><i></i><span>『${esc(x.b.title)}』 ${esc(x.b.author)}</span></span>
+     <span class="mono">${x.page ? "p." + esc(x.page) : ""}</span></div></button>`).join("")}</div>`;
+  if(bookHits.length) html += `<div class="result-head">책<span>${bookHits.length}</span></div><div class="list">${bookHits.map(bookCard).join("")}</div>`;
+  if(feelHits.length) html += `<div class="result-head">느낌·줄거리<span>${feelHits.length}</span></div><div class="list">${feelHits.map(b =>
+    `<button class="feel-hit" type="button" data-open="${esc(b.id)}"><strong>『${esc(b.title)}』</strong><p>${around(has(b.feeling) ? b.feeling : b.summary, q)}</p></button>`).join("")}</div>`;
+  return html;
 }
 
 // 읽는 중·추천 탭의 책 카드
@@ -518,7 +613,8 @@ function formView(b){
 // ───────────────────────── 밑줄 친 문장 모음 ─────────────────────────
 function quotesView(){
   const all = books.flatMap(b => b.quotes.map(q => ({...q, b}))).sort((x, y) => (y.createdAt || "").localeCompare(x.createdAt || ""));
-  return `<header class="masthead"><span class="eyebrow">읽다가 멈춘 자리</span><h1>밑줄 친 문장</h1>
+  return `<header class="masthead"><div class="top"><span class="eyebrow">읽다가 멈춘 자리</span>
+    ${all.length ? `<button class="iconbtn" type="button" data-go="#/search" aria-label="찾기">${ICON_SEARCH}</button>` : ""}</div><h1>밑줄 친 문장</h1>
     ${all.length ? `<div class="stats"><div class="stat"><b class="mono">${all.length}</b><span>문장</span></div>
       <div class="stat"><b class="mono">${new Set(all.map(q => q.b.id)).size}</b><span>권에서</span></div></div>` : ""}</header>
   <div class="list">${all.map(q => `<button class="quote" type="button" data-open="${esc(q.b.id)}"><p>${esc(q.text)}</p>
@@ -602,6 +698,7 @@ document.addEventListener("click", e => {
     t.parentElement.querySelectorAll("button").forEach(x => x.setAttribute("aria-pressed", x === t));
     return;
   }
+  if(t.hasAttribute("data-shuffle")){ quoteShift++; return render(); }
   if(t.hasAttribute("data-export")) return exportBackup();
   if(t.hasAttribute("data-import")) return $("#import-file").click();
   if(!cur) return;
@@ -637,6 +734,8 @@ document.addEventListener("keydown", e => { if(e.key === "Escape") $("#modal").h
 
 // 느낌은 쓰는 동안 자동 저장
 document.addEventListener("input", e => {
+  // 찾기: 글자를 칠 때마다 결과만 다시 그림 (입력 칸은 그대로 둠)
+  if(e.target.id === "search-input"){ searchQuery = e.target.value; $("#results").innerHTML = searchResults(); return; }
   if(!e.target.hasAttribute("data-feel")) return;
   const r = parseRoute(), cur = findBook(r.arg); if(!cur) return;
   cur.feeling = e.target.value;
