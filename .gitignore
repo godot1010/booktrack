@@ -1,0 +1,5 @@
+.claude/
+__pycache__/
+*.keystore
+signing-key-info.txt
+.env*
