@@ -14,135 +14,199 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Gowun+Batang:wght@400;700&family=Gowun+Dodum&family=IBM+Plex+Mono:wght@400;500&display=swap">
 <style>
-/* 색과 글꼴: 미색 종이 + 잉크색 글씨 + 책갈피 리본 빨강. 어두운 모드는 '밤 독서등' 느낌 */
+/* 색과 글꼴: 미색 종이 + 잉크색 글씨 + 책갈피 리본 빨강 + 나무 책장. 어두운 모드는 '밤 독서등' 느낌 */
 :root{
-  --paper:#f1e9d8; --sheet:#fbf6ea; --ink:#2a251f; --ink-soft:#6b6152;
-  --rule:#d8cbb2; --accent:#2f4a6d; --accent-soft:#dfe5ec; --ribbon:#9b2f3a;
-  --shade:rgba(42,37,31,.08); --scrim:rgba(20,16,12,.45);
+  --paper:#f1e9d8; --sheet:#fbf6ea; --ink:#2a251f; --ink-soft:#6b6152; --ink-faint:#9a8f7c;
+  --rule:#ddd0b7; --accent:#2f4a6d; --accent-soft:#dfe5ec; --ribbon:#9b2f3a;
+  --plank:#b99b6b; --plank-edge:#8f7550;
+  --shade:rgba(60,45,25,.10); --scrim:rgba(20,16,12,.45);
+  --grain:rgba(110,85,50,.07);
   --f-display:"Gowun Batang","Nanum Myeongjo",serif;
   --f-body:"Gowun Dodum","Apple SD Gothic Neo","Malgun Gothic",sans-serif;
   --f-mono:"IBM Plex Mono",ui-monospace,Consolas,monospace;
   color-scheme:light;
 }
 @media (prefers-color-scheme: dark){:root{
-  --paper:#1c1915; --sheet:#25211c; --ink:#ece2cf; --ink-soft:#a99c86;
-  --rule:#3c352c; --accent:#93b1d6; --accent-soft:#2b3440; --ribbon:#d46c75;
-  --shade:rgba(0,0,0,.3); --scrim:rgba(0,0,0,.6); color-scheme:dark}}
+  --paper:#1b1814; --sheet:#25211c; --ink:#ece2cf; --ink-soft:#ab9e88; --ink-faint:#7c7262;
+  --rule:#3a332a; --accent:#93b1d6; --accent-soft:#2a333f; --ribbon:#d46c75;
+  --plank:#5a4a36; --plank-edge:#3d3225;
+  --shade:rgba(0,0,0,.35); --scrim:rgba(0,0,0,.6); --grain:rgba(255,240,210,.035); color-scheme:dark}}
 
 *{box-sizing:border-box}
 [hidden]{display:none!important}
 html,body{height:100%}
-body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--f-body);font-size:15px;line-height:1.6;
+body{margin:0;color:var(--ink);font-family:var(--f-body);font-size:15px;line-height:1.6;
+  background-color:var(--paper);
+  background-image:radial-gradient(var(--grain) 1px,transparent 1.2px),radial-gradient(var(--grain) 1px,transparent 1.2px);
+  background-size:7px 7px,11px 11px;background-position:0 0,3px 5px;
   padding:env(safe-area-inset-top,0px) 16px 0;-webkit-tap-highlight-color:transparent}
-.app{max-width:480px;margin:0 auto;padding-block:8px 110px}
+.app{max-width:480px;margin:0 auto;padding-block:4px 120px}
 button,input,textarea,select{font:inherit;color:inherit}
 button{cursor:pointer}
 :focus-visible{outline:2px solid var(--accent);outline-offset:2px}
 h1,h2,h3{font-family:var(--f-display);text-wrap:balance;margin:0;font-weight:700}
+svg{display:block}
+@media (prefers-reduced-motion:no-preference){
+  .view-in{animation:rise .28s ease-out}
+  @keyframes rise{from{opacity:.4;transform:translateY(6px)}to{opacity:1;transform:none}}
+}
 
-.topbar{display:flex;align-items:center;gap:10px;padding-block:8px 12px}
-.topbar h1{font-size:24px;flex:1;min-width:0}
-.topbar h1.small{font-size:17px}
-.logo{font-family:var(--f-display);font-size:13px;letter-spacing:.12em;color:var(--ink-soft)}
-.iconbtn{border:0;background:none;font-size:20px;padding:4px 8px;color:var(--ink-soft);line-height:1}
-.back{border:0;background:none;font-size:22px;padding:2px 8px 2px 0;color:var(--ink)}
+/* ── 위쪽 머리 */
+.masthead{padding-block:14px 18px;display:flex;flex-direction:column;gap:4px}
+.masthead .top{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.eyebrow{font-size:12px;letter-spacing:.16em;color:var(--ink-soft)}
+.masthead h1{font-size:32px;letter-spacing:-.01em}
+.stats{display:flex;gap:18px;margin-top:10px;padding-top:12px;border-top:1px solid var(--rule)}
+.stat{display:flex;flex-direction:column;gap:0}
+.stat b{font-family:var(--f-display);font-size:22px;line-height:1.2}
+.stat span{font-size:12px;color:var(--ink-soft)}
+.topbar{display:flex;align-items:center;gap:10px;padding-block:10px 12px}
+.topbar h1{font-size:20px;flex:1;min-width:0}
+.iconbtn{border:0;background:none;padding:8px;color:var(--ink-soft);border-radius:50%;display:flex}
+.iconbtn:active{background:var(--shade)}
+.back{border:0;background:none;padding:8px 8px 8px 0;color:var(--ink);display:flex}
 
-/* 서재 탭 */
-.tabs{display:flex;gap:4px;border-bottom:1px solid var(--rule);margin-bottom:14px}
-.tab{flex:1;border:0;background:none;padding:10px 4px;font-size:15px;color:var(--ink-soft);border-bottom:2px solid transparent;margin-bottom:-1px}
-.tab[aria-selected="true"]{color:var(--ink);border-bottom-color:var(--accent);font-weight:700}
-.tab .n{font-family:var(--f-mono);font-size:12px;margin-left:4px}
+/* ── 서재 탭 (책갈피 모양 표시) */
+.tabs{display:flex;gap:22px;margin-bottom:18px;border-bottom:1px solid var(--rule)}
+.tab{border:0;background:none;padding:6px 2px 12px;font-size:16px;color:var(--ink-faint);position:relative;font-family:var(--f-display)}
+.tab .n{font-family:var(--f-mono);font-size:11px;margin-left:5px;vertical-align:2px}
+.tab[aria-selected="true"]{color:var(--ink);font-weight:700}
+.tab[aria-selected="true"]::after{content:"";position:absolute;left:50%;bottom:-9px;transform:translateX(-50%);width:10px;height:16px;background:var(--ribbon);clip-path:polygon(0 0,100% 0,100% 100%,50% 72%,0 100%)}
 
-/* 책 목록 */
-.list{display:flex;flex-direction:column;gap:10px}
-.row{display:flex;gap:14px;align-items:flex-start;text-align:left;width:100%;background:var(--sheet);border:1px solid var(--rule);border-radius:4px;padding:12px;position:relative}
-.row .info{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px}
-.row h3{font-size:17px;line-height:1.35;overflow-wrap:anywhere}
+/* ── 표지 (사진이 없을 때 그려 주는 책 표지) */
+.cover{position:relative;flex:none;aspect-ratio:2/3;background:var(--c);color:#fbf6ea;border-radius:2px 5px 5px 2px;overflow:hidden;
+  display:flex;flex-direction:column;padding:var(--pad,13% 10% 10% 17%);font-family:var(--f-display);
+  box-shadow:0 1px 1px rgba(0,0,0,.18),0 8px 16px -8px rgba(40,28,15,.55)}
+.cover::before{content:"";position:absolute;left:0;top:0;bottom:0;width:8%;background:linear-gradient(90deg,rgba(0,0,0,.28),rgba(255,255,255,.12) 55%,rgba(0,0,0,.08))}
+.cover::after{content:"";position:absolute;inset:0;background:linear-gradient(110deg,rgba(255,255,255,.16),transparent 38%,transparent 70%,rgba(0,0,0,.14));pointer-events:none}
+.cover .ct{font-weight:700;font-size:var(--ts);line-height:1.28;overflow-wrap:anywhere;display:-webkit-box;-webkit-line-clamp:5;-webkit-box-orient:vertical;overflow:hidden}
+.cover .ca{margin-top:auto;font-size:var(--as);opacity:.82;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.cover.l1 .ct{border-block:1px solid rgba(255,255,255,.45);padding-block:6% 7%}
+.cover.l2{justify-content:flex-end}
+.cover.l2 .ca{margin-top:0;order:-1;margin-bottom:auto}
+.cover.l2::after{background:linear-gradient(180deg,rgba(255,255,255,.14) 0 30%,transparent 30%),linear-gradient(110deg,rgba(255,255,255,.12),transparent 40%,rgba(0,0,0,.14))}
+.cover.sm{width:46px;--ts:7px;--pad:6px 4px 4px 8px}.cover.sm .ca{display:none}
+.cover.md{width:76px;--ts:10.5px;--as:8px;--pad:10px 7px 7px 13px}
+.cover.fill{--ts:12px;--as:9px}
+.cover.lg{width:150px;--ts:19px;--as:12px;--pad:20px 15px 15px 25px;margin-inline:auto;box-shadow:0 1px 2px rgba(0,0,0,.2),0 18px 30px -12px rgba(40,28,15,.6)}
+.cover.fill{width:100%}
+
+/* ── 읽는 중 / 추천 카드 */
+.list{display:flex;flex-direction:column;gap:14px}
+.card{display:flex;gap:16px;align-items:stretch;text-align:left;width:100%;background:var(--sheet);border:1px solid var(--rule);border-radius:6px;padding:14px;position:relative;box-shadow:0 1px 0 var(--shade)}
+.card:active{transform:translateY(1px)}
+.card .cover{align-self:flex-start}
+.card .info{flex:1;min-width:0;display:flex;flex-direction:column;gap:3px;padding-top:2px}
+.card h3{font-size:18px;line-height:1.35;overflow-wrap:anywhere}
+.kind{font-size:11px;letter-spacing:.14em;color:var(--accent)}
 .by{font-size:13px;color:var(--ink-soft);overflow-wrap:anywhere}
-.meta{font-size:13px;color:var(--ink-soft);margin-top:4px;display:flex;gap:6px;align-items:center;flex-wrap:wrap}
+.meta{font-size:12px;color:var(--ink-faint);margin-top:auto;padding-top:8px;display:flex;gap:6px;flex-wrap:wrap}
 .mono{font-family:var(--f-mono);font-variant-numeric:tabular-nums}
-.ribbon{position:absolute;top:-1px;right:14px;width:12px;height:22px;background:var(--ribbon);clip-path:polygon(0 0,100% 0,100% 100%,50% 75%,0 100%)}
-.empty{text-align:center;color:var(--ink-soft);padding:40px 10px;display:flex;flex-direction:column;gap:14px;align-items:center}
+.snip{font-family:var(--f-display);font-size:13.5px;color:var(--ink-soft);line-height:1.7;margin-top:6px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.ribbon{position:absolute;top:-1px;right:16px;width:12px;height:24px;background:var(--ribbon);clip-path:polygon(0 0,100% 0,100% 100%,50% 74%,0 100%)}
 
-/* 표지 (사진이 없을 때 색 블록) */
-.cover{flex:none;width:54px;height:78px;border-radius:2px 4px 4px 2px;padding:6px 5px 6px 9px;color:#fbf6ea;font-family:var(--f-display);font-size:10px;line-height:1.3;position:relative;overflow:hidden;box-shadow:2px 2px 0 var(--shade);overflow-wrap:anywhere}
-.cover::before{content:"";position:absolute;left:3px;top:0;bottom:0;width:1px;background:rgba(255,255,255,.35)}
-.cover.big{width:96px;height:138px;font-size:14px;padding:10px 8px 10px 14px}
+/* ── 읽음: 나무 책장 */
+.year{display:flex;align-items:baseline;justify-content:space-between;margin:6px 2px 12px}
+.year h2{font-size:18px}
+.year span{font-size:12px;color:var(--ink-soft)}
+.shelf{margin-bottom:28px}
+.shelf-row{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;align-items:end;padding:0 10px;position:relative}
+.shelf-row::after{content:"";grid-column:1/-1;height:10px;margin:0 -10px;border-radius:2px;
+  background:linear-gradient(180deg,var(--plank) 0 70%,var(--plank-edge) 70%);box-shadow:0 8px 10px -6px rgba(40,28,15,.45)}
+.shelf-row + .shelf-row{margin-top:22px}
+.spot{border:0;background:none;padding:0;display:flex;flex-direction:column;gap:6px;text-align:left;min-width:0;position:relative}
+.spot .ribbon{right:10%;height:20px;width:10px;z-index:1}
+.spot .cover{box-shadow:0 1px 1px rgba(0,0,0,.2),3px 0 6px -3px rgba(40,28,15,.45)}
+.spot:active .cover{transform:translateY(-3px)}
 
-.chip{font-size:12px;line-height:1.5;padding:0 7px;border-radius:3px;border:1px solid var(--accent);color:var(--accent);align-self:flex-start;white-space:nowrap}
+/* ── 빈 화면 */
+.empty{text-align:center;color:var(--ink-soft);padding:36px 10px 20px;display:flex;flex-direction:column;gap:14px;align-items:center}
+.empty p{margin:0;font-family:var(--f-display);font-size:16px;line-height:1.8}
 
-/* 상세 */
-.head{display:flex;gap:16px;align-items:flex-end;margin-bottom:16px}
-.head .t{min-width:0;display:flex;flex-direction:column;gap:4px}
-.head h2{font-size:22px;line-height:1.3;overflow-wrap:anywhere}
-.seg{display:flex;border:1px solid var(--rule);border-radius:4px;overflow:hidden;background:var(--sheet)}
-.seg button{flex:1;border:0;background:none;padding:10px;font-size:14px;color:var(--ink-soft)}
-.seg button[aria-pressed="true"]{background:var(--accent);color:var(--sheet);font-weight:700}
-.controls{display:flex;flex-direction:column;gap:10px;margin-bottom:22px}
-.recbtn{display:flex;align-items:center;justify-content:center;gap:8px;border:1px solid var(--rule);background:var(--sheet);border-radius:4px;padding:10px;font-size:14px;color:var(--ink-soft)}
-.recbtn[aria-pressed="true"]{border-color:var(--ribbon);color:var(--ribbon);font-weight:700}
+/* ── 책 화면 */
+.hero{margin-inline:-16px;padding:0 16px 26px;text-align:center;
+  background:linear-gradient(180deg,color-mix(in srgb,var(--c) 26%,var(--paper)) 0%,color-mix(in srgb,var(--c) 10%,var(--paper)) 70%,transparent 100%)}
+.hero .topbar{text-align:left}
+.hero h2{font-size:25px;line-height:1.3;margin-top:20px;overflow-wrap:anywhere}
+.hero .by{margin-top:4px;display:block;font-size:14px}
+.hero .kind{display:block;margin-top:14px}
+.seg{display:flex;border:1px solid var(--rule);border-radius:999px;padding:3px;background:var(--sheet)}
+.seg button{flex:1;border:0;background:none;padding:9px;font-size:14px;color:var(--ink-soft);border-radius:999px}
+.seg button[aria-pressed="true"]{background:var(--ink);color:var(--paper);font-weight:700}
+.controls{display:flex;flex-direction:column;gap:10px;margin:4px 0 8px}
+.recbtn{display:flex;align-items:center;justify-content:center;gap:8px;border:1px dashed var(--rule);background:none;border-radius:999px;padding:9px;font-size:14px;color:var(--ink-soft)}
+.recbtn[aria-pressed="true"]{border:1px solid var(--ribbon);color:var(--ribbon);font-weight:700;background:color-mix(in srgb,var(--ribbon) 7%,transparent)}
 .mini{width:9px;height:15px;background:currentColor;clip-path:polygon(0 0,100% 0,100% 100%,50% 75%,0 100%)}
-.dates{font-size:13px;color:var(--ink-soft);margin-top:-12px;margin-bottom:22px;text-align:center}
+.dates{font-size:12px;color:var(--ink-faint);text-align:center;margin-bottom:30px}
 
-section.block{margin-bottom:26px}
-.label{font-size:12px;letter-spacing:.14em;color:var(--ink-soft);margin-bottom:8px;display:flex;justify-content:space-between;align-items:baseline;gap:8px}
-.label .hint{letter-spacing:0;font-size:12px}
+section.block{margin-bottom:32px}
+.label{display:flex;align-items:center;gap:10px;margin-bottom:12px;font-family:var(--f-display);font-size:15px;font-weight:700}
+.label::after{content:"";flex:1;height:1px;background:var(--rule);order:1}
+.label .side{order:2;font-family:var(--f-body);font-weight:400;font-size:12px;color:var(--ink-faint)}
+.label .side button{font-size:12px}
 .clamp{display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
-.summary{font-family:var(--f-display);line-height:1.85;margin:0;white-space:pre-wrap;overflow-wrap:anywhere}
-.author{display:flex;gap:12px;background:var(--sheet);border:1px solid var(--rule);border-radius:4px;padding:12px}
+.summary{font-family:var(--f-display);line-height:1.9;margin:0;white-space:pre-wrap;overflow-wrap:anywhere}
+.author{display:flex;gap:14px;align-items:flex-start}
 .author .t{min-width:0;display:flex;flex-direction:column;gap:2px;font-size:14px;white-space:pre-wrap}
-.avatar{flex:none;width:40px;height:40px;border-radius:50%;background:var(--accent-soft);color:var(--accent);display:flex;align-items:center;justify-content:center;font-family:var(--f-display);font-weight:700}
+.avatar{flex:none;width:44px;height:44px;border-radius:50%;background:var(--accent-soft);color:var(--accent);display:flex;align-items:center;justify-content:center;font-family:var(--f-display);font-weight:700;font-size:18px}
 
-textarea,.field{width:100%;background:var(--sheet);border:1px solid var(--rule);border-radius:4px;padding:10px 12px;resize:vertical;font-size:16px}
-textarea.feel{min-height:110px;font-family:var(--f-display);line-height:1.8}
+textarea,.field{width:100%;background:var(--sheet);border:1px solid var(--rule);border-radius:6px;padding:10px 12px;resize:vertical;font-size:16px}
+textarea.feel{min-height:160px;font-family:var(--f-display);line-height:32px;padding:4px 14px;border-radius:4px;
+  background:repeating-linear-gradient(180deg,transparent 0 31px,var(--rule) 31px 32px) var(--sheet);background-attachment:local;background-position:0 4px}
 
-/* 글귀 */
-.quote{background:var(--sheet);border:1px solid var(--rule);border-radius:2px;padding:14px 16px 12px;display:flex;flex-direction:column;gap:8px;text-align:left;width:100%}
-.quote p{margin:0;font-family:var(--f-display);font-size:16px;line-height:1.85;white-space:pre-wrap;overflow-wrap:anywhere}
-.quote p::before{content:"“";color:var(--accent);font-size:22px;line-height:0;margin-right:2px;vertical-align:-6px}
-.quote .src{font-size:12px;color:var(--ink-soft);display:flex;justify-content:space-between;align-items:center;gap:8px}
-.quote .del{border:0;background:none;color:var(--ink-soft);font-size:12px;padding:2px 4px;text-decoration:underline;text-underline-offset:3px}
-.qadd{display:flex;flex-direction:column;gap:8px;margin-top:10px}
+/* ── 글귀 */
+.quote{background:var(--sheet);border:1px solid var(--rule);border-radius:4px;padding:18px 18px 12px 18px;display:flex;flex-direction:column;gap:10px;text-align:left;width:100%;position:relative}
+.quote::before{content:"“";position:absolute;top:2px;left:12px;font-family:var(--f-display);font-size:46px;line-height:1;color:var(--accent);opacity:.28}
+.quote p{margin:0;font-family:var(--f-display);font-size:16.5px;line-height:1.9;white-space:pre-wrap;overflow-wrap:anywhere;padding-left:14px}
+.quote .src{font-size:12px;color:var(--ink-soft);display:flex;justify-content:space-between;align-items:center;gap:8px;padding-left:14px}
+.quote .book{display:flex;align-items:center;gap:8px;min-width:0}
+.quote .book i{flex:none;width:8px;height:12px;border-radius:1px;background:var(--c)}
+.quote .book span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.quote .del{border:0;background:none;color:var(--ink-faint);font-size:12px;padding:2px 4px;text-decoration:underline;text-underline-offset:3px}
+.qadd{display:flex;flex-direction:column;gap:8px;margin-top:12px}
 .qadd .r{display:flex;gap:8px}
 .qadd .r input{width:90px}
 
-.btn{border:0;border-radius:4px;padding:12px 16px;background:var(--accent);color:var(--sheet);font-weight:700;font-size:15px}
+.btn{border:0;border-radius:999px;padding:12px 20px;background:var(--accent);color:var(--sheet);font-weight:700;font-size:15px}
 .btn.ghost{background:none;border:1px solid var(--rule);color:var(--ink)}
 .btn.danger{background:var(--ribbon)}
 .btn.wide{width:100%}
-.btn:disabled{opacity:.5}
+.btn.sm{padding:7px 14px;font-size:13px}
+.btn:active{transform:translateY(1px)}
 .linkbtn{border:0;background:none;color:var(--accent);text-decoration:underline;text-underline-offset:3px;padding:4px}
-.linkbtn.danger{color:var(--ribbon)}
+.linkbtn.danger{color:var(--ink-faint)}
 
-/* 등록 / 수정 */
+/* ── 등록 / 수정 */
 .form{display:flex;flex-direction:column;gap:14px}
-.form label{font-size:13px;color:var(--ink-soft);display:flex;flex-direction:column;gap:4px}
-.form .opt{font-size:12px}
-.check{display:flex!important;flex-direction:row!important;align-items:center;gap:8px;font-size:15px!important;color:var(--ink)!important}
+.form label{font-size:13px;color:var(--ink-soft);display:flex;flex-direction:column;gap:5px}
+.form .opt{font-size:12px;color:var(--ink-faint)}
+.form .group{background:var(--sheet);border:1px solid var(--rule);border-radius:8px;padding:16px;display:flex;flex-direction:column;gap:14px}
+.form .group .field,.form .group textarea{background:var(--paper)}
+.check{flex-direction:row!important;align-items:center;gap:8px!important;font-size:15px!important;color:var(--ink)!important}
 .check input{width:18px;height:18px;accent-color:var(--accent)}
-.soon{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:18px}
-.soon div{border:1px dashed var(--rule);border-radius:4px;padding:12px;text-align:center;color:var(--ink-soft);font-size:14px}
-.soon small{display:block;font-size:12px}
+.ways{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:18px}
+.way{border:1px solid var(--rule);border-radius:8px;padding:12px 6px;text-align:center;font-size:13px;color:var(--ink-faint);display:flex;flex-direction:column;align-items:center;gap:6px;background:none}
+.way small{font-size:11px}
+.way.on{border-color:var(--accent);color:var(--accent);background:var(--sheet);font-weight:700}
 
-/* 설정 */
-.panel{background:var(--sheet);border:1px solid var(--rule);border-radius:4px;padding:16px;display:flex;flex-direction:column;gap:12px}
+/* ── 설정 */
+.panel{background:var(--sheet);border:1px solid var(--rule);border-radius:8px;padding:18px;display:flex;flex-direction:column;gap:12px}
+.panel strong{font-family:var(--f-display);font-size:16px}
 .panel p{margin:0;font-size:14px;color:var(--ink-soft)}
 
-/* 아래 메뉴 */
-nav.bottom{position:fixed;left:0;right:0;bottom:0;background:var(--sheet);border-top:1px solid var(--rule);padding:6px 16px calc(6px + env(safe-area-inset-bottom,0px));z-index:5}
+/* ── 아래 메뉴 */
+nav.bottom{position:fixed;left:0;right:0;bottom:0;background:color-mix(in srgb,var(--sheet) 92%,transparent);backdrop-filter:blur(8px);border-top:1px solid var(--rule);padding:4px 16px calc(4px + env(safe-area-inset-bottom,0px));z-index:5}
 nav.bottom .in{max-width:480px;margin:0 auto;display:grid;grid-template-columns:1fr auto 1fr;align-items:center}
-nav.bottom button{border:0;background:none;padding:8px;font-size:13px;color:var(--ink-soft);display:flex;flex-direction:column;align-items:center;gap:2px}
+nav.bottom button{border:0;background:none;padding:8px;font-size:12px;color:var(--ink-faint);display:flex;flex-direction:column;align-items:center;gap:3px}
 nav.bottom button[aria-current="page"]{color:var(--ink);font-weight:700}
-nav.bottom .ico{font-family:var(--f-display);font-size:18px;line-height:1}
-nav.bottom .add{background:var(--accent);color:var(--sheet);width:54px;height:54px;border-radius:50%;font-size:28px;line-height:1;justify-content:center;margin-top:-24px;box-shadow:0 3px 8px var(--shade);padding:0}
+nav.bottom .add{background:var(--ribbon);color:#fbf6ea;width:56px;height:56px;border-radius:50%;justify-content:center;margin-top:-26px;box-shadow:0 6px 14px -4px rgba(120,30,40,.5);padding:0;border:3px solid var(--paper)}
 
-/* 확인창 */
+/* ── 확인창, 알림 */
 .modal{position:fixed;inset:0;background:var(--scrim);display:flex;align-items:flex-end;justify-content:center;z-index:30;padding:16px}
-.sheet{background:var(--paper);border-radius:10px;padding:20px;max-width:440px;width:100%;display:flex;flex-direction:column;gap:16px;margin-bottom:env(safe-area-inset-bottom,0px)}
-.sheet p{margin:0}
+.sheet{background:var(--paper);border-radius:14px;padding:22px;max-width:440px;width:100%;display:flex;flex-direction:column;gap:18px;margin-bottom:env(safe-area-inset-bottom,0px)}
+.sheet p{margin:0;font-family:var(--f-display);font-size:16px}
 .two{display:grid;grid-template-columns:1fr 1fr;gap:8px}
-
-.toast{position:fixed;left:50%;bottom:96px;transform:translateX(-50%);background:var(--ink);color:var(--paper);padding:8px 16px;border-radius:20px;font-size:14px;z-index:40;max-width:calc(100% - 32px);text-align:center}
+.toast{position:fixed;left:50%;bottom:100px;transform:translateX(-50%);background:var(--ink);color:var(--paper);padding:9px 18px;border-radius:20px;font-size:14px;z-index:40;max-width:calc(100% - 32px);text-align:center}
 </style>
 </head>
 <body>
@@ -150,9 +214,12 @@ nav.bottom .add{background:var(--accent);color:var(--sheet);width:54px;height:54
 
 <nav class="bottom" aria-label="메뉴">
   <div class="in">
-    <button id="nav-shelf" type="button"><span class="ico">▤</span>내 서재</button>
-    <button id="nav-add" class="add" type="button" aria-label="책 등록">+</button>
-    <button id="nav-quotes" type="button"><span class="ico">“</span>글귀 모음</button>
+    <button id="nav-shelf" type="button">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 4v16M8 4v16M12.5 5l4 15M3 20h18"/></svg>내 서재</button>
+    <button id="nav-add" class="add" type="button" aria-label="책 등록">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg></button>
+    <button id="nav-quotes" type="button">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 5h16v11H9l-5 4z"/><path d="M8.5 9.5h7M8.5 12.5h4"/></svg>글귀 모음</button>
   </div>
 </nav>
 <div id="toast" class="toast" role="status" hidden></div>
@@ -199,7 +266,8 @@ async function dbDelete(id){
 
 // ───────────────────────── 기본 도구 ─────────────────────────
 const GENRES = ["소설", "시", "수필", "인문", "자기계발", "어린이", "만화", "기타"];
-const COVER_COLORS = ["#3d5a73", "#5b6b4a", "#8a5a3b", "#6d4a6a", "#2f3a4f", "#4f6b63", "#7a4b3a", "#40536e"];
+const COVER_COLORS = ["#3d5a73", "#5b6b4a", "#8a5a3b", "#6d4a6a", "#2f3a4f", "#4f6b63", "#7a4b3a", "#40536e", "#7b6a3c", "#5a3f4f"];
+const WEEKDAYS = ["일", "월", "화", "수", "목", "금", "토"];
 let books = [];
 let saveTimer = null;
 
@@ -208,14 +276,28 @@ const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt
 const newId = () => (crypto.randomUUID ? crypto.randomUUID() : Date.now().toString(36) + Math.random().toString(36).slice(2));
 const nowIso = () => new Date().toISOString();
 const fmtDate = iso => { if(!iso) return ""; const d = new Date(iso); return `${d.getFullYear()}.${String(d.getMonth()+1).padStart(2,"0")}.${String(d.getDate()).padStart(2,"0")}`; };
+const fmtMonthDay = iso => { const d = new Date(iso); return `${d.getMonth()+1}월 ${d.getDate()}일`; };
 const findBook = id => books.find(b => b.id === id);
 
-// 제목으로 표지 색을 정한다 (같은 책은 늘 같은 색)
-function coverColor(title){
-  let h = 0; for(const c of String(title)) h = (h * 31 + c.charCodeAt(0)) >>> 0;
-  return COVER_COLORS[h % COVER_COLORS.length];
+// 제목으로 표지 색과 모양을 정한다 (같은 책은 늘 같은 표지)
+function titleHash(title){ let h = 0; for(const c of String(title)) h = (h * 31 + c.charCodeAt(0)) >>> 0; return h; }
+const coverColor = title => COVER_COLORS[titleHash(title) % COVER_COLORS.length];
+function cover(b, size){
+  const layout = (titleHash(b.title) >> 3) % 3;
+  return `<div class="cover ${size} l${layout}" style="--c:${coverColor(b.title)}" aria-hidden="true">
+    <span class="ct">${esc(b.title)}</span><span class="ca">${esc(b.author)}</span></div>`;
 }
-const cover = (b, big) => `<div class="cover${big ? " big" : ""}" style="background:${coverColor(b.title)}" aria-hidden="true">${esc(b.title)}</div>`;
+const ribbonMark = b => b.rec ? '<span class="ribbon" aria-label="추천"></span>' : "";
+
+// 빈 화면 그림: 리본이 꽂힌 책
+const EMPTY_ART = `<svg width="88" height="96" viewBox="0 0 88 96" aria-hidden="true">
+  <rect x="18" y="10" width="52" height="74" rx="4" fill="var(--accent)" opacity=".9"/>
+  <rect x="24" y="10" width="2" height="74" fill="var(--paper)" opacity=".35"/>
+  <path d="M54 10h9v80l-4.5-6-4.5 6z" fill="var(--ribbon)"/>
+  <path d="M10 88h68" stroke="var(--plank)" stroke-width="4" stroke-linecap="round"/></svg>`;
+
+const ICON_BACK = `<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg>`;
+const ICON_GEAR = `<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg>`;
 
 function toast(msg){
   const t = $("#toast"); t.textContent = msg; t.hidden = false;
@@ -251,7 +333,7 @@ const goReplace = hash => { location.replace(hash); };
 let lastTab = "reading";
 let summaryOpen = false;
 
-function render(){
+function render(animate){
   const r = parseRoute();
   const v = $("#view");
   if(r.name === "book"){
@@ -271,56 +353,108 @@ function render(){
     if(["reading", "done", "rec"].includes(r.arg)) lastTab = r.arg;
     v.innerHTML = shelfView();
   }
+  if(animate){ v.classList.remove("view-in"); void v.offsetWidth; v.classList.add("view-in"); }
   const cur = r.name === "quotes" ? "nav-quotes" : (r.name === "shelf" || r.name === "book") ? "nav-shelf" : "";
   ["nav-shelf", "nav-quotes"].forEach(id => {
     const el = $("#" + id);
     if(id === cur) el.setAttribute("aria-current", "page"); else el.removeAttribute("aria-current");
   });
 }
-window.addEventListener("hashchange", () => { summaryOpen = false; render(); window.scrollTo(0, 0); });
+window.addEventListener("hashchange", () => { summaryOpen = false; render(true); window.scrollTo(0, 0); });
 
 // ───────────────────────── 내 서재 ─────────────────────────
 function shelfView(){
+  const now = new Date();
+  const year = now.getFullYear();
+  const reading = books.filter(b => b.status === "reading");
+  const doneThisYear = books.filter(b => b.status === "done" && b.finishedAt && new Date(b.finishedAt).getFullYear() === year).length;
+  const quoteCount = books.reduce((n, b) => n + b.quotes.length, 0);
   const tabs = [
     ["reading", "읽는 중", b => b.status === "reading"],
     ["done", "읽음", b => b.status === "done"],
     ["rec", "추천", b => b.rec],
   ];
-  const filter = tabs.find(t => t[0] === lastTab)[2];
-  const list = books.filter(filter).sort((a, b) =>
-    lastTab === "done" ? (b.finishedAt || "").localeCompare(a.finishedAt || "") : (b.createdAt || "").localeCompare(a.createdAt || ""));
-  const rows = list.map(b => {
-    const q = b.quotes.length ? `<span>· 글귀 ${b.quotes.length}</span>` : "";
-    const state = b.status === "done"
-      ? `<span class="mono">${fmtDate(b.finishedAt)}</span><span>다 읽음</span>`
-      : `<span>읽는 중</span>`;
-    return `<button class="row" type="button" data-open="${esc(b.id)}">${b.rec ? '<span class="ribbon" aria-label="추천"></span>' : ""}${cover(b)}
-      <div class="info"><span class="chip">${esc(b.genre)}</span><h3>${esc(b.title)}</h3>
-      <span class="by">${esc([b.author, b.publisher].filter(Boolean).join(" · "))}</span>
-      <div class="meta">${state}${q}</div></div></button>`;
-  }).join("");
-  const empty = {
-    reading: books.length ? "지금 읽는 책이 없어요." : "아직 등록한 책이 없어요.<br>첫 책을 등록해 볼까요?",
-    done: "다 읽은 책이 여기에 쌓여요.",
-    rec: "책 화면에서 ‘추천하고 싶어요’를 누르면 여기에 모여요.",
-  }[lastTab];
-  const emptyBtn = lastTab === "reading" ? `<button class="btn" type="button" data-go="#/add">책 등록하기</button>` : "";
-  return `<div class="topbar"><h1>내 서재</h1><span class="logo">BOOKTRACK</span>
-    <button class="iconbtn" type="button" data-go="#/settings" aria-label="설정과 백업">⚙</button></div>
+
+  let body = "";
+  if(lastTab === "done") body = doneShelf();
+  else {
+    const list = books.filter(tabs.find(t => t[0] === lastTab)[2]).sort((a, b) => (b.createdAt || "").localeCompare(a.createdAt || ""));
+    body = list.length ? `<div class="list">${list.map(bookCard).join("")}</div>` : emptyState(lastTab);
+  }
+
+  return `<header class="masthead">
+    <div class="top"><span class="eyebrow">${now.getMonth()+1}월 ${now.getDate()}일 ${WEEKDAYS[now.getDay()]}요일</span>
+      <button class="iconbtn" type="button" data-go="#/settings" aria-label="설정과 백업">${ICON_GEAR}</button></div>
+    <h1>내 서재</h1>
+    ${books.length ? `<div class="stats">
+      <div class="stat"><b class="mono">${reading.length}</b><span>읽는 중</span></div>
+      <div class="stat"><b class="mono">${doneThisYear}</b><span>${year}년에 다 읽음</span></div>
+      <div class="stat"><b class="mono">${quoteCount}</b><span>모은 글귀</span></div></div>` : ""}
+  </header>
   <div class="tabs" role="tablist">${tabs.map(([k, l, f]) =>
     `<button class="tab" role="tab" type="button" data-go="#/shelf/${k}" aria-selected="${k === lastTab}">${l}<span class="n">${books.filter(f).length}</span></button>`).join("")}</div>
-  <div class="list">${rows || `<div class="empty"><span>${empty}</span>${emptyBtn}</div>`}</div>`;
+  ${body}`;
+}
+
+// 읽는 중·추천 탭의 책 카드
+function bookCard(b){
+  const lastQuote = b.quotes[b.quotes.length - 1];
+  const snip = lastTab === "rec" && b.feeling ? b.feeling : lastQuote ? `“${lastQuote.text}”` : "";
+  const state = b.status === "done"
+    ? `<span>${fmtDate(b.finishedAt)} 다 읽음</span>`
+    : b.startedAt ? `<span>${fmtMonthDay(b.startedAt)}부터 읽는 중</span>` : "<span>읽는 중</span>";
+  return `<button class="card" type="button" data-open="${esc(b.id)}">${ribbonMark(b)}${cover(b, "md")}
+    <div class="info"><span class="kind">${esc(b.genre)}</span><h3>${esc(b.title)}</h3>
+    <span class="by">${esc([b.author, b.publisher].filter(Boolean).join(" · "))}</span>
+    ${snip ? `<div class="snip">${esc(snip)}</div>` : ""}
+    <div class="meta">${state}${b.quotes.length ? `<span>· 글귀 ${b.quotes.length}</span>` : ""}</div></div></button>`;
+}
+
+// 읽음 탭: 연도별 나무 책장
+function doneShelf(){
+  const done = books.filter(b => b.status === "done").sort((a, b) => (b.finishedAt || "").localeCompare(a.finishedAt || ""));
+  if(!done.length) return emptyState("done");
+  const byYear = new Map();
+  for(const b of done){
+    const y = b.finishedAt ? new Date(b.finishedAt).getFullYear() : "언젠가";
+    if(!byYear.has(y)) byYear.set(y, []);
+    byYear.get(y).push(b);
+  }
+  let html = "";
+  for(const [y, list] of byYear){
+    let rows = "";
+    for(let i = 0; i < list.length; i += 3){
+      rows += `<div class="shelf-row">${list.slice(i, i + 3).map(b =>
+        `<button class="spot" type="button" data-open="${esc(b.id)}" aria-label="${esc(b.title)}">${ribbonMark(b)}${cover(b, "fill")}</button>`).join("")}</div>`;
+    }
+    html += `<div class="year"><h2>${y}${typeof y === "number" ? "년" : ""}</h2><span>${list.length}권</span></div><div class="shelf">${rows}</div>`;
+  }
+  return html;
+}
+
+function emptyState(tab){
+  const msg = {
+    reading: books.length ? "지금 읽는 책이 없어요.<br>새 책을 펼쳐 볼까요?" : "아직 서재가 비어 있어요.<br>첫 책을 꽂아 볼까요?",
+    done: "다 읽은 책이 여기 책장에 꽂혀요.",
+    rec: "책 화면에서 ‘추천하고 싶어요’를 누르면<br>여기에 모여요.",
+  }[tab];
+  const btn = tab === "reading" ? `<button class="btn" type="button" data-go="#/add">책 등록하기</button>` : "";
+  return `<div class="empty">${EMPTY_ART}<p>${msg}</p>${btn}</div>`;
 }
 
 // ───────────────────────── 책 화면 ─────────────────────────
 function detailView(b){
   const done = b.status === "done";
-  const dates = [b.startedAt && `${fmtDate(b.startedAt)} 시작`, done && b.finishedAt && `${fmtDate(b.finishedAt)} 다 읽음`].filter(Boolean).join(" · ");
+  const dates = [b.startedAt && `${fmtDate(b.startedAt)} 시작`, done && b.finishedAt && `${fmtDate(b.finishedAt)} 다 읽음`].filter(Boolean).join("  ·  ");
   const longSummary = (b.summary || "").length > 80;
-  return `<div class="topbar"><button class="back" type="button" data-back aria-label="뒤로">←</button><h1 class="small">책 기록</h1>
-    <button class="btn ghost" type="button" data-go="#/edit/${encodeURIComponent(b.id)}" style="padding:7px 12px;font-size:14px">수정</button></div>
-  <div class="head">${cover(b, true)}<div class="t"><span class="chip">${esc(b.genre)}</span><h2>${esc(b.title)}</h2>
-    <span class="by">${esc([b.author, b.publisher].filter(Boolean).join(" · "))}</span></div></div>
+  return `<div class="hero" style="--c:${coverColor(b.title)}">
+    <div class="topbar"><button class="back" type="button" data-back aria-label="뒤로">${ICON_BACK}</button><span style="flex:1"></span>
+      <button class="btn ghost sm" type="button" data-go="#/edit/${encodeURIComponent(b.id)}">수정</button></div>
+    ${cover(b, "lg")}
+    <span class="kind">${esc(b.genre)}</span>
+    <h2>${esc(b.title)}</h2>
+    <span class="by">${esc([b.author, b.publisher].filter(Boolean).join(" · "))}</span>
+  </div>
   <div class="controls">
     <div class="seg" role="group" aria-label="읽기 상태">
       <button type="button" data-status="reading" aria-pressed="${!done}">읽는 중</button>
@@ -328,24 +462,23 @@ function detailView(b){
     </div>
     <button class="recbtn" type="button" data-rec aria-pressed="${b.rec}"><span class="mini"></span>${b.rec ? "추천 목록에 있어요" : "추천하고 싶어요"}</button>
   </div>
-  ${dates ? `<div class="dates mono">${dates}</div>` : ""}
+  <div class="dates mono">${dates}</div>
 
-  ${b.summary ? `<section class="block"><div class="label"><span>줄거리</span>${longSummary ? `<button class="linkbtn" type="button" data-more style="font-size:12px;letter-spacing:0">${summaryOpen ? "접기" : "더 보기"}</button>` : ""}</div>
+  ${b.summary ? `<section class="block"><div class="label">줄거리${longSummary ? `<span class="side"><button class="linkbtn" type="button" data-more>${summaryOpen ? "접기" : "더 보기"}</button></span>` : ""}</div>
     <p class="summary ${summaryOpen || !longSummary ? "" : "clamp"}">${esc(b.summary)}</p></section>` : ""}
 
   ${b.authorBio ? `<section class="block"><div class="label">작가 소개</div>
     <div class="author"><div class="avatar">${esc((b.author || "?")[0])}</div><div class="t"><strong>${esc(b.author)}</strong><span class="by">${esc(b.authorBio)}</span></div></div></section>` : ""}
 
-  <section class="block"><div class="label"><span>느낌</span><span class="hint" id="feel-state"></span></div>
+  <section class="block"><div class="label">느낌<span class="side" id="feel-state"></span></div>
     <textarea id="feel" class="feel" data-feel placeholder="이 책을 읽고 든 생각을 자유롭게 적어 보세요.">${esc(b.feeling)}</textarea>
   </section>
 
-  <section class="block"><div class="label"><span>글귀</span><span class="mono">${b.quotes.length}</span></div>
+  <section class="block"><div class="label">글귀<span class="side mono">${b.quotes.length}</span></div>
     <div class="list">${b.quotes.map(q => `<div class="quote"><p>${esc(q.text)}</p><div class="src">
-      <button class="del" type="button" data-delquote="${esc(q.id)}">지우기</button><span class="mono">${q.page ? "p." + esc(q.page) : ""}</span></div></div>`).join("")
-      || '<div class="empty" style="padding:14px">마음에 드는 문장을 남겨 보세요.</div>'}</div>
+      <button class="del" type="button" data-delquote="${esc(q.id)}">지우기</button><span class="mono">${q.page ? "p." + esc(q.page) : ""}</span></div></div>`).join("")}</div>
     <form class="qadd" data-qform>
-      <textarea id="qtext" rows="2" placeholder="마음에 든 문장" required></textarea>
+      <textarea id="qtext" rows="2" placeholder="마음에 든 문장을 옮겨 적어 보세요" required></textarea>
       <div class="r"><input id="qpage" class="field mono" type="number" min="1" placeholder="쪽" inputmode="numeric"><button class="btn" type="submit" style="flex:1">글귀 남기기</button></div>
     </form>
   </section>
@@ -357,36 +490,47 @@ function detailView(b){
 function formView(b){
   const isNew = !b;
   b = b || {title: "", author: "", publisher: "", genre: "소설", summary: "", authorBio: "", status: "reading", rec: false};
-  return `<div class="topbar"><button class="back" type="button" data-back aria-label="뒤로">←</button><h1>${isNew ? "책 등록" : "책 정보 수정"}</h1></div>
-  ${isNew ? `<div class="soon"><div>바코드 찍기<small>다음 단계에서 나와요</small></div><div>표지 찍기<small>다음 단계에서 나와요</small></div></div>` : ""}
+  return `<div class="topbar"><button class="back" type="button" data-back aria-label="뒤로">${ICON_BACK}</button><h1>${isNew ? "책 등록" : "책 정보 수정"}</h1></div>
+  ${isNew ? `<div class="ways">
+    <div class="way">바코드<small>곧 나와요</small></div>
+    <div class="way">표지 사진<small>곧 나와요</small></div>
+    <div class="way on">직접 입력<small>지금 쓰는 중</small></div></div>` : ""}
   <form class="form" data-bookform>
-    <label>책 제목<input id="f-title" class="field" value="${esc(b.title)}" required autocomplete="off"></label>
-    <label>지은이<input id="f-author" class="field" value="${esc(b.author)}" autocomplete="off"></label>
-    <label>출판사<input id="f-publisher" class="field" value="${esc(b.publisher)}" autocomplete="off"></label>
-    <label>종류<select id="f-genre" class="field">${GENRES.map(g => `<option${g === b.genre ? " selected" : ""}>${g}</option>`).join("")}</select></label>
-    ${isNew ? `<div class="seg" role="group" aria-label="읽기 상태">
-      <button type="button" data-fstatus="reading" aria-pressed="true">읽는 중</button>
-      <button type="button" data-fstatus="done" aria-pressed="false">다 읽음</button></div>
-    <label class="check"><input id="f-rec" type="checkbox"> 추천 목록에도 넣기</label>` : ""}
-    <label>줄거리 <span class="opt">(안 써도 돼요)</span><textarea id="f-summary" rows="4">${esc(b.summary)}</textarea></label>
-    <label>작가 소개 <span class="opt">(안 써도 돼요)</span><textarea id="f-bio" rows="3">${esc(b.authorBio)}</textarea></label>
-    <button class="btn wide" type="submit">${isNew ? "서재에 넣기" : "저장하기"}</button>
+    <div class="group">
+      <label>책 제목<input id="f-title" class="field" value="${esc(b.title)}" required autocomplete="off"></label>
+      <label>지은이<input id="f-author" class="field" value="${esc(b.author)}" autocomplete="off"></label>
+      <label>출판사<input id="f-publisher" class="field" value="${esc(b.publisher)}" autocomplete="off"></label>
+      <label>종류<select id="f-genre" class="field">${GENRES.map(g => `<option${g === b.genre ? " selected" : ""}>${g}</option>`).join("")}</select></label>
+    </div>
+    ${isNew ? `<div class="group">
+      <div class="seg" role="group" aria-label="읽기 상태">
+        <button type="button" data-fstatus="reading" aria-pressed="true">읽는 중</button>
+        <button type="button" data-fstatus="done" aria-pressed="false">다 읽음</button></div>
+      <label class="check"><input id="f-rec" type="checkbox"> 추천 목록에도 넣기</label></div>` : ""}
+    <div class="group">
+      <label>줄거리 <span class="opt">안 써도 돼요</span><textarea id="f-summary" rows="4">${esc(b.summary)}</textarea></label>
+      <label>작가 소개 <span class="opt">안 써도 돼요</span><textarea id="f-bio" rows="3">${esc(b.authorBio)}</textarea></label>
+    </div>
+    <button class="btn wide" type="submit">${isNew ? "서재에 꽂기" : "저장하기"}</button>
   </form>`;
 }
 
 // ───────────────────────── 글귀 모음 ─────────────────────────
 function quotesView(){
   const all = books.flatMap(b => b.quotes.map(q => ({...q, b}))).sort((x, y) => (y.createdAt || "").localeCompare(x.createdAt || ""));
-  return `<div class="topbar"><h1>글귀 모음</h1><span class="logo mono">${all.length}개</span></div>
+  return `<header class="masthead"><span class="eyebrow">마음에 남은 문장들</span><h1>글귀 모음</h1>
+    ${all.length ? `<div class="stats"><div class="stat"><b class="mono">${all.length}</b><span>글귀</span></div>
+      <div class="stat"><b class="mono">${new Set(all.map(q => q.b.id)).size}</b><span>권에서</span></div></div>` : ""}</header>
   <div class="list">${all.map(q => `<button class="quote" type="button" data-open="${esc(q.b.id)}"><p>${esc(q.text)}</p>
-    <div class="src"><span>『${esc(q.b.title)}』 ${esc(q.b.author)}</span><span class="mono">${q.page ? "p." + esc(q.page) : ""}</span></div></button>`).join("")
-    || '<div class="empty">책 화면에서 남긴 글귀가 여기에 모여요.</div>'}</div>`;
+    <div class="src"><span class="book" style="--c:${coverColor(q.b.title)}"><i></i><span>『${esc(q.b.title)}』 ${esc(q.b.author)}</span></span>
+    <span class="mono">${q.page ? "p." + esc(q.page) : ""}</span></div></button>`).join("")
+    || `<div class="empty">${EMPTY_ART}<p>책 화면에서 남긴 글귀가<br>여기에 모여요.</p></div>`}</div>`;
 }
 
 // ───────────────────────── 설정과 백업 ─────────────────────────
 function settingsView(){
   const qCount = books.reduce((n, b) => n + b.quotes.length, 0);
-  return `<div class="topbar"><button class="back" type="button" data-back aria-label="뒤로">←</button><h1>설정과 백업</h1></div>
+  return `<div class="topbar"><button class="back" type="button" data-back aria-label="뒤로">${ICON_BACK}</button><h1>설정과 백업</h1></div>
   <div class="list">
     <div class="panel"><strong>기록은 이 폰 안에만 저장돼요</strong>
       <p>로그인이 없고, 기록을 서버로 보내지 않아요. 대신 앱을 지우거나 폰을 바꾸면 기록이 사라지니, 가끔 백업 파일을 만들어 두세요.</p>
@@ -465,7 +609,7 @@ document.addEventListener("click", e => {
   if(t.dataset.status){
     if(cur.status === t.dataset.status) return;
     cur.status = t.dataset.status;
-    if(cur.status === "done"){ cur.finishedAt = nowIso(); toast("다 읽은 책으로 옮겼어요"); }
+    if(cur.status === "done"){ cur.finishedAt = nowIso(); toast("다 읽은 책장에 꽂았어요"); }
     else { cur.finishedAt = ""; toast("읽는 중으로 옮겼어요"); }
     saveBook(cur); return render();
   }
@@ -481,7 +625,7 @@ document.addEventListener("click", e => {
     }, true);
   }
   if(t.hasAttribute("data-delbook")){
-    return ask(`『${esc(cur.title)}』을(를) 지울까요?<br><small style="color:var(--ink-soft)">느낌과 글귀도 함께 지워지고, 되돌릴 수 없어요.</small>`, "지우기", async () => {
+    return ask(`『${esc(cur.title)}』을(를) 지울까요?<br><small style="color:var(--ink-soft);font-family:var(--f-body);font-size:13px">느낌과 글귀도 함께 지워지고, 되돌릴 수 없어요.</small>`, "지우기", async () => {
       books = books.filter(b => b !== cur);
       try { await dbDelete(cur.id); } catch(e){ console.error(e); }
       toast("책을 지웠어요"); goReplace("#/shelf/" + lastTab);
@@ -529,7 +673,7 @@ document.addEventListener("submit", async e => {
         startedAt: nowIso(), finishedAt: done ? nowIso() : "", quotes: [], createdAt: nowIso()});
       books.push(b); await saveBook(b);
       lastTab = done ? "done" : "reading";
-      toast("서재에 넣었어요"); goReplace("#/book/" + encodeURIComponent(b.id));
+      toast("서재에 꽂았어요"); goReplace("#/book/" + encodeURIComponent(b.id));
     }
   }
 });
@@ -545,7 +689,7 @@ $("#import-file").addEventListener("change", e => {
   catch(e){ console.error(e); toast("기록을 불러오지 못했어요"); }
   // 브라우저가 저장 공간을 마음대로 비우지 않게 요청
   if(navigator.storage && navigator.storage.persist) navigator.storage.persist().catch(() => {});
-  render();
+  render(true);
 })();
 
 if("serviceWorker" in navigator) window.addEventListener("load", () => navigator.serviceWorker.register("sw.js").catch(() => {}));
