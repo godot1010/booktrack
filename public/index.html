@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>북트랙</title>
-<meta name="description" content="읽는 책, 읽은 책, 추천하고 싶은 책과 느낌·글귀를 모아 두는 독서 기록장">
+<meta name="description" content="읽는 책, 읽은 책, 추천하고 싶은 책과 느낌·밑줄 친 문장을 모아 두는 독서 기록장">
 <meta name="theme-color" content="#f1e9d8" media="(prefers-color-scheme: light)">
 <meta name="theme-color" content="#1c1915" media="(prefers-color-scheme: dark)">
 <link rel="manifest" href="manifest.json">
@@ -154,7 +154,7 @@ textarea,.field{width:100%;background:var(--sheet);border:1px solid var(--rule);
 textarea.feel{min-height:160px;font-family:var(--f-display);line-height:32px;padding:4px 14px;border-radius:4px;
   background:repeating-linear-gradient(180deg,transparent 0 31px,var(--rule) 31px 32px) var(--sheet);background-attachment:local;background-position:0 4px}
 
-/* ── 글귀 */
+/* ── 밑줄 (마음에 든 문장) */
 .quote{background:var(--sheet);border:1px solid var(--rule);border-radius:4px;padding:18px 18px 12px 18px;display:flex;flex-direction:column;gap:10px;text-align:left;width:100%;position:relative}
 .quote::before{content:"“";position:absolute;top:2px;left:12px;font-family:var(--f-display);font-size:46px;line-height:1;color:var(--accent);opacity:.28}
 .quote p{margin:0;font-family:var(--f-display);font-size:16.5px;line-height:1.9;white-space:pre-wrap;overflow-wrap:anywhere;padding-left:14px}
@@ -219,7 +219,7 @@ nav.bottom .add{background:var(--ribbon);color:#fbf6ea;width:56px;height:56px;bo
     <button id="nav-add" class="add" type="button" aria-label="책 등록">
       <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg></button>
     <button id="nav-quotes" type="button">
-      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 5h16v11H9l-5 4z"/><path d="M8.5 9.5h7M8.5 12.5h4"/></svg>글귀 모음</button>
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 4v7a5 5 0 0 0 10 0V4"/><path d="M4 20h16" stroke-width="2.2"/></svg>밑줄</button>
   </div>
 </nav>
 <div id="toast" class="toast" role="status" hidden></div>
@@ -389,7 +389,7 @@ function shelfView(){
     ${books.length ? `<div class="stats">
       <div class="stat"><b class="mono">${reading.length}</b><span>읽는 중</span></div>
       <div class="stat"><b class="mono">${doneThisYear}</b><span>${year}년에 다 읽음</span></div>
-      <div class="stat"><b class="mono">${quoteCount}</b><span>모은 글귀</span></div></div>` : ""}
+      <div class="stat"><b class="mono">${quoteCount}</b><span>밑줄 친 문장</span></div></div>` : ""}
   </header>
   <div class="tabs" role="tablist">${tabs.map(([k, l, f]) =>
     `<button class="tab" role="tab" type="button" data-go="#/shelf/${k}" aria-selected="${k === lastTab}">${l}<span class="n">${books.filter(f).length}</span></button>`).join("")}</div>
@@ -407,7 +407,7 @@ function bookCard(b){
     <div class="info"><span class="kind">${esc(b.genre)}</span><h3>${esc(b.title)}</h3>
     <span class="by">${esc([b.author, b.publisher].filter(Boolean).join(" · "))}</span>
     ${snip ? `<div class="snip">${esc(snip)}</div>` : ""}
-    <div class="meta">${state}${b.quotes.length ? `<span>· 글귀 ${b.quotes.length}</span>` : ""}</div></div></button>`;
+    <div class="meta">${state}${b.quotes.length ? `<span>· 밑줄 ${b.quotes.length}</span>` : ""}</div></div></button>`;
 }
 
 // 읽음 탭: 연도별 나무 책장
@@ -474,12 +474,12 @@ function detailView(b){
     <textarea id="feel" class="feel" data-feel placeholder="이 책을 읽고 든 생각을 자유롭게 적어 보세요.">${esc(b.feeling)}</textarea>
   </section>
 
-  <section class="block"><div class="label">글귀<span class="side mono">${b.quotes.length}</span></div>
+  <section class="block"><div class="label">밑줄<span class="side mono">${b.quotes.length}</span></div>
     <div class="list">${b.quotes.map(q => `<div class="quote"><p>${esc(q.text)}</p><div class="src">
       <button class="del" type="button" data-delquote="${esc(q.id)}">지우기</button><span class="mono">${q.page ? "p." + esc(q.page) : ""}</span></div></div>`).join("")}</div>
     <form class="qadd" data-qform>
       <textarea id="qtext" rows="2" placeholder="마음에 든 문장을 옮겨 적어 보세요" required></textarea>
-      <div class="r"><input id="qpage" class="field mono" type="number" min="1" placeholder="쪽" inputmode="numeric"><button class="btn" type="submit" style="flex:1">글귀 남기기</button></div>
+      <div class="r"><input id="qpage" class="field mono" type="number" min="1" placeholder="쪽" inputmode="numeric"><button class="btn" type="submit" style="flex:1">밑줄 긋기</button></div>
     </form>
   </section>
 
@@ -515,16 +515,16 @@ function formView(b){
   </form>`;
 }
 
-// ───────────────────────── 글귀 모음 ─────────────────────────
+// ───────────────────────── 밑줄 친 문장 모음 ─────────────────────────
 function quotesView(){
   const all = books.flatMap(b => b.quotes.map(q => ({...q, b}))).sort((x, y) => (y.createdAt || "").localeCompare(x.createdAt || ""));
-  return `<header class="masthead"><span class="eyebrow">마음에 남은 문장들</span><h1>글귀 모음</h1>
-    ${all.length ? `<div class="stats"><div class="stat"><b class="mono">${all.length}</b><span>글귀</span></div>
+  return `<header class="masthead"><span class="eyebrow">읽다가 멈춘 자리</span><h1>밑줄 친 문장</h1>
+    ${all.length ? `<div class="stats"><div class="stat"><b class="mono">${all.length}</b><span>문장</span></div>
       <div class="stat"><b class="mono">${new Set(all.map(q => q.b.id)).size}</b><span>권에서</span></div></div>` : ""}</header>
   <div class="list">${all.map(q => `<button class="quote" type="button" data-open="${esc(q.b.id)}"><p>${esc(q.text)}</p>
     <div class="src"><span class="book" style="--c:${coverColor(q.b.title)}"><i></i><span>『${esc(q.b.title)}』 ${esc(q.b.author)}</span></span>
     <span class="mono">${q.page ? "p." + esc(q.page) : ""}</span></div></button>`).join("")
-    || `<div class="empty">${EMPTY_ART}<p>책 화면에서 남긴 글귀가<br>여기에 모여요.</p></div>`}</div>`;
+    || `<div class="empty">${EMPTY_ART}<p>책 화면에서 밑줄 그은 문장이<br>여기에 모여요.</p></div>`}</div>`;
 }
 
 // ───────────────────────── 설정과 백업 ─────────────────────────
@@ -534,7 +534,7 @@ function settingsView(){
   <div class="list">
     <div class="panel"><strong>기록은 이 폰 안에만 저장돼요</strong>
       <p>로그인이 없고, 기록을 서버로 보내지 않아요. 대신 앱을 지우거나 폰을 바꾸면 기록이 사라지니, 가끔 백업 파일을 만들어 두세요.</p>
-      <p class="mono">책 ${books.length}권 · 글귀 ${qCount}개</p></div>
+      <p class="mono">책 ${books.length}권 · 밑줄 ${qCount}개</p></div>
     <div class="panel"><strong>백업 파일 만들기</strong>
       <p>지금까지의 기록을 파일 하나로 저장해요. 카톡 나에게 보내기나 드라이브에 올려 두면 안전해요.</p>
       <button class="btn" type="button" data-export>백업 파일 저장</button></div>
@@ -620,12 +620,12 @@ document.addEventListener("click", e => {
   if(t.hasAttribute("data-more")){ summaryOpen = !summaryOpen; return render(); }
   if(t.dataset.delquote){
     const id = t.dataset.delquote;
-    return ask("이 글귀를 지울까요?", "지우기", () => {
-      cur.quotes = cur.quotes.filter(q => q.id !== id); saveBook(cur); render(); toast("글귀를 지웠어요");
+    return ask("이 밑줄을 지울까요?", "지우기", () => {
+      cur.quotes = cur.quotes.filter(q => q.id !== id); saveBook(cur); render(); toast("밑줄을 지웠어요");
     }, true);
   }
   if(t.hasAttribute("data-delbook")){
-    return ask(`『${esc(cur.title)}』을(를) 지울까요?<br><small style="color:var(--ink-soft);font-family:var(--f-body);font-size:13px">느낌과 글귀도 함께 지워지고, 되돌릴 수 없어요.</small>`, "지우기", async () => {
+    return ask(`『${esc(cur.title)}』을(를) 지울까요?<br><small style="color:var(--ink-soft);font-family:var(--f-body);font-size:13px">느낌과 밑줄도 함께 지워지고, 되돌릴 수 없어요.</small>`, "지우기", async () => {
       books = books.filter(b => b !== cur);
       try { await dbDelete(cur.id); } catch(e){ console.error(e); }
       toast("책을 지웠어요"); goReplace("#/shelf/" + lastTab);
@@ -653,7 +653,7 @@ document.addEventListener("submit", async e => {
     const cur = findBook(r.arg); if(!cur) return;
     const text = $("#qtext").value.trim(); if(!text) return;
     cur.quotes.push({id: newId(), text, page: $("#qpage").value.trim(), createdAt: nowIso()});
-    await saveBook(cur); render(); toast("글귀를 남겼어요");
+    await saveBook(cur); render(); toast("밑줄을 그었어요");
   }
 
   if(f.hasAttribute("data-bookform")){
