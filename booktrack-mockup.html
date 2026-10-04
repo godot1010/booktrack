@@ -1,0 +1,391 @@
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>북트랙 화면 시안</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Gowun+Batang:wght@400;700&family=Gowun+Dodum&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* 레이아웃: 폰 한 화면(최대 440px) 가운데 정렬, 아래쪽 고정 메뉴. 종이 위에 잉크와 책갈피 리본 */
+:root{
+  --paper:#f1e9d8; --sheet:#fbf6ea; --ink:#2a251f; --ink-soft:#6b6152;
+  --rule:#d8cbb2; --accent:#2f4a6d; --accent-soft:#dfe5ec; --ribbon:#9b2f3a;
+  --shade:rgba(42,37,31,.08); --scrim:rgba(20,16,12,.45);
+  --f-display:"Gowun Batang","Nanum Myeongjo",serif;
+  --f-body:"Gowun Dodum","Apple SD Gothic Neo","Malgun Gothic",sans-serif;
+  --f-mono:"IBM Plex Mono",ui-monospace,Consolas,monospace;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --paper:#1c1915; --sheet:#25211c; --ink:#ece2cf; --ink-soft:#a99c86;
+  --rule:#3c352c; --accent:#93b1d6; --accent-soft:#2b3440; --ribbon:#d46c75;
+  --shade:rgba(0,0,0,.3); --scrim:rgba(0,0,0,.6); color-scheme:dark}}
+:root[data-theme="dark"]{
+  --paper:#1c1915; --sheet:#25211c; --ink:#ece2cf; --ink-soft:#a99c86;
+  --rule:#3c352c; --accent:#93b1d6; --accent-soft:#2b3440; --ribbon:#d46c75;
+  --shade:rgba(0,0,0,.3); --scrim:rgba(0,0,0,.6); color-scheme:dark}
+
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+html,body{height:100%}
+body{background:var(--paper);color:var(--ink);font-family:var(--f-body);font-size:15px;line-height:1.6;padding-inline:16px}
+.app{max-width:440px;margin:0 auto;padding-block:8px 96px}
+button,input,textarea{font:inherit;color:inherit}
+button{cursor:pointer}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+h1,h2,h3{font-family:var(--f-display);text-wrap:balance;margin:0;font-weight:700}
+
+.note{font-size:12px;color:var(--ink-soft);border:1px dashed var(--rule);border-radius:6px;padding:6px 10px;margin-block:4px 14px}
+.topbar{display:flex;align-items:center;gap:10px;padding-block:6px 12px}
+.topbar h1{font-size:24px;flex:1;min-width:0}
+.logo{font-family:var(--f-display);font-size:13px;letter-spacing:.12em;color:var(--ink-soft)}
+.back{border:0;background:none;font-size:22px;padding:2px 8px 2px 0;color:var(--ink)}
+
+/* 서재 탭 */
+.tabs{display:flex;gap:4px;border-bottom:1px solid var(--rule);margin-bottom:14px}
+.tab{flex:1;border:0;background:none;padding:10px 4px;font-size:15px;color:var(--ink-soft);border-bottom:2px solid transparent;margin-bottom:-1px}
+.tab[aria-selected="true"]{color:var(--ink);border-bottom-color:var(--accent);font-weight:700}
+.tab .n{font-family:var(--f-mono);font-size:12px;margin-left:4px}
+
+/* 책 목록 */
+.list{display:flex;flex-direction:column;gap:10px}
+.row{display:flex;gap:14px;align-items:flex-start;text-align:left;width:100%;background:var(--sheet);border:1px solid var(--rule);border-radius:4px;padding:12px;position:relative}
+.row .info{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px}
+.row h3{font-size:17px;line-height:1.35}
+.by{font-size:13px;color:var(--ink-soft)}
+.meta{font-size:13px;color:var(--ink-soft);margin-top:4px;display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.mono{font-family:var(--f-mono);font-variant-numeric:tabular-nums}
+.progress{height:4px;background:var(--rule);border-radius:2px;margin-top:8px;overflow:hidden}
+.progress i{display:block;height:100%;background:var(--accent)}
+.ribbon{position:absolute;top:-1px;right:14px;width:12px;height:22px;background:var(--ribbon);clip-path:polygon(0 0,100% 0,100% 100%,50% 75%,0 100%)}
+.empty{text-align:center;color:var(--ink-soft);padding:40px 10px}
+
+/* 표지 (사진 대신 색 블록) */
+.cover{flex:none;width:54px;height:78px;border-radius:2px 4px 4px 2px;padding:6px 5px 6px 9px;color:#fbf6ea;font-family:var(--f-display);font-size:10px;line-height:1.3;position:relative;overflow:hidden;box-shadow:2px 2px 0 var(--shade)}
+.cover::before{content:"";position:absolute;left:3px;top:0;bottom:0;width:1px;background:rgba(255,255,255,.35)}
+.cover.big{width:96px;height:138px;font-size:14px;padding:10px 8px 10px 14px}
+
+.stars{color:var(--ribbon);letter-spacing:1px}
+.chip{font-size:12px;line-height:1.5;padding:0 7px;border-radius:3px;border:1px solid var(--accent);color:var(--accent);align-self:flex-start;white-space:nowrap}
+.clamp{display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
+.summary{font-family:var(--f-display);line-height:1.85;margin:0}
+.author{display:flex;gap:12px;background:var(--sheet);border:1px solid var(--rule);border-radius:4px;padding:12px}
+.author .t{min-width:0;display:flex;flex-direction:column;gap:2px;font-size:14px}
+.avatar{flex:none;width:40px;height:40px;border-radius:50%;background:var(--accent-soft);color:var(--accent);display:flex;align-items:center;justify-content:center;font-family:var(--f-display);font-weight:700}
+.from{font-size:11px;color:var(--ink-soft);margin-top:6px}
+.cover-guide{width:46%;height:82%;border:2px solid rgba(251,246,234,.8);border-radius:4px;position:relative;display:flex;align-items:center;justify-content:center;color:rgba(251,246,234,.35);font-family:var(--f-display);font-size:13px;text-align:center;padding:10px}
+
+/* 상세 */
+.head{display:flex;gap:16px;align-items:flex-end;margin-bottom:16px}
+.head .t{min-width:0;display:flex;flex-direction:column;gap:4px}
+.head h2{font-size:22px;line-height:1.3}
+.isbn{font-family:var(--f-mono);font-size:11px;color:var(--ink-soft);letter-spacing:.04em}
+.seg{display:flex;border:1px solid var(--rule);border-radius:4px;overflow:hidden;background:var(--sheet)}
+.seg button{flex:1;border:0;background:none;padding:9px;font-size:14px;color:var(--ink-soft)}
+.seg button[aria-pressed="true"]{background:var(--accent);color:var(--sheet);font-weight:700}
+.controls{display:flex;flex-direction:column;gap:10px;margin-bottom:20px}
+.recbtn{display:flex;align-items:center;justify-content:center;gap:8px;border:1px solid var(--rule);background:var(--sheet);border-radius:4px;padding:9px;font-size:14px;color:var(--ink-soft)}
+.recbtn[aria-pressed="true"]{border-color:var(--ribbon);color:var(--ribbon);font-weight:700}
+.recbtn .mini{width:9px;height:15px;background:currentColor;clip-path:polygon(0 0,100% 0,100% 100%,50% 75%,0 100%)}
+
+section.block{margin-bottom:24px}
+.label{font-size:12px;letter-spacing:.14em;color:var(--ink-soft);margin-bottom:8px;display:flex;justify-content:space-between;align-items:baseline}
+
+/* 도서관 대출카드 모양 기록 */
+.card{background:var(--sheet);border:1px solid var(--rule);border-radius:2px;position:relative;
+  background-image:repeating-linear-gradient(to bottom,transparent 0 39px,var(--rule) 39px 40px);padding:0 14px}
+.card .line{display:flex;justify-content:space-between;align-items:center;height:40px;font-size:14px;gap:10px}
+.card .line span:first-child{color:var(--ink-soft)}
+.card input[type=number]{width:64px;text-align:right;border:0;border-bottom:1px solid var(--accent);background:none;font-family:var(--f-mono);padding:0 2px}
+.stamp{position:absolute;right:14px;bottom:10px;transform:rotate(-9deg);border:2px solid var(--ribbon);color:var(--ribbon);border-radius:50%;width:84px;height:84px;display:flex;flex-direction:column;align-items:center;justify-content:center;font-family:var(--f-display);font-weight:700;font-size:15px;line-height:1.2;opacity:.85;background:var(--sheet)}
+.stamp small{font-family:var(--f-mono);font-size:10px;font-weight:400}
+
+.rate{display:flex;gap:2px}
+.rate button{border:0;background:none;font-size:26px;padding:0 2px;color:var(--rule)}
+.rate button.on{color:var(--ribbon)}
+textarea,.field{width:100%;background:var(--sheet);border:1px solid var(--rule);border-radius:4px;padding:10px 12px;resize:vertical}
+textarea.feel{min-height:90px;font-family:var(--f-display);line-height:1.8}
+
+/* 글귀 */
+.quote{background:var(--sheet);border:1px solid var(--rule);border-radius:2px;padding:14px 16px 12px;display:flex;flex-direction:column;gap:8px;text-align:left;width:100%}
+.quote p{margin:0;font-family:var(--f-display);font-size:16px;line-height:1.85}
+.quote p::before{content:"“";color:var(--accent);font-size:22px;line-height:0;margin-right:2px;vertical-align:-6px}
+.quote .src{font-size:12px;color:var(--ink-soft);display:flex;justify-content:space-between;gap:8px}
+.qadd{display:flex;flex-direction:column;gap:8px;margin-top:10px}
+.qadd .r{display:flex;gap:8px}
+.qadd .r input{width:90px}
+.btn{border:0;border-radius:4px;padding:11px 16px;background:var(--accent);color:var(--sheet);font-weight:700;font-size:15px}
+.btn.ghost{background:none;border:1px solid var(--rule);color:var(--ink)}
+.btn.wide{width:100%}
+.linkbtn{border:0;background:none;color:var(--accent);text-decoration:underline;text-underline-offset:3px;padding:4px}
+
+/* 바코드 화면 */
+.viewfinder{background:#16130f;border-radius:6px;aspect-ratio:4/3;max-width:100%;position:relative;overflow:hidden;display:flex;align-items:center;justify-content:center;margin-bottom:14px}
+.frame{width:72%;height:40%;border:2px solid rgba(251,246,234,.8);border-radius:6px;position:relative;display:flex;align-items:center;justify-content:center}
+.bars{width:80%;height:60%;background:repeating-linear-gradient(90deg,#fbf6ea 0 2px,transparent 2px 4px,#fbf6ea 4px 5px,transparent 5px 8px,#fbf6ea 8px 11px,transparent 11px 13px);opacity:.25}
+.scanline{position:absolute;left:4%;right:4%;height:2px;background:#e0626c;box-shadow:0 0 8px #e0626c;top:50%}
+.scanning .scanline{animation:scan 1s ease-in-out infinite alternate}
+@keyframes scan{from{top:10%}to{top:90%}}
+@media (prefers-reduced-motion:reduce){.scanning .scanline{animation:none}}
+.vf-text{position:absolute;bottom:10px;left:0;right:0;text-align:center;color:rgba(251,246,234,.85);font-size:13px}
+.found{background:var(--sheet);border:1px solid var(--rule);border-radius:4px;padding:14px;display:flex;flex-direction:column;gap:14px}
+.found .top{display:flex;gap:14px}
+.found .top .t{min-width:0;display:flex;flex-direction:column;gap:2px}
+.src-tag{font-size:12px;color:var(--accent);background:var(--accent-soft);border-radius:3px;padding:2px 8px;align-self:flex-start}
+.choose{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.check{display:flex;align-items:center;gap:8px;font-size:14px}
+.form{display:flex;flex-direction:column;gap:10px}
+.form label{font-size:13px;color:var(--ink-soft);display:flex;flex-direction:column;gap:4px}
+
+/* 아래 메뉴 */
+nav.bottom{position:fixed;left:0;right:0;bottom:0;background:var(--sheet);border-top:1px solid var(--rule);padding:6px 16px calc(6px + env(safe-area-inset-bottom,0px));z-index:5}
+nav.bottom .in{max-width:440px;margin:0 auto;display:grid;grid-template-columns:1fr auto 1fr;align-items:center}
+nav.bottom button{border:0;background:none;padding:8px;font-size:13px;color:var(--ink-soft);display:flex;flex-direction:column;align-items:center;gap:2px}
+nav.bottom button[aria-current="page"]{color:var(--ink);font-weight:700}
+nav.bottom .ico{font-family:var(--f-display);font-size:18px;line-height:1}
+nav.bottom .add{background:var(--accent);color:var(--sheet);width:52px;height:52px;border-radius:50%;font-size:28px;line-height:1;justify-content:center;margin-top:-22px;box-shadow:0 3px 8px var(--shade);padding:0}
+
+/* 공유 미리보기 */
+.modal{position:fixed;inset:0;background:var(--scrim);display:flex;align-items:flex-end;justify-content:center;z-index:10;padding:16px}
+.sheet{background:var(--paper);border-radius:10px;padding:18px;max-width:420px;width:100%;display:flex;flex-direction:column;gap:14px;margin-bottom:env(safe-area-inset-bottom,0px)}
+.share-card{background:var(--sheet);border:1px solid var(--rule);border-radius:6px;padding:16px;display:flex;flex-direction:column;gap:12px}
+.share-card .top{display:flex;gap:12px;align-items:center}
+.share-card .top .t{min-width:0}
+.share-card .rec{font-size:12px;color:var(--ribbon);font-weight:700;letter-spacing:.08em}
+
+.toast{position:fixed;left:50%;bottom:90px;transform:translateX(-50%);background:var(--ink);color:var(--paper);padding:8px 16px;border-radius:20px;font-size:14px;z-index:20;max-width:calc(100% - 32px)}
+</style>
+
+<div class="app">
+  <div class="note">화면 시안이에요. 예시 책으로 채워 두었고, 새로고침하면 처음 상태로 돌아가요.</div>
+  <main id="view"></main>
+</div>
+
+<nav class="bottom" aria-label="메뉴">
+  <div class="in">
+    <button id="nav-shelf" type="button"><span class="ico">▤</span>내 서재</button>
+    <button id="nav-add" class="add" type="button" aria-label="책 등록">+</button>
+    <button id="nav-quotes" type="button"><span class="ico">“</span>글귀 모음</button>
+  </div>
+</nav>
+<div id="toast" class="toast" hidden></div>
+<div id="modal" class="modal" hidden></div>
+
+<script>
+// 예시 책 (가상의 책이에요)
+const books = [
+  {id:1,title:"바다 쪽으로 난 창",author:"윤서하",pub:"물결출판",isbn:"979-11-0000-101-2",color:"#3d5a73",genre:"소설",status:"reading",rec:false,page:142,total:288,start:"2026.09.18",end:"",rating:0,feeling:"",
+   summary:"바닷가 작은 마을로 돌아온 사진가 서윤은 오래 비어 있던 할머니의 집을 정리하다가 낡은 필름 한 통을 발견한다. 필름 속 사진을 한 장씩 인화하면서, 가족 누구도 입에 올리지 않던 어느 여름의 일이 조금씩 드러난다.",
+   bio:"1984년 부산에서 태어났다. 2015년 단편 「물결 아래」로 등단했고, 바다와 가족을 다룬 소설을 주로 쓴다.",
+   quotes:[{text:"창문은 바깥을 보여 주지만, 오래 들여다보면 결국 내 얼굴이 비친다.",page:57}]},
+  {id:2,title:"겨울 도서관",author:"한지오",pub:"새벽책방",isbn:"979-11-0000-102-9",color:"#5b6b4a",genre:"수필",status:"reading",rec:false,page:56,total:210,start:"2026.09.29",end:"",rating:0,feeling:"",
+   summary:"문을 닫기로 한 시골 도서관에서 마지막 겨울을 보낸 사서의 기록. 매일 같은 자리에 앉던 사람들, 반납되지 않은 책들, 난로 옆에서 나눈 이야기를 담았다.",
+   bio:"15년 동안 공공도서관 사서로 일했다. 지은 책으로 『책 빌려 가실래요』가 있다.",quotes:[]},
+  {id:3,title:"느린 우체국",author:"박온",pub:"오후의책",isbn:"979-11-0000-103-6",color:"#8a5a3b",genre:"소설",status:"done",rec:true,page:244,total:244,start:"2026.08.30",end:"2026.09.21",rating:5,
+   feeling:"편지를 1년 뒤에 받는다는 설정이 이렇게 따뜻할 줄 몰랐다. 엄마한테 꼭 권하고 싶다.",
+   summary:"편지를 정확히 1년 뒤에 배달하는 작은 우체국. 그곳에서 일하는 집배원이 1년 늦게 도착한 편지들을 전하며 만나는 사람들의 이야기.",
+   bio:"동화와 소설을 함께 쓴다. 『느린 우체국』은 첫 장편소설이다.",
+   quotes:[{text:"늦게 도착하는 말은, 늦게 도착해야만 들리는 말이다.",page:88},{text:"우리는 기다리는 동안 조금씩 다른 사람이 된다.",page:201}]},
+  {id:4,title:"작은 것들의 목록",author:"이도윤",pub:"나무숲",isbn:"979-11-0000-104-3",color:"#6d4a6a",genre:"수필",status:"done",rec:true,page:192,total:192,start:"2026.08.02",end:"2026.08.15",rating:4,
+   feeling:"하루에 하나씩 좋았던 걸 적어 보고 싶어졌다.",
+   summary:"1년 동안 매일 좋았던 것 하나를 적은 노트를 엮었다. 아침 빵 냄새, 버스 창밖 풍경처럼 작은 것들을 짧은 글로 모았다.",
+   bio:"회사를 다니며 틈틈이 글을 쓴다. 이 책이 첫 산문집이다.",
+   quotes:[{text:"행복은 큰 문이 아니라 여러 개의 작은 창으로 들어온다.",page:33}]},
+  {id:5,title:"밤의 산책자",author:"최유린",pub:"달빛문고",isbn:"979-11-0000-105-0",color:"#2f3a4f",genre:"시",status:"done",rec:false,page:120,total:120,start:"2026.07.10",end:"2026.07.31",rating:3,
+   feeling:"중반까지는 느렸지만 마지막 장은 좋았다.",
+   summary:"잠들지 못한 밤마다 동네를 걸으며 쓴 시 58편. 가로등, 편의점, 새벽 첫차처럼 도시의 밤 풍경이 담겼다.",
+   bio:"2018년 문예지로 등단한 시인. 밤과 걷기에 관한 시를 써 왔다.",quotes:[]},
+];
+const scanSample = {title:"오래된 정원의 지도",author:"정하람",pub:"이음책",isbn:"979-11-0000-106-7",color:"#4f6b63",genre:"시",total:136,
+  summary:"할머니의 정원을 지도 그리듯 계절마다 기록한 첫 시집. 피고 지는 꽃과 나무, 그 곁을 지킨 사람들을 짧은 시 62편에 담았다.",
+  bio:"2021년 신춘문예로 등단한 시인. 이 책이 첫 시집이다."};
+
+let route = {name:"shelf", tab:"reading"};
+let nextId = 10;
+const $ = s => document.querySelector(s);
+const esc = s => String(s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const today = () => { const d=new Date(); return `${d.getFullYear()}.${String(d.getMonth()+1).padStart(2,"0")}.${String(d.getDate()).padStart(2,"0")}`; };
+const cover = (b,big) => `<div class="cover${big?" big":""}" style="background:${b.color}">${esc(b.title)}</div>`;
+const stars = n => n ? `<span class="stars">${"★".repeat(n)}${"☆".repeat(5-n)}</span>` : "";
+
+function toast(msg){ const t=$("#toast"); t.textContent=msg; t.hidden=false; clearTimeout(toast.h); toast.h=setTimeout(()=>t.hidden=true,1800); }
+function go(r){ route=r; render(); window.scrollTo(0,0); }
+
+function render(){
+  const v=$("#view");
+  if(route.name==="shelf") v.innerHTML=shelf();
+  else if(route.name==="detail") v.innerHTML=detail(books.find(b=>b.id===route.id));
+  else if(route.name==="add") v.innerHTML=add();
+  else if(route.name==="quotes") v.innerHTML=quotes();
+  const cur = route.name==="quotes"?"nav-quotes":route.name==="add"?"":"nav-shelf";
+  ["nav-shelf","nav-quotes"].forEach(id=>{ const b=$("#"+id); if(id===cur) b.setAttribute("aria-current","page"); else b.removeAttribute("aria-current"); });
+}
+
+// ── 내 서재
+function shelf(){
+  const tabs=[["reading","읽는 중",b=>b.status==="reading"],["done","읽음",b=>b.status==="done"],["rec","추천",b=>b.rec]];
+  const [,,f]=tabs.find(t=>t[0]===route.tab);
+  const list=books.filter(f);
+  const rows=list.map(b=>{
+    let meta="";
+    const q=b.quotes.length?`<span>· 글귀 ${b.quotes.length}</span>`:"";
+    meta=`<div class="meta">${b.status==="done"?`<span class="mono">${b.end}</span><span>다 읽음</span>`:"<span>읽는 중</span>"}${q}</div>`;
+    return `<button class="row" type="button" data-open="${b.id}">${b.rec?'<span class="ribbon" aria-label="추천"></span>':""}${cover(b)}<div class="info"><span class="chip">${esc(b.genre)}</span><h3>${esc(b.title)}</h3><span class="by">${esc(b.author)} · ${esc(b.pub)}</span>${meta}</div></button>`;
+  }).join("");
+  const empty={reading:"지금 읽는 책이 없어요. 아래 + 를 눌러 책을 등록해 보세요.",done:"다 읽은 책이 여기에 쌓여요.",rec:"책 상세에서 ‘추천하고 싶어요’를 누르면 여기에 모여요."}[route.tab];
+  return `<div class="topbar"><h1>내 서재</h1><span class="logo">BOOKTRACK</span></div>
+  <div class="tabs" role="tablist">${tabs.map(([k,l,fn])=>`<button class="tab" role="tab" type="button" data-tab="${k}" aria-selected="${k===route.tab}">${l}<span class="n">${books.filter(fn).length}</span></button>`).join("")}</div>
+  <div class="list">${rows||`<div class="empty">${empty}</div>`}</div>`;
+}
+
+// ── 책 상세
+function detail(b){
+  const done=b.status==="done";
+  return `<div class="topbar"><button class="back" type="button" data-back aria-label="뒤로">←</button><h1 style="font-size:17px">책 기록</h1>
+    <button class="btn ghost" type="button" data-share style="padding:7px 12px;font-size:14px">공유</button></div>
+  <div class="head">${cover(b,true)}<div class="t"><span class="chip">${esc(b.genre)}</span><h2>${esc(b.title)}</h2><span class="by">${esc(b.author)} · ${esc(b.pub)}</span><span class="isbn">ISBN ${esc(b.isbn)}</span></div></div>
+  <div class="controls">
+    <div class="seg" role="group" aria-label="읽기 상태">
+      <button type="button" data-status="reading" aria-pressed="${!done}">읽는 중</button>
+      <button type="button" data-status="done" aria-pressed="${done}">다 읽음</button>
+    </div>
+    <button class="recbtn" type="button" data-rec aria-pressed="${b.rec}"><span class="mini"></span>${b.rec?"추천 목록에 있어요":"추천하고 싶어요"}</button>
+  </div>
+
+  ${b.summary?`<section class="block"><div class="label"><span>줄거리</span>${b.summary.length>70?`<button class="linkbtn" type="button" data-more style="font-size:12px;letter-spacing:0">${route.more?"접기":"더 보기"}</button>`:""}</div>
+    <p class="summary ${route.more?"":"clamp"}">${esc(b.summary)}</p>
+    <div class="from">책 소개에서 자동으로 가져왔어요</div>
+  </section>`:""}
+
+  ${b.bio?`<section class="block"><div class="label">작가 소개</div>
+    <div class="author"><div class="avatar">${esc(b.author[0])}</div><div class="t"><strong>${esc(b.author)}</strong><span class="by">${esc(b.bio)}</span></div></div>
+  </section>`:""}
+
+  <section class="block"><div class="label"><span>느낌</span></div>
+    <textarea id="feel-${b.id}" class="feel" data-feel placeholder="이 책을 읽고 든 생각을 자유롭게 적어 보세요.">${esc(b.feeling)}</textarea>
+  </section>
+
+  <section class="block"><div class="label"><span>글귀</span><span class="mono">${b.quotes.length}</span></div>
+    <div class="list">${b.quotes.map(q=>`<div class="quote"><p>${esc(q.text)}</p><div class="src"><span></span><span class="mono">p.${q.page}</span></div></div>`).join("")||'<div class="empty" style="padding:14px">마음에 드는 문장을 남겨 보세요.</div>'}</div>
+    <form class="qadd" data-qform>
+      <textarea id="qtext-${b.id}" rows="2" placeholder="마음에 든 문장" required></textarea>
+      <div class="r"><input id="qpage-${b.id}" class="field mono" type="number" min="1" placeholder="쪽" inputmode="numeric"><button class="btn" type="submit" style="flex:1">글귀 남기기</button></div>
+    </form>
+  </section>`;
+}
+
+// ── 책 등록
+function add(){
+  const st=route.stage||"scan";
+  if(st==="manual") return `<div class="topbar"><button class="back" type="button" data-goadd="scan" aria-label="뒤로">←</button><h1>직접 입력</h1></div>
+    <form class="form" data-manual>
+      <label>책 제목<input id="m-title" class="field" required></label>
+      <label>지은이<input id="m-author" class="field"></label>
+      <label>출판사<input id="m-pub" class="field"></label>
+      <label>종류<select id="m-genre" class="field"><option>소설</option><option>시</option><option>수필</option><option>인문</option><option>기타</option></select></label>
+      <label>전체 쪽수<input id="m-total" class="field mono" type="number" min="1" value="200"></label>
+      <button class="btn wide" type="submit">읽는 중으로 넣기</button>
+    </form>`;
+  const s=scanSample, cov=route.mode==="cover";
+  const waitText=cov?"표지 글자를 읽고 책을 찾는 중…":"바코드를 읽는 중…";
+  const idleText=cov?"책 앞표지가 네모 안에 다 들어오게 찍어 주세요":"책 뒷면 바코드를 네모 안에 맞춰 주세요";
+  return `<div class="topbar"><h1>책 등록</h1></div>
+  <div class="seg" role="group" aria-label="등록 방법" style="margin-bottom:12px">
+    <button type="button" data-mode="barcode" aria-pressed="${!cov}">바코드 찍기</button>
+    <button type="button" data-mode="cover" aria-pressed="${cov}">표지 찍기</button>
+  </div>
+  <div class="viewfinder ${st==="scanning"?"scanning":""}">
+    ${cov?`<div class="cover-guide">표지<div class="scanline"></div></div>`:`<div class="frame"><div class="bars"></div><div class="scanline"></div></div>`}
+    <div class="vf-text">${st==="scanning"?waitText:st==="found"?"찾았어요":idleText}</div>
+  </div>
+  ${st==="found"?`<div class="found">
+      <div class="top">${cover(s)}<div class="t"><span class="src-tag">책 정보를 불러왔어요</span><h3 style="font-size:18px">${esc(s.title)}</h3><span class="by">${esc(s.author)} · ${esc(s.pub)}</span><span class="isbn">ISBN ${s.isbn} · ${s.total}쪽</span></div></div>
+      <div style="display:flex;flex-direction:column;gap:6px"><span class="chip">${esc(s.genre)}</span><p class="summary clamp" style="font-size:14px">${esc(s.summary)}</p><span class="by">작가 소개도 함께 불러왔어요</span></div>
+      <label class="check"><input id="found-rec" type="checkbox"> 추천 목록에도 넣기</label>
+      <div class="choose"><button class="btn" type="button" data-addas="reading">읽는 중으로</button><button class="btn ghost" type="button" data-addas="done">다 읽은 책으로</button></div>
+    </div>`:`<button class="btn wide" type="button" data-scan ${st==="scanning"?"disabled":""}>${cov?"표지 찍기":"바코드 비추기"} (시안에서는 눌러서 흉내)</button>`}
+  <p style="text-align:center;margin-top:12px"><button class="linkbtn" type="button" data-goadd="manual">바코드가 없나요? 직접 입력하기</button></p>`;
+}
+
+// ── 글귀 모음
+function quotes(){
+  const all=books.flatMap(b=>b.quotes.map(q=>({...q,b})));
+  return `<div class="topbar"><h1>글귀 모음</h1><span class="logo mono">${all.length}개</span></div>
+  <div class="list">${all.map(q=>`<button class="quote" type="button" data-open="${q.b.id}"><p>${esc(q.text)}</p><div class="src"><span>『${esc(q.b.title)}』 ${esc(q.b.author)}</span><span class="mono">p.${q.page}</span></div></button>`).join("")||'<div class="empty">책 상세에서 남긴 글귀가 여기에 모여요.</div>'}</div>`;
+}
+
+// ── 공유 미리보기
+function share(b){
+  const m=$("#modal");
+  const q=b.quotes[0];
+  m.innerHTML=`<div class="sheet" role="dialog" aria-label="공유 미리보기">
+    <h3 style="font-size:17px">친구에게 이렇게 보여요</h3>
+    <div class="share-card">
+      ${b.rec?'<span class="rec">이 책을 추천해요</span>':""}
+      <div class="top">${cover(b)}<div class="t"><h3 style="font-size:17px">${esc(b.title)}</h3><span class="by">${esc(b.author)}</span><span class="chip" style="margin-top:4px">${esc(b.genre)}</span></div></div>
+      ${b.feeling?`<div style="font-family:var(--f-display)">${esc(b.feeling)}</div>`:""}
+      ${q?`<div class="quote" style="padding:10px 12px"><p style="font-size:14px">${esc(q.text)}</p></div>`:""}
+      <span class="by">북트랙에서 보냄 · 앱이 없어도 볼 수 있어요</span>
+    </div>
+    <div class="choose"><button class="btn ghost" type="button" data-close>닫기</button><button class="btn" type="button" data-close data-sent>카톡으로 보내기</button></div>
+  </div>`;
+  m.hidden=false;
+}
+
+// ── 클릭 처리
+document.addEventListener("click",e=>{
+  const t=e.target.closest("button"); if(!t) return;
+  const cur=route.name==="detail"?books.find(b=>b.id===route.id):null;
+  if(t.id==="nav-shelf") return go({name:"shelf",tab:route.tab||"reading"});
+  if(t.id==="nav-quotes") return go({name:"quotes"});
+  if(t.id==="nav-add") return go({name:"add",stage:"scan"});
+  if(t.dataset.tab) return go({name:"shelf",tab:t.dataset.tab});
+  if(t.dataset.open) return go({name:"detail",id:+t.dataset.open,from:route});
+  if(t.hasAttribute("data-back")) return go(route.from||{name:"shelf",tab:"reading"});
+  if(t.dataset.status&&cur){
+    cur.status=t.dataset.status;
+    if(cur.status==="done"){ cur.end=cur.end||today(); cur.page=cur.total; toast("다 읽은 책으로 옮겼어요"); }
+    else { cur.end=""; toast("읽는 중으로 옮겼어요"); }
+    return render();
+  }
+  if(t.hasAttribute("data-rec")&&cur){ cur.rec=!cur.rec; toast(cur.rec?"추천 목록에 넣었어요":"추천 목록에서 뺐어요"); return render(); }
+  if(t.dataset.rate&&cur){ cur.rating=+t.dataset.rate; return render(); }
+  if(t.hasAttribute("data-share")&&cur) return share(cur);
+  if(t.hasAttribute("data-close")){ $("#modal").hidden=true; if(t.hasAttribute("data-sent")) toast("시안이라 실제로 보내지는 않아요"); return; }
+  if(t.hasAttribute("data-scan")){ route.stage="scanning"; render(); setTimeout(()=>{ if(route.name==="add"&&route.stage==="scanning"){ route.stage="found"; render(); } },1400); return; }
+  if(t.dataset.goadd) return go({name:"add",stage:t.dataset.goadd,mode:route.mode});
+  if(t.dataset.mode) return go({name:"add",stage:"scan",mode:t.dataset.mode});
+  if(t.hasAttribute("data-more")){ route.more=!route.more; return render(); }
+  if(t.dataset.addas){
+    const s=scanSample, done=t.dataset.addas==="done";
+    const b={...s,id:nextId++,status:t.dataset.addas,rec:$("#found-rec").checked,page:done?s.total:0,start:today(),end:done?today():"",rating:0,feeling:"",quotes:[]};
+    books.unshift(b); toast("서재에 넣었어요");
+    return go({name:"detail",id:b.id,from:{name:"shelf",tab:done?"done":"reading"}});
+  }
+});
+document.getElementById("modal").addEventListener("click",e=>{ if(e.target.id==="modal") e.target.hidden=true; });
+
+document.addEventListener("input",e=>{
+  const cur=route.name==="detail"?books.find(b=>b.id===route.id):null; if(!cur) return;
+  if(e.target.hasAttribute("data-feel")) cur.feeling=e.target.value;
+});
+document.addEventListener("change",e=>{
+  const cur=route.name==="detail"?books.find(b=>b.id===route.id):null; if(!cur) return;
+  if(e.target.hasAttribute("data-page")){ cur.page=Math.max(0,Math.min(cur.total,+e.target.value||0)); toast(`p.${cur.page}까지 읽었어요`); }
+});
+document.addEventListener("submit",e=>{
+  e.preventDefault();
+  if(e.target.hasAttribute("data-qform")){
+    const cur=books.find(b=>b.id===route.id);
+    const text=$(`#qtext-${cur.id}`).value.trim(); if(!text) return;
+    cur.quotes.push({text,page:+$(`#qpage-${cur.id}`).value||"–"}); toast("글귀를 남겼어요"); render();
+  }
+  if(e.target.hasAttribute("data-manual")){
+    const title=$("#m-title").value.trim(); if(!title) return;
+    const colors=["#5a4a6d","#3f5f5a","#7a4b3a","#40536e"];
+    const b={id:nextId++,title,author:$("#m-author").value.trim()||"지은이 모름",pub:$("#m-pub").value.trim()||"출판사 모름",genre:$("#m-genre").value,isbn:"직접 입력",color:colors[nextId%4],status:"reading",rec:false,page:0,total:+$("#m-total").value||200,start:today(),end:"",rating:0,feeling:"",quotes:[]};
+    books.unshift(b); toast("서재에 넣었어요");
+    go({name:"detail",id:b.id,from:{name:"shelf",tab:"reading"}});
+  }
+});
+
+render();
+</script>

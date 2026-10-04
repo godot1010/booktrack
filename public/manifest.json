@@ -1,0 +1,16 @@
+{
+  "name": "북트랙",
+  "short_name": "북트랙",
+  "description": "읽는 책, 읽은 책, 추천하고 싶은 책과 느낌·글귀를 모아 두는 독서 기록장",
+  "lang": "ko",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#f1e9d8",
+  "theme_color": "#f1e9d8",
+  "icons": [
+    { "src": "icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "icon-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}
