@@ -67,5 +67,12 @@ booktrack-mockup.html      # 2단계 화면 시안 (배포 안 함)
 4. 표지 찍기(AI)
 5. 플레이스토어
 
+## 배포
+- GitHub: https://github.com/godot1010/booktrack (공개). Cloudflare **Pages** 프로젝트 `booktrack`
+  (새 'Workers' 만들기 화면이 아니라 'Pages로 계속'으로 만듦). 빌드 명령 없음, 출력 폴더 `public`.
+- 실제 사이트: https://booktrack.pages.dev (`main`) — 2026-10-04 기준 '준비 중' 화면만 있음.
+- 미리보기: https://preview.booktrack.pages.dev (`preview`) — 1단계 앱. 서비스 워커 정상 등록 확인.
+- 이 PC의 git은 저장소별 설정으로 user.name `godot1010`을 쓴다. push는 Windows 자격 증명으로 바로 됨.
+
 ## 배포 규칙
 미리보기 주소에 먼저 올린다 → 형이 폰으로 확인하고 "오케이"라고 하면 → 실제 사이트에 올린다.
