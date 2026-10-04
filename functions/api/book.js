@@ -13,7 +13,7 @@ export async function onRequestGet({ request, env, waitUntil }) {
   if (!/^(\d{13}|\d{9}[\dX])$/.test(isbn)) return json({ error: "bad_isbn" }, 400);
   if (!env.KAKAO_REST_API_KEY && !env.NL_CERT_KEY) return json({ error: "no_key" }, 500);
 
-  const cacheKey = new Request(`https://booktrack-cache/book/${isbn}?v=1`);
+  const cacheKey = new Request(`https://booktrack-cache/book/${isbn}?v=2`);
   const cache = caches.default;
   const hit = await cache.match(cacheKey);
   if (hit) return withHeader(hit, "x-booktrack-cache", "HIT");
@@ -59,7 +59,7 @@ async function fromKakao(isbn, key) {
       author: (d.authors || []).map(clean).filter(Boolean).join(", "),
       publisher: clean(d.publisher),
       cover: d.thumbnail ? d.thumbnail.replace(/^http:/, "https:") : "",
-      summary: clean(d.contents),
+      summary: trimmed(clean(d.contents)),
     };
   } catch (e) {
     return { failed: `kakao ${e.name}` };
@@ -101,6 +101,11 @@ function genreFrom(kdcRaw, addCode) {
   if (kdc.startsWith("199") || kdc.startsWith("325")) return "자기계발";
   if ("0129".includes(kdc[0]) || kdc[0] === "3") return "인문";
   return "";
+}
+
+// 카카오 책 소개는 중간에 잘려서 오므로, 문장이 안 끝났으면 말줄임표를 붙인다
+function trimmed(s) {
+  return s && !/[.!?。"'”’」』)]$/.test(s) ? s + "…" : s;
 }
 
 function clean(s) {
