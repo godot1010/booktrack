@@ -84,6 +84,10 @@ svg{display:block}
 .cover.l1 .ct{border-block:1px solid rgba(255,255,255,.45);padding-block:6% 7%}
 .cover.l2{justify-content:flex-end}
 .cover.l2 .ca{margin-top:0;order:-1;margin-bottom:auto}
+.cover img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.cover.has-img .ct,.cover.has-img .ca{visibility:hidden}
+.cover.has-img::after{background:linear-gradient(110deg,rgba(255,255,255,.14),transparent 35%,transparent 75%,rgba(0,0,0,.12))}
+.cover.has-img::before{z-index:1}
 .cover.l2::after{background:linear-gradient(180deg,rgba(255,255,255,.14) 0 30%,transparent 30%),linear-gradient(110deg,rgba(255,255,255,.12),transparent 40%,rgba(0,0,0,.14))}
 .cover.sm{width:46px;--ts:7px;--pad:6px 4px 4px 8px}.cover.sm .ca{display:none}
 .cover.md{width:76px;--ts:10.5px;--as:8px;--pad:10px 7px 7px 13px}
@@ -214,6 +218,28 @@ mark{background:color-mix(in srgb,var(--ribbon) 22%,transparent);color:inherit;b
 .ways{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:18px}
 .way{border:1px solid var(--rule);border-radius:8px;padding:12px 6px;text-align:center;font-size:13px;color:var(--ink-faint);display:flex;flex-direction:column;align-items:center;gap:6px;background:none}
 .way small{font-size:11px}
+button.way{color:var(--ink);font-weight:700}
+
+/* ── 바코드 찍기 */
+.scanner{position:relative;border-radius:10px;overflow:hidden;background:#15120e;aspect-ratio:4/3;max-width:100%;margin-bottom:12px}
+.scanner video{width:100%;height:100%;object-fit:cover;display:block}
+.scan-frame{position:absolute;left:12%;right:12%;top:30%;bottom:30%;border:2px solid rgba(251,246,234,.9);border-radius:8px;box-shadow:0 0 0 999px rgba(0,0,0,.35)}
+.scan-frame::after{content:"";position:absolute;left:4%;right:4%;top:50%;height:2px;background:#e0626c;box-shadow:0 0 8px #e0626c}
+@media (prefers-reduced-motion:no-preference){.scan-frame::after{animation:scanline 1.1s ease-in-out infinite alternate}
+  @keyframes scanline{from{top:12%}to{top:88%}}}
+.scan-msg{position:absolute;left:0;right:0;bottom:10px;text-align:center;color:#fbf6ea;font-size:13px;text-shadow:0 1px 3px rgba(0,0,0,.6);padding:0 12px}
+.scan-off{display:flex;align-items:center;justify-content:center;text-align:center;color:#d9cfbd;font-size:14px;padding:20px;height:100%;line-height:1.7}
+.isbn-row{display:flex;gap:8px;margin-bottom:6px}
+.isbn-row input{flex:1;min-width:0}
+.found{background:var(--sheet);border:1px solid var(--rule);border-radius:8px;padding:16px;display:flex;flex-direction:column;gap:14px;margin-top:14px}
+.found .top{display:flex;gap:14px}
+.found .top .t{min-width:0;display:flex;flex-direction:column;gap:3px}
+.found h3{font-size:18px;line-height:1.35;overflow-wrap:anywhere}
+.found .sum{font-family:var(--f-display);font-size:14px;line-height:1.8;color:var(--ink-soft);margin:0}
+.found .genre-pick{display:flex;flex-wrap:wrap;gap:6px}
+.found .genre-pick button{border:1px solid var(--rule);background:none;border-radius:999px;padding:4px 12px;font-size:13px;color:var(--ink-soft)}
+.found .genre-pick button[aria-pressed="true"]{border-color:var(--accent);background:var(--accent);color:var(--sheet);font-weight:700}
+.found .sub{font-size:12px;color:var(--ink-faint)}
 .way.on{border-color:var(--accent);color:var(--accent);background:var(--sheet);font-weight:700}
 
 /* ── 설정 */
@@ -311,8 +337,11 @@ function titleHash(title){ let h = 0; for(const c of String(title)) h = (h * 31 
 const coverColor = title => COVER_COLORS[titleHash(title) % COVER_COLORS.length];
 function cover(b, size){
   const layout = (titleHash(b.title) >> 3) % 3;
-  return `<div class="cover ${size} l${layout}" style="--c:${coverColor(b.title)}" aria-hidden="true">
-    <span class="ct">${esc(b.title)}</span><span class="ca">${esc(b.author)}</span></div>`;
+  // 진짜 표지 사진이 있으면 쓰고, 못 불러오면 그려 둔 표지로 돌아간다
+  const img = b.cover && /^https:\/\//.test(b.cover)
+    ? `<img src="${esc(b.cover)}" alt="" loading="lazy" referrerpolicy="no-referrer" onerror="this.parentNode.classList.remove('has-img');this.remove()">` : "";
+  return `<div class="cover ${size} l${layout}${img ? " has-img" : ""}" style="--c:${coverColor(b.title)}" aria-hidden="true">
+    ${img}<span class="ct">${esc(b.title)}</span><span class="ca">${esc(b.author)}</span></div>`;
 }
 const ribbonMark = b => b.rec ? '<span class="ribbon" aria-label="추천"></span>' : "";
 
@@ -371,6 +400,7 @@ function render(animate){
     v.innerHTML = detailView(b);
   }
   else if(r.name === "add") v.innerHTML = formView(null);
+  else if(r.name === "scan"){ v.innerHTML = scanView(); if(scanState.status === "idle") startScan(); }
   else if(r.name === "edit"){
     const b = findBook(r.arg);
     if(!b) return goReplace("#/shelf/" + lastTab);
@@ -394,7 +424,14 @@ function render(animate){
     if(id === cur) el.setAttribute("aria-current", "page"); else el.removeAttribute("aria-current");
   });
 }
-window.addEventListener("hashchange", () => { summaryOpen = false; render(true); window.scrollTo(0, 0); });
+window.addEventListener("hashchange", () => {
+  summaryOpen = false;
+  // 바코드 화면을 떠나면 카메라를 끄고, 새로 들어오면 처음부터
+  if(parseRoute().name !== "scan"){ stopScan(); }
+  else if(scanState.status !== "loading"){ scanState = {status: "idle"}; }
+  render(true); window.scrollTo(0, 0);
+});
+document.addEventListener("visibilitychange", () => { if(document.hidden) stopScan(); else if(parseRoute().name === "scan" && scanState.status === "idle") startScan(); });
 
 // ───────────────────────── 내 서재 ─────────────────────────
 function shelfView(){
@@ -533,7 +570,7 @@ function emptyState(tab){
     done: "다 읽은 책이 여기 책장에 꽂혀요.",
     rec: "책 화면에서 ‘추천하고 싶어요’를 누르면<br>여기에 모여요.",
   }[tab];
-  const btn = tab === "reading" ? `<button class="btn" type="button" data-go="#/add">책 등록하기</button>` : "";
+  const btn = tab === "reading" ? `<button class="btn" type="button" data-go="#/scan">책 등록하기</button>` : "";
   return `<div class="empty">${EMPTY_ART}<p>${msg}</p>${btn}</div>`;
 }
 
@@ -581,15 +618,123 @@ function detailView(b){
   <p style="text-align:center"><button class="linkbtn danger" type="button" data-delbook>이 책 지우기</button></p>`;
 }
 
+// ───────────────────────── 등록 방법 고르기 ─────────────────────────
+function waysBar(cur){
+  const way = (key, label, sub, hash) => cur === key
+    ? `<div class="way on">${label}<small>${sub}</small></div>`
+    : hash ? `<button class="way" type="button" data-go-replace="${hash}">${label}<small>${sub}</small></button>`
+    : `<div class="way">${label}<small>${sub}</small></div>`;
+  return `<div class="ways">${way("scan", "바코드", "찍어서 등록", "#/scan")}${way("cover", "표지 사진", "곧 나와요", "")}${way("manual", "직접 입력", "손으로 쓰기", "#/add")}</div>`;
+}
+
+// ───────────────────────── 바코드로 등록 ─────────────────────────
+// 폰 카메라로 바코드(ISBN)를 읽고, 서버(/api/book)에서 책 정보를 받아 온다.
+// 카메라로 못 읽는 폰(아이폰 사파리 등)은 바코드 아래 숫자를 직접 넣는다.
+let scanStream = null, scanTimer = null, scanState = {status: "idle"}, draftIsbn = "";
+const canDetect = "BarcodeDetector" in window;
+
+function scanView(){
+  return `<div class="topbar"><button class="back" type="button" data-back aria-label="뒤로">${ICON_BACK}</button><h1>책 등록</h1></div>
+  ${waysBar("scan")}
+  <div class="scanner">${canDetect
+    ? `<video id="scan-video" playsinline muted></video><div class="scan-frame"></div><div class="scan-msg" id="scan-msg">카메라를 켜는 중…</div>`
+    : `<div class="scan-off">이 폰에서는 카메라로 바코드를 읽을 수 없어요.<br>바코드 아래 숫자 13자리를 넣어 주세요.</div>`}</div>
+  <form class="isbn-row" data-isbnform>
+    <input id="isbn-input" class="field mono" inputmode="numeric" placeholder="바코드 아래 숫자 (978…)" autocomplete="off" maxlength="17">
+    <button class="btn" type="submit">찾기</button></form>
+  <div id="scan-result">${scanResultView()}</div>`;
+}
+
+function scanResultView(){
+  const s = scanState;
+  if(s.status === "loading") return `<p class="hint">책 정보를 찾는 중이에요…</p>`;
+  if(s.status === "dup") return `<div class="found"><p style="margin:0">『${esc(s.book.title)}』은(는) 이미 서재에 있어요.</p>
+    <div class="two"><button class="btn ghost" type="button" data-scanagain>다른 책 찍기</button><button class="btn" type="button" data-open="${esc(s.book.id)}">책 보러 가기</button></div></div>`;
+  if(s.status === "error") return `<div class="found"><p style="margin:0">${esc(s.message)}</p>
+    <div class="two"><button class="btn ghost" type="button" data-scanagain>다시 찍기</button><button class="btn" type="button" data-manual-isbn>직접 입력하기</button></div></div>`;
+  if(s.status !== "found") return "";
+  const b = s.book;
+  return `<div class="found">
+    <div class="top">${cover({...b, rec: false}, "md")}<div class="t"><span class="kind">찾았어요</span><h3>${esc(b.title)}</h3>
+      <span class="by">${esc([b.author, b.publisher].filter(Boolean).join(" · "))}</span><span class="sub mono">ISBN ${esc(b.isbn)}</span></div></div>
+    ${b.summary ? `<p class="sum clamp">${esc(b.summary)}</p>` : ""}
+    <div><div class="sub" style="margin-bottom:6px">종류${b.genreAuto ? " (자동으로 골랐어요)" : " (골라 주세요)"}</div>
+      <div class="genre-pick">${GENRES.map(g => `<button type="button" data-pickgenre="${g}" aria-pressed="${g === b.genre}">${g}</button>`).join("")}</div></div>
+    <div class="seg" role="group" aria-label="읽기 상태">
+      <button type="button" data-fstatus="reading" aria-pressed="true">읽는 중</button>
+      <button type="button" data-fstatus="done" aria-pressed="false">다 읽음</button></div>
+    <label class="check" style="display:flex;gap:8px;align-items:center"><input id="found-rec" type="checkbox"> 추천 목록에도 넣기</label>
+    <button class="btn wide" type="button" data-addfound>서재에 꽂기</button>
+  </div>`;
+}
+const showScanResult = () => { const el = $("#scan-result"); if(el) el.innerHTML = scanResultView(); };
+
+async function startScan(){
+  if(!canDetect || scanStream) return;
+  const msg = t => { const m = $("#scan-msg"); if(m) m.textContent = t; };
+  try {
+    scanStream = await navigator.mediaDevices.getUserMedia({video: {facingMode: "environment", width: {ideal: 1280}}, audio: false});
+  } catch(e){
+    msg("카메라를 쓸 수 없어요. 아래에 숫자를 넣어 주세요.");
+    return;
+  }
+  if(parseRoute().name !== "scan"){ stopScan(); return; }
+  const video = $("#scan-video");
+  video.srcObject = scanStream; await video.play().catch(() => {});
+  msg("책 뒷면 바코드를 네모 안에 맞춰 주세요");
+  let detector;
+  try { detector = new BarcodeDetector({formats: ["ean_13"]}); } catch { msg("이 폰은 바코드를 못 읽어요. 아래에 숫자를 넣어 주세요."); return; }
+  const tick = async () => {
+    if(!scanStream) return;
+    try {
+      const codes = await detector.detect(video);
+      const code = codes.map(c => c.rawValue).find(v => /^97[89]\d{10}$/.test(v) && isbn13ok(v));
+      if(code){ navigator.vibrate?.(60); stopScan(); return lookupIsbn(code); }
+    } catch {}
+    scanTimer = setTimeout(tick, 250);
+  };
+  tick();
+}
+function stopScan(){
+  clearTimeout(scanTimer); scanTimer = null;
+  if(scanStream){ scanStream.getTracks().forEach(t => t.stop()); scanStream = null; }
+}
+
+// ISBN-13 마지막 숫자(검증 번호)가 맞는지 확인해서 잘못 읽은 바코드를 거른다
+function isbn13ok(s){
+  let sum = 0; for(let i = 0; i < 12; i++) sum += (+s[i]) * (i % 2 ? 3 : 1);
+  return (10 - sum % 10) % 10 === +s[12];
+}
+
+async function lookupIsbn(isbn){
+  const dup = books.find(b => b.isbn && b.isbn.replace(/\D/g, "") === isbn);
+  if(dup){ scanState = {status: "dup", book: dup}; return showScanResult(); }
+  scanState = {status: "loading"}; showScanResult();
+  const msg = $("#scan-msg"); if(msg) msg.textContent = `${isbn} 읽었어요`;
+  try {
+    const r = await fetch(`/api/book?isbn=${isbn}`);
+    const d = await r.json().catch(() => ({}));
+    if(r.ok && d.title){
+      const genre = GENRES.includes(d.genre) ? d.genre : "";
+      scanState = {status: "found", book: {isbn, title: d.title, author: d.author || "", publisher: d.publisher || "", cover: d.cover || "",
+        summary: d.summary || "", genre: genre || "기타", genreAuto: !!genre}};
+    } else if(r.status === 404){
+      scanState = {status: "error", isbn, message: "이 바코드로는 책 정보를 찾지 못했어요. 직접 입력해 주세요."};
+    } else {
+      scanState = {status: "error", isbn, message: "책 정보를 불러오지 못했어요. 잠시 뒤 다시 해 보거나 직접 입력해 주세요."};
+    }
+  } catch {
+    scanState = {status: "error", isbn, message: "인터넷 연결을 확인해 주세요. 직접 입력할 수도 있어요."};
+  }
+  if(parseRoute().name === "scan") showScanResult();
+}
+
 // ───────────────────────── 책 등록 / 수정 ─────────────────────────
 function formView(b){
   const isNew = !b;
   b = b || {title: "", author: "", publisher: "", genre: "소설", summary: "", authorBio: "", status: "reading", rec: false};
   return `<div class="topbar"><button class="back" type="button" data-back aria-label="뒤로">${ICON_BACK}</button><h1>${isNew ? "책 등록" : "책 정보 수정"}</h1></div>
-  ${isNew ? `<div class="ways">
-    <div class="way">바코드<small>곧 나와요</small></div>
-    <div class="way">표지 사진<small>곧 나와요</small></div>
-    <div class="way on">직접 입력<small>지금 쓰는 중</small></div></div>` : ""}
+  ${isNew ? waysBar("manual") : ""}
   <form class="form" data-bookform>
     <div class="group">
       <label>책 제목<input id="f-title" class="field" value="${esc(b.title)}" required autocomplete="off"></label>
@@ -657,7 +802,7 @@ function normalizeBook(x){
   if(!x || typeof x !== "object" || !x.id || !x.title) return null;
   return {
     id: String(x.id), title: String(x.title), author: String(x.author || ""), publisher: String(x.publisher || ""),
-    isbn: String(x.isbn || ""), genre: GENRES.includes(x.genre) ? x.genre : "기타",
+    isbn: String(x.isbn || ""), cover: /^https:\/\//.test(x.cover || "") ? String(x.cover) : "", genre: GENRES.includes(x.genre) ? x.genre : "기타",
     status: x.status === "done" ? "done" : "reading", rec: !!x.rec,
     startedAt: x.startedAt || "", finishedAt: x.finishedAt || "",
     summary: String(x.summary || ""), authorBio: String(x.authorBio || ""), feeling: String(x.feeling || ""),
@@ -689,7 +834,7 @@ document.addEventListener("click", e => {
 
   if(t.id === "nav-shelf") return go("#/shelf/" + lastTab);
   if(t.id === "nav-quotes") return go("#/quotes");
-  if(t.id === "nav-add") return go("#/add");
+  if(t.id === "nav-add") return go("#/scan");
   if(t.dataset.go) return go(t.dataset.go);
   if(t.dataset.open) return go("#/book/" + encodeURIComponent(t.dataset.open));
   if(t.hasAttribute("data-back")) return history.length > 1 ? history.back() : goReplace("#/shelf/" + lastTab);
@@ -699,6 +844,24 @@ document.addEventListener("click", e => {
     return;
   }
   if(t.hasAttribute("data-shuffle")){ quoteShift++; return render(); }
+  if(t.dataset.goReplace) return goReplace(t.dataset.goReplace);
+  if(t.dataset.pickgenre && scanState.book){
+    scanState.book.genre = t.dataset.pickgenre;
+    t.parentElement.querySelectorAll("button").forEach(x => x.setAttribute("aria-pressed", x === t));
+    return;
+  }
+  if(t.hasAttribute("data-scanagain")){ scanState = {status: "idle"}; showScanResult(); return startScan(); }
+  if(t.hasAttribute("data-manual-isbn")){ draftIsbn = scanState.isbn || ""; return goReplace("#/add"); }
+  if(t.hasAttribute("data-addfound") && scanState.status === "found"){
+    const s = scanState.book;
+    const done = $('#scan-result [data-fstatus="done"]').getAttribute("aria-pressed") === "true";
+    const b = normalizeBook({id: newId(), title: s.title, author: s.author, publisher: s.publisher, isbn: s.isbn, cover: s.cover,
+      summary: s.summary, genre: s.genre, status: done ? "done" : "reading", rec: $("#found-rec").checked,
+      startedAt: nowIso(), finishedAt: done ? nowIso() : "", quotes: [], createdAt: nowIso()});
+    books.push(b); saveBook(b);
+    lastTab = done ? "done" : "reading"; scanState = {status: "idle"};
+    toast("서재에 꽂았어요"); return goReplace("#/book/" + encodeURIComponent(b.id));
+  }
   if(t.hasAttribute("data-export")) return exportBackup();
   if(t.hasAttribute("data-import")) return $("#import-file").click();
   if(!cur) return;
@@ -748,6 +911,13 @@ document.addEventListener("submit", async e => {
   e.preventDefault();
   const f = e.target, r = parseRoute();
 
+  if(f.hasAttribute("data-isbnform")){
+    let v = $("#isbn-input").value.replace(/[^0-9Xx]/g, "").toUpperCase();
+    if(!/^(\d{13}|\d{9}[\dX])$/.test(v) || (v.length === 13 && !isbn13ok(v))){ toast("숫자 13자리를 다시 확인해 주세요"); return; }
+    stopScan(); $("#isbn-input").blur();
+    return lookupIsbn(v);
+  }
+
   if(f.hasAttribute("data-qform")){
     const cur = findBook(r.arg); if(!cur) return;
     const text = $("#qtext").value.trim(); if(!text) return;
@@ -768,8 +938,9 @@ document.addEventListener("submit", async e => {
       toast("저장했어요"); history.back();
     } else {
       const done = f.querySelector('[data-fstatus="done"]').getAttribute("aria-pressed") === "true";
-      const b = normalizeBook({...fields, id: newId(), status: done ? "done" : "reading", rec: $("#f-rec").checked,
+      const b = normalizeBook({...fields, id: newId(), isbn: draftIsbn, status: done ? "done" : "reading", rec: $("#f-rec").checked,
         startedAt: nowIso(), finishedAt: done ? nowIso() : "", quotes: [], createdAt: nowIso()});
+      draftIsbn = "";
       books.push(b); await saveBook(b);
       lastTab = done ? "done" : "reading";
       toast("서재에 꽂았어요"); goReplace("#/book/" + encodeURIComponent(b.id));
