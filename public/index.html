@@ -359,6 +359,14 @@ function cover(b, size){
   return `<div class="cover ${size} l${layout}${img ? " has-img" : ""}" style="--c:${coverColor(b.title)}" aria-hidden="true">
     ${img}<span class="ct">${esc(b.title)}</span><span class="ca">${esc(b.author)}</span></div>`;
 }
+// 읽기 상태: 읽고 싶은(want) → 읽는 중(reading) → 다 읽음(done)
+const STATUSES = [["want", "읽고 싶은"], ["reading", "읽는 중"], ["done", "다 읽음"]];
+const statusSeg = (attr, cur) => `<div class="seg" role="group" aria-label="읽기 상태">${STATUSES.map(([k, l]) =>
+  `<button type="button" data-${attr}="${k}" aria-pressed="${k === cur}">${l}</button>`).join("")}</div>`;
+const pickedStatus = box => box.querySelector('[data-fstatus][aria-pressed="true"]')?.dataset.fstatus || "reading";
+// 새 책의 날짜: 읽고 싶은 책은 아직 시작 전
+const newDates = st => ({startedAt: st === "want" ? "" : nowIso(), finishedAt: st === "done" ? nowIso() : ""});
+const addedToast = st => st === "want" ? "읽고 싶은 책에 담았어요" : "서재에 꽂았어요";
 const ribbonMark = b => b.rec ? '<span class="ribbon" aria-label="추천"></span>' : "";
 
 // 빈 화면 그림: 리본이 꽂힌 책
@@ -430,7 +438,7 @@ function render(animate){
     if(!searchQuery){ inp.focus(); }
   }
   else {
-    if(["reading", "done", "rec"].includes(r.arg)) lastTab = r.arg;
+    if(["reading", "want", "done", "rec"].includes(r.arg)) lastTab = r.arg;
     v.innerHTML = shelfView();
   }
   if(animate){ v.classList.remove("view-in"); void v.offsetWidth; v.classList.add("view-in"); }
@@ -458,6 +466,7 @@ function shelfView(){
   const quoteCount = books.reduce((n, b) => n + b.quotes.length, 0);
   const tabs = [
     ["reading", "읽는 중", b => b.status === "reading"],
+    ["want", "읽고 싶은", b => b.status === "want"],
     ["done", "읽음", b => b.status === "done"],
     ["rec", "추천", b => b.rec],
   ];
@@ -550,6 +559,7 @@ function bookCard(b){
   const snip = lastTab === "rec" && b.feeling ? b.feeling : lastQuote ? `“${lastQuote.text}”` : "";
   const state = b.status === "done"
     ? `<span>${fmtDate(b.finishedAt)} 다 읽음</span>`
+    : b.status === "want" ? `<span>${fmtMonthDay(b.createdAt)}에 담음</span>`
     : b.startedAt ? `<span>${fmtMonthDay(b.startedAt)}부터 읽는 중</span>` : "<span>읽는 중</span>";
   return `<button class="card" type="button" data-open="${esc(b.id)}">${ribbonMark(b)}${cover(b, "md")}
     <div class="info"><span class="kind">${esc(b.genre)}</span><h3>${esc(b.title)}</h3>
@@ -583,17 +593,20 @@ function doneShelf(){
 function emptyState(tab){
   const msg = {
     reading: books.length ? "지금 읽는 책이 없어요.<br>새 책을 펼쳐 볼까요?" : "아직 서재가 비어 있어요.<br>첫 책을 꽂아 볼까요?",
+    want: "서점에서 본 책, 누가 권한 책을<br>여기에 담아 두세요.",
     done: "다 읽은 책이 여기 책장에 꽂혀요.",
     rec: "책 화면에서 ‘추천하고 싶어요’를 누르면<br>여기에 모여요.",
   }[tab];
-  const btn = tab === "reading" ? `<button class="btn" type="button" data-go="#/scan">책 등록하기</button>` : "";
+  const btn = tab === "reading" ? `<button class="btn" type="button" data-go="#/scan">책 등록하기</button>`
+    : tab === "want" ? `<button class="btn" type="button" data-go="#/scan">읽고 싶은 책 담기</button>` : "";
   return `<div class="empty">${EMPTY_ART}<p>${msg}</p>${btn}</div>`;
 }
 
 // ───────────────────────── 책 화면 ─────────────────────────
 function detailView(b){
   const done = b.status === "done";
-  const dates = [b.startedAt && `${fmtDate(b.startedAt)} 시작`, done && b.finishedAt && `${fmtDate(b.finishedAt)} 다 읽음`].filter(Boolean).join("  ·  ");
+  const dates = b.status === "want" ? `${fmtDate(b.createdAt)} 읽고 싶은 책에 담음`
+    : [b.startedAt && `${fmtDate(b.startedAt)} 시작`, done && b.finishedAt && `${fmtDate(b.finishedAt)} 다 읽음`].filter(Boolean).join("  ·  ");
   const longSummary = (b.summary || "").length > 80;
   return `<div class="hero" style="--c:${coverColor(b.title)}">
     <div class="topbar"><button class="back" type="button" data-back aria-label="뒤로">${ICON_BACK}</button><span style="flex:1"></span>
@@ -605,10 +618,7 @@ function detailView(b){
     <span class="by">${esc([b.author, b.publisher].filter(Boolean).join(" · "))}</span>
   </div>
   <div class="controls">
-    <div class="seg" role="group" aria-label="읽기 상태">
-      <button type="button" data-status="reading" aria-pressed="${!done}">읽는 중</button>
-      <button type="button" data-status="done" aria-pressed="${done}">다 읽음</button>
-    </div>
+    ${statusSeg("status", b.status)}
     <button class="recbtn" type="button" data-rec aria-pressed="${b.rec}"><span class="mini"></span>${b.rec ? "추천 목록에 있어요" : "추천하고 싶어요"}</button>
   </div>
   <div class="dates mono">${dates}</div>
@@ -682,9 +692,7 @@ function scanResultView(){
     ${b.authorBio ? `<span class="sub">작가 소개도 위키백과에서 가져왔어요</span>` : ""}
     <div><div class="sub" style="margin-bottom:6px">종류${b.genreAuto ? " (자동으로 골랐어요)" : " (골라 주세요)"}</div>
       <div class="genre-pick">${GENRES.map(g => `<button type="button" data-pickgenre="${g}" aria-pressed="${g === b.genre}">${g}</button>`).join("")}</div></div>
-    <div class="seg" role="group" aria-label="읽기 상태">
-      <button type="button" data-fstatus="reading" aria-pressed="true">읽는 중</button>
-      <button type="button" data-fstatus="done" aria-pressed="false">다 읽음</button></div>
+    ${statusSeg("fstatus", "reading")}
     <label class="check" style="display:flex;gap:8px;align-items:center"><input id="found-rec" type="checkbox"> 추천 목록에도 넣기</label>
     <button class="btn wide" type="button" data-addfound>서재에 꽂기</button>
   </div>`;
@@ -779,9 +787,7 @@ function formView(b){
       <label>종류<select id="f-genre" class="field">${GENRES.map(g => `<option${g === b.genre ? " selected" : ""}>${g}</option>`).join("")}</select></label>
     </div>
     ${isNew ? `<div class="group">
-      <div class="seg" role="group" aria-label="읽기 상태">
-        <button type="button" data-fstatus="reading" aria-pressed="true">읽는 중</button>
-        <button type="button" data-fstatus="done" aria-pressed="false">다 읽음</button></div>
+      ${statusSeg("fstatus", "reading")}
       <label class="check"><input id="f-rec" type="checkbox"> 추천 목록에도 넣기</label></div>` : ""}
     <div class="group">
       <label>줄거리 <span class="opt">안 써도 돼요</span><textarea id="f-summary" rows="4">${esc(b.summary)}</textarea></label>
@@ -850,7 +856,7 @@ function shareData(){
   const q = b.quotes.find(x => x.id === qid);
   const feel = $("#share-feel")?.checked ? b.feeling : "";
   const cut = (s, n) => s.length > n ? s.slice(0, n) + "…" : s;
-  return {t: b.title, a: b.author, p: b.publisher, g: b.genre, c: b.cover, r: b.rec ? 1 : 0, s: b.status === "done" ? 1 : 0,
+  return {t: b.title, a: b.author, p: b.publisher, g: b.genre, c: b.cover, r: b.rec ? 1 : 0, s: b.status === "done" ? 1 : b.status === "want" ? 2 : 0,
     f: cut(feel || "", 400), q: q ? cut(q.text, 300) : "", qp: q?.page || ""};
 }
 
@@ -868,7 +874,7 @@ function shareCardHtml(d){
     ${d.r ? `<span class="rec">이 책을 추천해요</span>` : ""}
     <div class="top">${cover({title: d.t, author: d.a, cover: d.c}, "md")}<div class="t"><span class="kind">${esc(d.g || "")}</span>
       <h3>${esc(d.t)}</h3><span class="by">${esc([d.a, d.p].filter(Boolean).join(" · "))}</span>
-      <span class="by">${d.s ? "다 읽었어요" : "지금 읽고 있어요"}</span></div></div>
+      <span class="by">${["지금 읽고 있어요", "다 읽었어요", "읽고 싶은 책이에요"][d.s || 0]}</span></div></div>
     ${d.f ? `<p class="feel">${esc(d.f)}</p>` : ""}
     ${d.q ? `<div class="quote"><p><span class="ul">${esc(d.q)}</span></p>${d.qp ? `<div class="src"><span></span><span class="mono">p.${esc(d.qp)}</span></div>` : ""}</div>` : ""}
   </div>`;
@@ -909,7 +915,7 @@ function normalizeBook(x){
   return {
     id: String(x.id), title: String(x.title), author: String(x.author || ""), publisher: String(x.publisher || ""),
     isbn: String(x.isbn || ""), cover: /^https:\/\//.test(x.cover || "") ? String(x.cover) : "", genre: GENRES.includes(x.genre) ? x.genre : "기타",
-    status: x.status === "done" ? "done" : "reading", rec: !!x.rec,
+    status: ["want", "reading", "done"].includes(x.status) ? x.status : "reading", rec: !!x.rec,
     startedAt: x.startedAt || "", finishedAt: x.finishedAt || "",
     summary: String(x.summary || ""), authorBio: String(x.authorBio || ""),
     authorBioUrl: /^https:\/\/ko\.(m\.)?wikipedia\.org\//.test(x.authorBioUrl || "") ? String(x.authorBioUrl) : "", feeling: String(x.feeling || ""),
@@ -961,13 +967,13 @@ document.addEventListener("click", e => {
   if(t.hasAttribute("data-manual-isbn")){ draftIsbn = scanState.isbn || ""; return goReplace("#/add"); }
   if(t.hasAttribute("data-addfound") && scanState.status === "found"){
     const s = scanState.book;
-    const done = $('#scan-result [data-fstatus="done"]').getAttribute("aria-pressed") === "true";
+    const st = pickedStatus($("#scan-result"));
     const b = normalizeBook({id: newId(), title: s.title, author: s.author, publisher: s.publisher, isbn: s.isbn, cover: s.cover,
-      summary: s.summary, authorBio: s.authorBio, authorBioUrl: s.authorBioUrl, genre: s.genre, status: done ? "done" : "reading", rec: $("#found-rec").checked,
-      startedAt: nowIso(), finishedAt: done ? nowIso() : "", quotes: [], createdAt: nowIso()});
+      summary: s.summary, authorBio: s.authorBio, authorBioUrl: s.authorBioUrl, genre: s.genre, status: st, rec: $("#found-rec").checked,
+      ...newDates(st), quotes: [], createdAt: nowIso()});
     books.push(b); saveBook(b);
-    lastTab = done ? "done" : "reading"; scanState = {status: "idle"};
-    toast("서재에 꽂았어요"); return goReplace("#/book/" + encodeURIComponent(b.id));
+    lastTab = st; scanState = {status: "idle"};
+    toast(addedToast(st)); return goReplace("#/book/" + encodeURIComponent(b.id));
   }
   if(t.hasAttribute("data-export")) return exportBackup();
   if(t.hasAttribute("data-import")) return $("#import-file").click();
@@ -976,8 +982,9 @@ document.addEventListener("click", e => {
   if(t.dataset.status){
     if(cur.status === t.dataset.status) return;
     cur.status = t.dataset.status;
-    if(cur.status === "done"){ cur.finishedAt = nowIso(); toast("다 읽은 책장에 꽂았어요"); }
-    else { cur.finishedAt = ""; toast("읽는 중으로 옮겼어요"); }
+    if(cur.status === "done"){ cur.finishedAt = nowIso(); cur.startedAt ||= nowIso(); toast("다 읽은 책장에 꽂았어요"); }
+    else if(cur.status === "reading"){ cur.finishedAt = ""; cur.startedAt ||= nowIso(); toast("오늘부터 읽는 중이에요"); }
+    else { cur.startedAt = ""; cur.finishedAt = ""; toast("읽고 싶은 책으로 옮겼어요"); }
     saveBook(cur); return render();
   }
   if(t.hasAttribute("data-rec")){
@@ -1055,13 +1062,13 @@ document.addEventListener("submit", async e => {
       Object.assign(cur, fields); await saveBook(cur);
       toast("저장했어요"); history.back();
     } else {
-      const done = f.querySelector('[data-fstatus="done"]').getAttribute("aria-pressed") === "true";
-      const b = normalizeBook({...fields, id: newId(), isbn: draftIsbn, status: done ? "done" : "reading", rec: $("#f-rec").checked,
-        startedAt: nowIso(), finishedAt: done ? nowIso() : "", quotes: [], createdAt: nowIso()});
+      const st = pickedStatus(f);
+      const b = normalizeBook({...fields, id: newId(), isbn: draftIsbn, status: st, rec: $("#f-rec").checked,
+        ...newDates(st), quotes: [], createdAt: nowIso()});
       draftIsbn = "";
       books.push(b); await saveBook(b);
-      lastTab = done ? "done" : "reading";
-      toast("서재에 꽂았어요"); goReplace("#/book/" + encodeURIComponent(b.id));
+      lastTab = st;
+      toast(addedToast(st)); goReplace("#/book/" + encodeURIComponent(b.id));
     }
   }
 });

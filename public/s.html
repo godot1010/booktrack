@@ -84,14 +84,14 @@ if(!d){
   // 표지 사진은 책 정보 서비스(카카오, 국립중앙도서관) 주소일 때만 보여 준다
   const okCover = /^https:\/\/([a-z0-9-]+\.)*(kakaocdn\.net|nl\.go\.kr)\//.test(d.c || "");
   app.innerHTML = `
-    <div><span class="eyebrow">북트랙 책 카드</span><h1>${d.r ? "이 책을 추천해요" : "이 책을 읽고 있어요"}</h1></div>
+    <div><span class="eyebrow">북트랙 책 카드</span><h1>${d.r ? "이 책을 추천해요" : ["이 책을 읽고 있어요", "이 책을 다 읽었어요", "이 책이 읽고 싶어요"][d.s] || "이 책을 읽고 있어요"}</h1></div>
     <article class="card">
       ${d.r ? `<span class="rec">추천하고 싶은 책</span>` : ""}
       <div class="top">
         <div class="cover" style="--c:${COVER_COLORS[hash(d.t) % COVER_COLORS.length]}">${okCover ? `<img src="${esc(d.c)}" alt="" referrerpolicy="no-referrer" onerror="this.remove()">` : ""}${esc(d.t)}</div>
         <div class="t">${d.g ? `<span class="kind">${esc(d.g)}</span>` : ""}<h2>${esc(d.t)}</h2>
           <span class="by">${esc([d.a, d.p].filter(Boolean).join(" · "))}</span>
-          <span class="by">${d.s ? "다 읽었어요" : "지금 읽고 있어요"}</span></div>
+          <span class="by">${["지금 읽고 있어요", "다 읽었어요", "읽고 싶은 책이에요"][d.s] || "지금 읽고 있어요"}</span></div>
       </div>
       ${d.f ? `<span class="label">보낸 사람의 느낌</span><p class="feel">${esc(d.f)}</p>` : ""}
       ${d.q ? `<div class="quote"><span class="label">밑줄 친 문장</span><p style="margin-top:12px"><span class="ul">${esc(d.q)}</span></p>${d.qp ? `<div class="page">p.${esc(d.qp)}</div>` : ""}</div>` : ""}
