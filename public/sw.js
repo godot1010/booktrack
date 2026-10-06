@@ -1,6 +1,6 @@
 // 북트랙 서비스 워커: 인터넷이 없어도 앱이 열리게 한다.
 // HTML은 인터넷 우선(새 버전을 바로 받음), 나머지는 저장본 우선.
-const CACHE = "booktrack-v3";
+const CACHE = "booktrack-v4";
 const CORE = ["./", "index.html", "manifest.json", "icon-192.png", "icon-512.png"];
 
 self.addEventListener("install", e => {

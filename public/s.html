@@ -3,66 +3,63 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<title>북트랙 책 카드</title>
-<meta name="description" content="친구가 북트랙에서 보낸 책 카드예요.">
+<title>Book Track 책 카드</title>
+<meta name="description" content="친구가 Book Track에서 보낸 책 카드예요.">
 <meta property="og:title" content="친구가 책 한 권을 보냈어요">
-<meta property="og:description" content="북트랙에서 보낸 책 카드예요. 눌러서 열어 보세요.">
+<meta property="og:description" content="Book Track에서 보낸 책 카드예요. 눌러서 열어 보세요.">
 <meta property="og:image" content="https://booktrack.pages.dev/icon-512.png">
 <meta property="og:type" content="website">
-<meta name="theme-color" content="#f1e9d8">
+<meta name="theme-color" content="#ffffff">
 <link rel="icon" href="icon-192.png">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Gowun+Batang:wght@400;700&family=Gowun+Dodum&family=IBM+Plex+Mono&display=swap">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
 <style>
-/* 공유받은 사람이 보는 책 카드 (앱이 없어도 열림). 앱과 같은 종이책 색 */
+/* 공유받은 사람이 보는 책 카드 (앱이 없어도 열림). 앱과 같은 흰 바탕 + 코랄 */
 :root{
-  --paper:#f1e9d8; --sheet:#fbf6ea; --ink:#2a251f; --ink-soft:#6b6152; --ink-faint:#9a8f7c;
-  --rule:#ddd0b7; --accent:#2f4a6d; --ribbon:#9b2f3a; --grain:rgba(110,85,50,.07);
-  --f-display:"Gowun Batang","Nanum Myeongjo",serif;
-  --f-body:"Gowun Dodum","Apple SD Gothic Neo","Malgun Gothic",sans-serif;
-  --f-mono:"IBM Plex Mono",ui-monospace,Consolas,monospace;
+  --bg:#ffffff; --soft:#f6f7f9; --line:#eef0f3; --text:#191f28; --text-2:#4e5968; --text-3:#8b95a1;
+  --coral:#f76e5a; --coral-soft:#fff0ec; --coral-ink:#c2412d;
+  --font:"Pretendard Variable",Pretendard,-apple-system,"Apple SD Gothic Neo","Malgun Gothic",sans-serif;
   color-scheme:light;
 }
 @media (prefers-color-scheme: dark){:root{
-  --paper:#1b1814; --sheet:#25211c; --ink:#ece2cf; --ink-soft:#ab9e88; --ink-faint:#7c7262;
-  --rule:#3a332a; --accent:#93b1d6; --ribbon:#d46c75; --grain:rgba(255,240,210,.035); color-scheme:dark}}
+  --bg:#16161b; --soft:#202027; --line:#2c2c35; --text:#f2f4f6; --text-2:#b0b8c1; --text-3:#7d8590;
+  --coral:#ff7b67; --coral-soft:#3a2622; --coral-ink:#ffa594; color-scheme:dark}}
 *{box-sizing:border-box}
-body{margin:0;min-height:100vh;color:var(--ink);font-family:var(--f-body);font-size:15px;line-height:1.6;
-  background-color:var(--paper);background-image:radial-gradient(var(--grain) 1px,transparent 1.2px);background-size:7px 7px;
-  padding:env(safe-area-inset-top,0px) 16px env(safe-area-inset-bottom,0px)}
-.wrap{max-width:440px;margin:0 auto;padding-block:28px 40px;display:flex;flex-direction:column;gap:20px}
-.eyebrow{font-size:12px;letter-spacing:.16em;color:var(--ink-soft)}
-h1{font-family:var(--f-display);font-size:24px;margin:2px 0 0}
-.card{background:var(--sheet);border:1px solid var(--rule);border-radius:10px;padding:20px;display:flex;flex-direction:column;gap:16px;box-shadow:0 10px 30px -18px rgba(40,28,15,.45)}
-.rec{font-size:12px;color:var(--ribbon);font-weight:700;letter-spacing:.06em}
+body{margin:0;min-height:100vh;background:var(--bg);color:var(--text);font-family:var(--font);font-size:15px;line-height:1.55;letter-spacing:-0.01em;word-break:keep-all;
+  padding:env(safe-area-inset-top,0px) 20px env(safe-area-inset-bottom,0px)}
+.wrap{max-width:440px;margin:0 auto;padding-block:20px 40px;display:flex;flex-direction:column;gap:20px}
+.brand{display:flex;align-items:center;gap:8px;text-decoration:none;color:var(--text)}
+.mark{width:28px;height:28px;border-radius:9px;background:var(--coral);display:flex;align-items:center;justify-content:center}
+.word{font-size:18px;font-weight:800;letter-spacing:-0.03em}
+.word b{color:var(--coral)}
+h1{font-size:24px;font-weight:800;letter-spacing:-0.03em;margin:0}
+.card{background:var(--soft);border-radius:22px;padding:20px;display:flex;flex-direction:column;gap:16px}
+.rec{font-size:13px;color:var(--coral-ink);font-weight:700}
 .top{display:flex;gap:16px;align-items:flex-start}
 .top .t{min-width:0;display:flex;flex-direction:column;gap:4px}
-.kind{font-size:11px;letter-spacing:.14em;color:var(--accent)}
-h2{font-family:var(--f-display);font-size:21px;line-height:1.35;margin:0;overflow-wrap:anywhere}
-.by{font-size:13px;color:var(--ink-soft);overflow-wrap:anywhere}
-.cover{position:relative;flex:none;width:92px;aspect-ratio:2/3;background:var(--c);color:#fbf6ea;border-radius:2px 5px 5px 2px;overflow:hidden;
-  display:flex;flex-direction:column;padding:12px 9px 9px 15px;font-family:var(--f-display);font-size:13px;font-weight:700;line-height:1.3;
-  box-shadow:0 1px 1px rgba(0,0,0,.18),0 10px 18px -8px rgba(40,28,15,.55)}
-.cover::before{content:"";position:absolute;left:0;top:0;bottom:0;width:8%;background:linear-gradient(90deg,rgba(0,0,0,.28),rgba(255,255,255,.12) 55%,rgba(0,0,0,.08));z-index:1}
+.kind{font-size:12.5px;color:var(--text-3)}
+h2{font-size:20px;font-weight:800;line-height:1.35;margin:0;overflow-wrap:anywhere;letter-spacing:-0.02em}
+.by{font-size:13.5px;color:var(--text-2);overflow-wrap:anywhere}
+.cover{position:relative;flex:none;width:92px;aspect-ratio:2/3;background:var(--c);color:#fff;border-radius:6px;overflow:hidden;
+  padding:12px 9px 9px 12px;font-size:13px;font-weight:700;line-height:1.3;box-shadow:0 6px 16px -6px rgba(25,31,40,.4)}
 .cover img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
-.feel{font-family:var(--f-display);font-size:15px;line-height:1.9;margin:0;white-space:pre-wrap;overflow-wrap:anywhere}
-.label{font-size:12px;color:var(--ink-faint);margin-bottom:-8px}
-.quote{border-top:1px solid var(--rule);padding-top:14px}
-.quote p{margin:0;font-family:var(--f-display);font-size:16.5px;line-height:1.95;overflow-wrap:anywhere}
-.ul{background-image:linear-gradient(transparent 64%,color-mix(in srgb,var(--ribbon) 26%,transparent) 64% 90%,transparent 90%);-webkit-box-decoration-break:clone;box-decoration-break:clone}
-.page{font-family:var(--f-mono);font-size:12px;color:var(--ink-faint);text-align:right;margin-top:4px}
-.cta{display:block;text-align:center;background:var(--ribbon);color:#fbf6ea;text-decoration:none;font-weight:700;border-radius:999px;padding:13px 18px}
-.small{font-size:12px;color:var(--ink-faint);text-align:center;margin:0}
-.oops{text-align:center;color:var(--ink-soft);padding:60px 10px;font-family:var(--f-display);font-size:16px;line-height:1.8}
+.label{font-size:12.5px;font-weight:600;color:var(--text-3);margin-bottom:-8px}
+.feel{font-size:15px;line-height:1.75;margin:0;white-space:pre-wrap;overflow-wrap:anywhere}
+.quote{background:var(--bg);border-radius:16px;padding:16px}
+.quote p{margin:0;font-size:16.5px;line-height:1.75;font-weight:500;overflow-wrap:anywhere}
+.ul{background-image:linear-gradient(transparent 62%,color-mix(in srgb,var(--coral) 28%,transparent) 62% 92%,transparent 92%);-webkit-box-decoration-break:clone;box-decoration-break:clone}
+.page{font-size:12px;color:var(--text-3);text-align:right;margin-top:6px}
+.cta{display:block;text-align:center;background:var(--coral);color:#fff;text-decoration:none;font-weight:700;border-radius:14px;padding:14px 18px}
+.small{font-size:12.5px;color:var(--text-3);text-align:center;margin:0}
+.oops{text-align:center;color:var(--text-2);padding:60px 10px;font-size:16px;line-height:1.8}
 </style>
 </head>
 <body>
 <main class="wrap" id="app"></main>
 <script>
-const COVER_COLORS = ["#3d5a73", "#5b6b4a", "#8a5a3b", "#6d4a6a", "#2f3a4f", "#4f6b63", "#7a4b3a", "#40536e", "#7b6a3c", "#5a3f4f"];
+const COVER_COLORS = ["#f76e5a", "#3f9d74", "#3b7be8", "#8a6ae6", "#e8963a", "#2aa5a0", "#df5f8a", "#55657d", "#b5793f", "#6a8f3a"];
 const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 const hash = t => { let h = 0; for(const c of String(t)) h = (h * 31 + c.charCodeAt(0)) >>> 0; return h; };
+const BRAND = `<a class="brand" href="/"><span class="mark"><svg width="15" height="17" viewBox="0 0 16 18" aria-hidden="true"><path d="M2 1.5h12v15l-6-4.2-6 4.2z" fill="#fff"/></svg></span><span class="word">Book <b>Track</b></span></a>`;
 
 // 주소 '#' 뒤에 담긴 책 카드 읽기
 function read(){
@@ -77,27 +74,28 @@ function read(){
 const d = read();
 const app = document.getElementById("app");
 if(!d){
-  app.innerHTML = `<p class="oops">책 카드를 열 수 없어요.<br>받은 링크가 잘리지 않았는지 확인해 주세요.</p>
-    <a class="cta" href="/">북트랙 둘러보기</a>`;
+  app.innerHTML = `${BRAND}<p class="oops">책 카드를 열 수 없어요.<br>받은 링크가 잘리지 않았는지 확인해 주세요.</p>
+    <a class="cta" href="/">Book Track 둘러보기</a>`;
 } else {
-  document.title = `『${d.t}』 — 북트랙 책 카드`;
+  document.title = `『${d.t}』 — Book Track 책 카드`;
   // 표지 사진은 책 정보 서비스(카카오, 국립중앙도서관) 주소일 때만 보여 준다
   const okCover = /^https:\/\/([a-z0-9-]+\.)*(kakaocdn\.net|nl\.go\.kr)\//.test(d.c || "");
-  app.innerHTML = `
-    <div><span class="eyebrow">북트랙 책 카드</span><h1>${d.r ? "이 책을 추천해요" : ["이 책을 읽고 있어요", "이 책을 다 읽었어요", "이 책이 읽고 싶어요"][d.s] || "이 책을 읽고 있어요"}</h1></div>
+  const state = ["지금 읽고 있어요", "다 읽었어요", "읽고 싶은 책이에요"][d.s] || "지금 읽고 있어요";
+  app.innerHTML = `${BRAND}
+    <h1>${d.r ? "이 책을 추천해요" : ["이 책을 읽고 있어요", "이 책을 다 읽었어요", "이 책이 읽고 싶어요"][d.s] || "이 책을 읽고 있어요"}</h1>
     <article class="card">
       ${d.r ? `<span class="rec">추천하고 싶은 책</span>` : ""}
       <div class="top">
         <div class="cover" style="--c:${COVER_COLORS[hash(d.t) % COVER_COLORS.length]}">${okCover ? `<img src="${esc(d.c)}" alt="" referrerpolicy="no-referrer" onerror="this.remove()">` : ""}${esc(d.t)}</div>
         <div class="t">${d.g ? `<span class="kind">${esc(d.g)}</span>` : ""}<h2>${esc(d.t)}</h2>
           <span class="by">${esc([d.a, d.p].filter(Boolean).join(" · "))}</span>
-          <span class="by">${["지금 읽고 있어요", "다 읽었어요", "읽고 싶은 책이에요"][d.s] || "지금 읽고 있어요"}</span></div>
+          <span class="by">${state}</span></div>
       </div>
       ${d.f ? `<span class="label">보낸 사람의 느낌</span><p class="feel">${esc(d.f)}</p>` : ""}
-      ${d.q ? `<div class="quote"><span class="label">밑줄 친 문장</span><p style="margin-top:12px"><span class="ul">${esc(d.q)}</span></p>${d.qp ? `<div class="page">p.${esc(d.qp)}</div>` : ""}</div>` : ""}
+      ${d.q ? `<span class="label">밑줄 친 문장</span><div class="quote"><p><span class="ul">${esc(d.q)}</span></p>${d.qp ? `<div class="page">p.${esc(d.qp)}</div>` : ""}</div>` : ""}
     </article>
-    <a class="cta" href="/">나도 북트랙에 독서 기록 남기기</a>
-    <p class="small">북트랙은 읽은 책과 밑줄 친 문장을 모아 두는 독서 기록장이에요.</p>`;
+    <a class="cta" href="/">나도 Book Track에 독서 기록 남기기</a>
+    <p class="small">Book Track은 읽은 책과 밑줄 친 문장을 모아 두는 독서 기록장이에요.</p>`;
 }
 </script>
 </body>

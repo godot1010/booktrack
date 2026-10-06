@@ -1,24 +1,25 @@
-# 북트랙 아이콘 만들기: 종이색 바탕 + 남색 책 + 빨간 책갈피 리본
+# Book Track 아이콘 만들기: 코랄 바탕 + 흰 책갈피 (앱 안 로고와 같은 모양)
 # 외부 도구 없이 PNG를 직접 만든다.  실행: python tools/make_icons.py
 import zlib, struct, os
 
-PAPER = (241, 233, 216); BOOK = (47, 74, 109); SPINE = (86, 112, 145); RIBBON = (155, 47, 58)
+CORAL = (247, 110, 90); WHITE = (255, 255, 255)
 OUT = os.path.join(os.path.dirname(__file__), "..", "public")
 
 def color_at(x, y, k):
     # 가운데를 기준으로 k배 크기로 그림 (maskable은 작게)
     u = 0.5 + (x - 0.5) / k; v = 0.5 + (y - 0.5) / k
-    # 리본: 책 위쪽부터 책 아래로 삐져나오고 끝이 V자로 파임
-    if 0.565 <= u <= 0.635 and 0.20 <= v <= 0.88:
-        notch = 0.88 - 0.045 * (1 - abs(u - 0.6) / 0.035)
-        if v <= notch: return RIBBON
-    # 책 (모서리 둥글게)
-    l, r, t, b, rad = 0.30, 0.70, 0.18, 0.80, 0.03
+    # 책갈피: 위는 둥근 모서리, 아래는 V자로 파임 (로고 path: M2 1.5h12v15l-6-4.2-6 4.2z 를 키운 것)
+    l, r, t, b = 0.335, 0.665, 0.24, 0.76
     if l <= u <= r and t <= v <= b:
-        cx = min(max(u, l + rad), r - rad); cy = min(max(v, t + rad), b - rad)
-        if (u - cx) ** 2 + (v - cy) ** 2 <= rad ** 2:
-            return SPINE if 0.345 <= u <= 0.355 else BOOK
-    return PAPER
+        notch = b - 0.15 * (1 - abs(u - 0.5) / 0.165)   # 가운데로 갈수록 위로 파임
+        rad = 0.03                                       # 위쪽 모서리 둥글게
+        if v < t + rad and (u < l + rad or u > r - rad):
+            cx = l + rad if u < l + rad else r - rad
+            if (u - cx) ** 2 + (v - (t + rad)) ** 2 > rad ** 2:
+                return CORAL
+        if v <= notch:
+            return WHITE
+    return CORAL
 
 def make(size, k, name):
     ss = 3  # 가장자리를 매끄럽게 하려고 한 칸을 3x3으로 나눠 평균
