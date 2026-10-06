@@ -274,9 +274,17 @@ nav.bottom .add:active{background:var(--coral-press)}
 .sheet .msg{font-size:16px;line-height:1.6}
 .sheet .msg small{display:block;color:var(--text-3);font-size:13.5px;margin-top:4px}
 .ocr{display:flex;flex-direction:column;gap:10px}
-.crop{position:relative;width:fit-content;max-width:100%;margin:0 auto;touch-action:none;user-select:none;-webkit-user-select:none;border-radius:12px;overflow:hidden;line-height:0}
-.crop img{max-width:100%;max-height:52vh;width:auto;height:auto;display:block;pointer-events:none}
-.crop .sel{position:absolute;border:2px solid var(--coral);background:color-mix(in srgb,var(--coral) 18%,transparent);border-radius:4px;box-shadow:0 0 0 999px rgba(0,0,0,.35)}
+/* 사진 위 네모: 바깥은 어둡게, 손잡이(동그라미·막대)는 손가락으로 잡기 쉽게 크게 */
+.crop-wrap{background:#111;border-radius:14px;overflow:hidden;padding:18px}
+.crop{position:relative;width:fit-content;max-width:100%;margin:0 auto;touch-action:none;user-select:none;-webkit-user-select:none;line-height:0}
+.crop img{max-width:100%;max-height:50vh;width:auto;height:auto;display:block;pointer-events:none}
+.crop .sel{position:absolute;border:2px solid var(--coral);box-shadow:0 0 0 999px rgba(0,0,0,.45);cursor:move}
+.crop .h{position:absolute;width:36px;height:36px;margin:-18px 0 0 -18px;display:flex;align-items:center;justify-content:center;z-index:1}
+.crop .h::after{content:"";width:16px;height:16px;border-radius:50%;background:#fff;border:3px solid var(--coral);box-sizing:border-box}
+.crop .h-nw{left:0;top:0}.crop .h-ne{left:100%;top:0}.crop .h-sw{left:0;top:100%}.crop .h-se{left:100%;top:100%}
+.crop .h-n{left:50%;top:0}.crop .h-s{left:50%;top:100%}.crop .h-w{left:0;top:50%}.crop .h-e{left:100%;top:50%}
+.crop .h-n::after,.crop .h-s::after{width:30px;height:10px;border-radius:5px}
+.crop .h-w::after,.crop .h-e::after{width:10px;height:30px;border-radius:5px}
 .qpage-row{display:flex;gap:8px}
 .qpage-row input{width:96px}
 .share-card{background:var(--soft);border-radius:18px;padding:16px;display:flex;flex-direction:column;gap:12px}
@@ -677,9 +685,11 @@ function openQuoteSheet(b){
     <button class="btn line wide" type="button" id="ocr-pick">${ICON_CAMERA}사진에서 글자 가져오기</button>
     <input id="ocr-file" type="file" accept="image/*" capture="environment" hidden>
     <div id="ocr-area" class="ocr" hidden>
-      <p class="hint">밑줄 친 부분을 손가락으로 끌어서 네모로 골라 주세요. 고르지 않으면 사진 전체를 읽어요.</p>
-      <div class="crop" id="crop"><img id="crop-img" alt="찍은 책 페이지"><div class="sel" id="crop-sel" hidden></div></div>
+      <p class="hint">네모의 동그란 손잡이를 끌어서 밑줄 친 부분에 맞춰 주세요. 네모 안쪽을 끌면 통째로 옮겨져요.</p>
+      <div class="crop-wrap"><div class="crop" id="crop"><img id="crop-img" alt="찍은 책 페이지"><div class="sel" id="crop-sel" hidden>
+        ${["nw", "n", "ne", "e", "se", "s", "sw", "w"].map(h => `<span class="h h-${h}" data-h="${h}"></span>`).join("")}</div></div></div>
       <div class="two"><button class="btn ghost" type="button" id="ocr-retake">다시 찍기</button><button class="btn" type="button" id="ocr-read">이 부분 읽기</button></div>
+      <button class="linkbtn muted" type="button" id="ocr-all">사진 전체 읽기</button>
       <p class="hint" id="ocr-status" role="status"></p>
     </div>
     <textarea id="qq-text" rows="4" placeholder="마음에 남은 문장을 옮겨 적어 보세요"></textarea>
@@ -726,7 +736,8 @@ function cleanOcr(text){
 
 function setupOcr(){
   const file = $("#ocr-file"), area = $("#ocr-area"), img = $("#crop-img"), crop = $("#crop"), sel = $("#crop-sel"), status = $("#ocr-status");
-  let photo = null, rect = null, start = null;
+  // frac: 고른 네모를 사진 크기에 대한 비율(0~1)로 저장한다 → 화면 크기가 바뀌어도 어긋나지 않는다
+  let photo = null, frac = null, drag = null;
 
   $("#ocr-pick").onclick = () => file.click();
   $("#ocr-retake").onclick = () => file.click();
@@ -738,30 +749,63 @@ function setupOcr(){
     try { photo = await createImageBitmap(f, {imageOrientation: "from-image"}); }
     catch { return toast("사진을 열지 못했어요"); }
     if(img.src) URL.revokeObjectURL(img.src);
+    sel.hidden = true; status.textContent = "";
+    // 사진이 화면에 나오면 가운데쯤에 기본 네모를 놓는다 (가로로 길게, 두세 줄 높이)
+    img.onload = () => { frac = {x: 0.06, y: 0.4, w: 0.88, h: 0.14}; draw(); };
     img.src = URL.createObjectURL(f);
-    rect = null; sel.hidden = true; status.textContent = "";
     area.hidden = false; $("#ocr-pick").hidden = true;
     area.scrollIntoView({block: "nearest"});
   };
 
-  // 손가락으로 끌어서 네모 고르기 (화면 좌표 → 사진 좌표는 읽을 때 바꾼다)
-  const pos = e => { const r = img.getBoundingClientRect(); return {x: Math.min(Math.max(e.clientX - r.left, 0), r.width), y: Math.min(Math.max(e.clientY - r.top, 0), r.height)}; };
-  const draw = () => { Object.assign(sel.style, {left: rect.x + "px", top: rect.y + "px", width: rect.w + "px", height: rect.h + "px"}); sel.hidden = false; };
-  crop.onpointerdown = e => { try { crop.setPointerCapture(e.pointerId); } catch {} start = pos(e); rect = {x: start.x, y: start.y, w: 0, h: 0}; draw(); };
+  // ── 네모 맞추기: 손잡이를 끌면 크기 조절, 안쪽을 끌면 옮기기, 바깥을 끌면 새로 그리기
+  const MIN = 28; // 네모의 가장 작은 크기(화면 px)
+  const clamp = (v, a, b) => Math.min(Math.max(v, a), b);
+  const pos = e => { const r = img.getBoundingClientRect(); return {x: clamp(e.clientX - r.left, 0, r.width), y: clamp(e.clientY - r.top, 0, r.height)}; };
+  const draw = () => {
+    const W = img.clientWidth, H = img.clientHeight;
+    Object.assign(sel.style, {left: frac.x * W + "px", top: frac.y * H + "px", width: frac.w * W + "px", height: frac.h * H + "px"});
+    sel.hidden = false;
+  };
+  crop.onpointerdown = e => {
+    if(!frac) return;
+    e.preventDefault();
+    try { crop.setPointerCapture(e.pointerId); } catch {}
+    const W = img.clientWidth, H = img.clientHeight, p = pos(e);
+    const handle = e.target.closest("[data-h]");
+    const inside = p.x >= frac.x * W && p.x <= (frac.x + frac.w) * W && p.y >= frac.y * H && p.y <= (frac.y + frac.h) * H;
+    drag = {mode: handle ? handle.dataset.h : inside ? "move" : "new", p0: p, f0: {...frac}, W, H};
+  };
   crop.onpointermove = e => {
-    if(!start) return;
-    const p = pos(e);
-    rect = {x: Math.min(start.x, p.x), y: Math.min(start.y, p.y), w: Math.abs(p.x - start.x), h: Math.abs(p.y - start.y)};
+    if(!drag) return;
+    const {mode, p0, f0, W, H} = drag, p = pos(e);
+    const dx = (p.x - p0.x) / W, dy = (p.y - p0.y) / H, mw = MIN / W, mh = MIN / H;
+    if(mode === "move"){
+      frac = {...f0, x: clamp(f0.x + dx, 0, 1 - f0.w), y: clamp(f0.y + dy, 0, 1 - f0.h)};
+    } else if(mode === "new"){
+      const x0 = p0.x / W, y0 = p0.y / H, x1 = p.x / W, y1 = p.y / H;
+      frac = {x: Math.min(x0, x1), y: Math.min(y0, y1), w: Math.max(Math.abs(x1 - x0), mw), h: Math.max(Math.abs(y1 - y0), mh)};
+      frac.x = Math.min(frac.x, 1 - frac.w); frac.y = Math.min(frac.y, 1 - frac.h);
+    } else {
+      let L = f0.x, T = f0.y, R = f0.x + f0.w, B = f0.y + f0.h;
+      if(mode.includes("w")) L = clamp(L + dx, 0, R - mw);
+      if(mode.includes("e")) R = clamp(R + dx, L + mw, 1);
+      if(mode.includes("n")) T = clamp(T + dy, 0, B - mh);
+      if(mode.includes("s")) B = clamp(B + dy, T + mh, 1);
+      frac = {x: L, y: T, w: R - L, h: B - T};
+    }
     draw();
   };
-  crop.onpointerup = crop.onpointercancel = () => { start = null; if(rect && (rect.w < 12 || rect.h < 12)){ rect = null; sel.hidden = true; } };
+  crop.onpointerup = crop.onpointercancel = () => { drag = null; };
+  window.addEventListener("resize", () => { if(frac && !area.hidden) draw(); });
 
-  $("#ocr-read").onclick = async () => {
+  $("#ocr-all").onclick = () => readOcr(true);
+  $("#ocr-read").onclick = () => readOcr(false);
+  async function readOcr(whole){
     if(!photo) return;
     const btn = $("#ocr-read"); btn.disabled = true;
     // 고른 부분만 잘라서, 글자가 작으면 키우고 흑백으로 또렷하게 만든다
-    const k = photo.width / img.clientWidth;
-    const r = rect ? {x: rect.x * k, y: rect.y * k, w: rect.w * k, h: rect.h * k} : {x: 0, y: 0, w: photo.width, h: photo.height};
+    const r = whole || !frac ? {x: 0, y: 0, w: photo.width, h: photo.height}
+      : {x: frac.x * photo.width, y: frac.y * photo.height, w: frac.w * photo.width, h: frac.h * photo.height};
     const s = Math.min(2, Math.max(1, 1400 / r.w), 4000 / Math.max(r.w, r.h));
     const c = document.createElement("canvas");
     c.width = Math.round(r.w * s); c.height = Math.round(r.h * s);
@@ -794,7 +838,7 @@ function setupOcr(){
       console.error(e);
       status.textContent = "글자 인식을 불러오지 못했어요. 인터넷 연결을 확인해 주세요.";
     } finally { btn.disabled = false; ocrLog = null; }
-  };
+  }
 }
 
 // ───────────────────────── 등록 방법 고르기 ─────────────────────────
