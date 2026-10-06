@@ -205,6 +205,22 @@ mark{background:color-mix(in srgb,var(--ribbon) 22%,transparent);color:inherit;b
 .feel-hit{display:block;width:100%;text-align:left;background:var(--sheet);border:1px solid var(--rule);border-radius:6px;padding:12px 14px}
 .feel-hit p{margin:4px 0 0;font-family:var(--f-display);font-size:14.5px;line-height:1.8;color:var(--ink-soft)}
 .feel-hit strong{font-size:14px}
+.wiki{font-size:12px;color:var(--accent);margin-top:4px;text-decoration:none}
+
+/* ── 공유 */
+.share-sheet{max-height:88vh;overflow-y:auto}
+.share-card{background:var(--sheet);border:1px solid var(--rule);border-radius:8px;padding:16px;display:flex;flex-direction:column;gap:12px}
+.share-card .top{display:flex;gap:14px;align-items:flex-start}
+.share-card .top .t{min-width:0;display:flex;flex-direction:column;gap:3px}
+.share-card h3{font-size:18px;line-height:1.35;overflow-wrap:anywhere}
+.share-card .rec{font-size:12px;color:var(--ribbon);font-weight:700;letter-spacing:.06em}
+.share-card .feel{font-family:var(--f-display);font-size:14.5px;line-height:1.85;margin:0;white-space:pre-wrap;overflow-wrap:anywhere}
+.share-card .q{font-family:var(--f-display);font-size:15px;line-height:1.9;margin:0;overflow-wrap:anywhere}
+.share-opts{display:flex;flex-direction:column;gap:10px}
+.share-opts .opt-title{font-size:13px;color:var(--ink-soft)}
+.share-opts label{display:flex;gap:8px;align-items:flex-start;font-size:14px;line-height:1.5}
+.share-opts input{margin-top:3px;accent-color:var(--accent);flex:none}
+.share-opts .qtext{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;font-family:var(--f-display)}
 .hint{color:var(--ink-faint);font-size:14px;text-align:center;padding:30px 10px;line-height:1.8}
 
 /* ── 등록 / 수정 */
@@ -581,6 +597,7 @@ function detailView(b){
   const longSummary = (b.summary || "").length > 80;
   return `<div class="hero" style="--c:${coverColor(b.title)}">
     <div class="topbar"><button class="back" type="button" data-back aria-label="뒤로">${ICON_BACK}</button><span style="flex:1"></span>
+      <button class="btn ghost sm" type="button" data-share>공유</button>
       <button class="btn ghost sm" type="button" data-go="#/edit/${encodeURIComponent(b.id)}">수정</button></div>
     ${cover(b, "lg")}
     <span class="kind">${esc(b.genre)}</span>
@@ -600,7 +617,11 @@ function detailView(b){
     <p class="summary ${summaryOpen || !longSummary ? "" : "clamp"}">${esc(b.summary)}</p></section>` : ""}
 
   ${b.authorBio ? `<section class="block"><div class="label">작가 소개</div>
-    <div class="author"><div class="avatar">${esc((b.author || "?")[0])}</div><div class="t"><strong>${esc(b.author)}</strong><span class="by">${esc(b.authorBio)}</span></div></div></section>` : ""}
+    <div class="author"><div class="avatar">${esc((b.author || "?")[0])}</div><div class="t"><strong>${esc(b.author)}</strong><span class="by">${esc(b.authorBio)}</span>
+      ${b.authorBioUrl ? `<a class="wiki" href="${esc(b.authorBioUrl)}" target="_blank" rel="noopener">위키백과에서 가져옴 ↗</a>` : ""}</div></div></section>`
+    : b.author ? `<section class="block"><div class="label">작가 소개</div>
+    <p class="hint" style="padding:6px 0;text-align:left">아직 작가 소개가 없어요.
+      <button class="linkbtn" type="button" data-findbio>위키백과에서 찾아보기</button></p></section>` : ""}
 
   <section class="block"><div class="label">느낌<span class="side" id="feel-state"></span></div>
     <textarea id="feel" class="feel" data-feel placeholder="이 책을 읽고 든 생각을 자유롭게 적어 보세요.">${esc(b.feeling)}</textarea>
@@ -658,6 +679,7 @@ function scanResultView(){
     <div class="top">${cover({...b, rec: false}, "md")}<div class="t"><span class="kind">찾았어요</span><h3>${esc(b.title)}</h3>
       <span class="by">${esc([b.author, b.publisher].filter(Boolean).join(" · "))}</span><span class="sub mono">ISBN ${esc(b.isbn)}</span></div></div>
     ${b.summary ? `<p class="sum clamp">${esc(b.summary)}</p>` : ""}
+    ${b.authorBio ? `<span class="sub">작가 소개도 위키백과에서 가져왔어요</span>` : ""}
     <div><div class="sub" style="margin-bottom:6px">종류${b.genreAuto ? " (자동으로 골랐어요)" : " (골라 주세요)"}</div>
       <div class="genre-pick">${GENRES.map(g => `<button type="button" data-pickgenre="${g}" aria-pressed="${g === b.genre}">${g}</button>`).join("")}</div></div>
     <div class="seg" role="group" aria-label="읽기 상태">
@@ -667,6 +689,19 @@ function scanResultView(){
     <button class="btn wide" type="button" data-addfound>서재에 꽂기</button>
   </div>`;
 }
+// 작가 소개: 위키백과에서 찾는다(/api/author). 못 찾거나 4초 넘게 걸리면 빈칸으로 둔다.
+async function fetchAuthorBio(author, title){
+  if(!author) return null;
+  try {
+    const ctl = new AbortController(); const t = setTimeout(() => ctl.abort(), 4000);
+    const r = await fetch(`/api/author?name=${encodeURIComponent(author)}&title=${encodeURIComponent(title || "")}`, {signal: ctl.signal});
+    clearTimeout(t);
+    if(!r.ok) return null;
+    const d = await r.json();
+    return d.bio ? {bio: d.bio, url: /^https:\/\/ko\.(m\.)?wikipedia\.org\//.test(d.url || "") ? d.url : ""} : null;
+  } catch { return null; }
+}
+
 const showScanResult = () => { const el = $("#scan-result"); if(el) el.innerHTML = scanResultView(); };
 
 async function startScan(){
@@ -716,8 +751,9 @@ async function lookupIsbn(isbn){
     const d = await r.json().catch(() => ({}));
     if(r.ok && d.title){
       const genre = GENRES.includes(d.genre) ? d.genre : "";
+      const bio = await fetchAuthorBio(d.author, d.title);
       scanState = {status: "found", book: {isbn, title: d.title, author: d.author || "", publisher: d.publisher || "", cover: d.cover || "",
-        summary: d.summary || "", genre: genre || "기타", genreAuto: !!genre}};
+        summary: d.summary || "", genre: genre || "기타", genreAuto: !!genre, authorBio: bio?.bio || "", authorBioUrl: bio?.url || ""}};
     } else if(r.status === 404){
       scanState = {status: "error", isbn, message: "이 바코드로는 책 정보를 찾지 못했어요. 직접 입력해 주세요."};
     } else {
@@ -768,6 +804,76 @@ function quotesView(){
     || `<div class="empty">${EMPTY_ART}<p>책 화면에서 밑줄 그은 문장이<br>여기에 모여요.</p></div>`}</div>`;
 }
 
+// ───────────────────────── 친구에게 공유 ─────────────────────────
+// 책 카드 내용을 주소 '#' 뒤에 담아 s.html 링크로 보낸다.
+// '#' 뒤는 서버로 전송되지 않아서, 공유한 내용이 북트랙 서버에 남지 않는다. 받는 사람은 앱 없이 브라우저로 본다.
+let shareBook = null;
+function openShare(b){
+  shareBook = b;
+  const m = $("#modal");
+  m.innerHTML = `<div class="sheet share-sheet" role="dialog" aria-modal="true" aria-label="친구에게 공유">
+    <p style="font-size:18px;font-weight:700">친구에게 이렇게 보여요</p>
+    <div id="share-preview"></div>
+    <div class="share-opts">
+      ${b.feeling ? `<label><input id="share-feel" type="checkbox" checked> 내 느낌도 함께 보내기</label>` : ""}
+      ${b.quotes.length ? `<span class="opt-title">함께 보낼 밑줄</span>
+        <label><input type="radio" name="share-q" value="" ${b.quotes.length ? "" : "checked"}> 보내지 않기</label>
+        ${b.quotes.map((q, i) => `<label><input type="radio" name="share-q" value="${esc(q.id)}" ${i === b.quotes.length - 1 ? "checked" : ""}><span class="qtext">${esc(q.text)}</span></label>`).join("")}` : ""}
+    </div>
+    <div class="two"><button class="btn ghost" type="button" id="share-copy">링크 복사</button><button class="btn" type="button" id="share-go">공유하기</button></div>
+    <button class="linkbtn" type="button" id="share-close" style="align-self:center">닫기</button>
+  </div>`;
+  m.hidden = false;
+  const update = () => { $("#share-preview").innerHTML = shareCardHtml(shareData()); };
+  m.querySelectorAll("input").forEach(i => i.addEventListener("change", update));
+  update();
+  $("#share-close").onclick = () => m.hidden = true;
+  $("#share-copy").onclick = async () => {
+    const url = shareUrl(shareData());
+    try { await navigator.clipboard.writeText(url); toast("링크를 복사했어요. 카톡에 붙여 넣으면 돼요"); }
+    catch { prompt("이 링크를 복사해 주세요", url); }
+  };
+  $("#share-go").onclick = async () => {
+    const d = shareData(), url = shareUrl(d);
+    const text = `『${d.t}』${d.a ? " " + d.a : ""}${d.q ? `\n\n“${d.q}”` : ""}\n\n북트랙에서 보낸 책 카드예요.`;
+    if(navigator.share){
+      try { await navigator.share({title: `『${d.t}』`, text, url}); m.hidden = true; }
+      catch(e){ if(e.name !== "AbortError") toast("공유하지 못했어요. 링크 복사를 써 주세요"); }
+    } else $("#share-copy").click();
+  };
+}
+
+// 공유할 내용 (짧은 이름으로 담아 주소를 줄인다)
+function shareData(){
+  const b = shareBook;
+  const qid = document.querySelector('input[name="share-q"]:checked')?.value;
+  const q = b.quotes.find(x => x.id === qid);
+  const feel = $("#share-feel")?.checked ? b.feeling : "";
+  const cut = (s, n) => s.length > n ? s.slice(0, n) + "…" : s;
+  return {t: b.title, a: b.author, p: b.publisher, g: b.genre, c: b.cover, r: b.rec ? 1 : 0, s: b.status === "done" ? 1 : 0,
+    f: cut(feel || "", 400), q: q ? cut(q.text, 300) : "", qp: q?.page || ""};
+}
+
+function shareUrl(d){
+  const clean = Object.fromEntries(Object.entries(d).filter(([, v]) => v !== "" && v !== 0));
+  const bytes = new TextEncoder().encode(JSON.stringify(clean));
+  let bin = ""; bytes.forEach(x => bin += String.fromCharCode(x));
+  const b64 = btoa(bin).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
+  return `${location.origin}/s.html#${b64}`;
+}
+
+// 미리보기 카드 (받는 쪽 s.html과 같은 모양)
+function shareCardHtml(d){
+  return `<div class="share-card">
+    ${d.r ? `<span class="rec">이 책을 추천해요</span>` : ""}
+    <div class="top">${cover({title: d.t, author: d.a, cover: d.c}, "md")}<div class="t"><span class="kind">${esc(d.g || "")}</span>
+      <h3>${esc(d.t)}</h3><span class="by">${esc([d.a, d.p].filter(Boolean).join(" · "))}</span>
+      <span class="by">${d.s ? "다 읽었어요" : "지금 읽고 있어요"}</span></div></div>
+    ${d.f ? `<p class="feel">${esc(d.f)}</p>` : ""}
+    ${d.q ? `<div class="quote"><p><span class="ul">${esc(d.q)}</span></p>${d.qp ? `<div class="src"><span></span><span class="mono">p.${esc(d.qp)}</span></div>` : ""}</div>` : ""}
+  </div>`;
+}
+
 // ───────────────────────── 설정과 백업 ─────────────────────────
 function settingsView(){
   const qCount = books.reduce((n, b) => n + b.quotes.length, 0);
@@ -805,7 +911,8 @@ function normalizeBook(x){
     isbn: String(x.isbn || ""), cover: /^https:\/\//.test(x.cover || "") ? String(x.cover) : "", genre: GENRES.includes(x.genre) ? x.genre : "기타",
     status: x.status === "done" ? "done" : "reading", rec: !!x.rec,
     startedAt: x.startedAt || "", finishedAt: x.finishedAt || "",
-    summary: String(x.summary || ""), authorBio: String(x.authorBio || ""), feeling: String(x.feeling || ""),
+    summary: String(x.summary || ""), authorBio: String(x.authorBio || ""),
+    authorBioUrl: /^https:\/\/ko\.(m\.)?wikipedia\.org\//.test(x.authorBioUrl || "") ? String(x.authorBioUrl) : "", feeling: String(x.feeling || ""),
     quotes: Array.isArray(x.quotes) ? x.quotes.filter(q => q && q.text).map(q => ({id: String(q.id || newId()), text: String(q.text), page: q.page ? String(q.page) : "", createdAt: q.createdAt || ""})) : [],
     createdAt: x.createdAt || nowIso(), updatedAt: x.updatedAt || "",
   };
@@ -856,7 +963,7 @@ document.addEventListener("click", e => {
     const s = scanState.book;
     const done = $('#scan-result [data-fstatus="done"]').getAttribute("aria-pressed") === "true";
     const b = normalizeBook({id: newId(), title: s.title, author: s.author, publisher: s.publisher, isbn: s.isbn, cover: s.cover,
-      summary: s.summary, genre: s.genre, status: done ? "done" : "reading", rec: $("#found-rec").checked,
+      summary: s.summary, authorBio: s.authorBio, authorBioUrl: s.authorBioUrl, genre: s.genre, status: done ? "done" : "reading", rec: $("#found-rec").checked,
       startedAt: nowIso(), finishedAt: done ? nowIso() : "", quotes: [], createdAt: nowIso()});
     books.push(b); saveBook(b);
     lastTab = done ? "done" : "reading"; scanState = {status: "idle"};
@@ -878,6 +985,15 @@ document.addEventListener("click", e => {
     saveBook(cur); return render();
   }
   if(t.hasAttribute("data-more")){ summaryOpen = !summaryOpen; return render(); }
+  if(t.hasAttribute("data-findbio")){
+    t.disabled = true; t.textContent = "찾는 중…";
+    return fetchAuthorBio(cur.author, cur.title).then(async bio => {
+      if(bio){ cur.authorBio = bio.bio; cur.authorBioUrl = bio.url; await saveBook(cur); toast("작가 소개를 가져왔어요"); }
+      else toast("위키백과에서 찾지 못했어요. ‘수정’에서 직접 쓸 수 있어요");
+      if(findBook(cur.id) && parseRoute().arg === cur.id) render();
+    });
+  }
+  if(t.hasAttribute("data-share")) return openShare(cur);
   if(t.dataset.delquote){
     const id = t.dataset.delquote;
     return ask("이 밑줄을 지울까요?", "지우기", () => {
@@ -934,6 +1050,8 @@ document.addEventListener("submit", async e => {
     };
     if(r.name === "edit"){
       const cur = findBook(r.arg); if(!cur) return;
+      // 위키백과 소개를 손으로 고쳤으면 더 이상 '위키백과에서 가져옴'이 아니다
+      if(fields.authorBio !== cur.authorBio) fields.authorBioUrl = "";
       Object.assign(cur, fields); await saveBook(cur);
       toast("저장했어요"); history.back();
     } else {

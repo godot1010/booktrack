@@ -3,3 +3,4 @@ __pycache__/
 *.keystore
 signing-key-info.txt
 .env*
+screens/
