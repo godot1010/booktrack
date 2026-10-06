@@ -805,7 +805,7 @@ function quotesView(){
 }
 
 // ───────────────────────── 친구에게 공유 ─────────────────────────
-// 책 카드 내용을 주소 '#' 뒤에 담아 s.html 링크로 보낸다.
+// 책 카드 내용을 주소 '#' 뒤에 담아 /s 링크(s.html)로 보낸다.
 // '#' 뒤는 서버로 전송되지 않아서, 공유한 내용이 북트랙 서버에 남지 않는다. 받는 사람은 앱 없이 브라우저로 본다.
 let shareBook = null;
 function openShare(b){
@@ -859,7 +859,7 @@ function shareUrl(d){
   const bytes = new TextEncoder().encode(JSON.stringify(clean));
   let bin = ""; bytes.forEach(x => bin += String.fromCharCode(x));
   const b64 = btoa(bin).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
-  return `${location.origin}/s.html#${b64}`;
+  return `${location.origin}/s#${b64}`;
 }
 
 // 미리보기 카드 (받는 쪽 s.html과 같은 모양)
