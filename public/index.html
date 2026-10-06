@@ -778,13 +778,17 @@ function setupOcr(){
     };
     try {
       const worker = await getOcrWorker();
-      const {data} = await worker.recognize(c);
-      const text = cleanOcr(data.text);
-      if(!text){ status.textContent = "글자를 찾지 못했어요. 밝은 곳에서 글자가 크게 나오게 다시 찍어 보세요."; return; }
+      const {data} = await worker.recognize(c, {}, {text: true, blocks: true});
+      // 네모가 줄 가운데를 자르면 그 줄은 엉뚱한 글자가 나온다 → 확신이 낮은 줄(점수 60 미만)은 뺀다
+      // (시험: 제대로 읽힌 줄은 87~94점, 잘린 줄은 0~32점)
+      const lines = (data.blocks || []).flatMap(bl => bl.paragraphs.flatMap(p => p.lines));
+      const good = lines.filter(l => l.confidence >= 60 && /[가-힣A-Za-z0-9]{2}/.test(l.text));
+      const text = cleanOcr(lines.length ? good.map(l => l.text).join("\n") : data.text);
+      if(!text){ status.textContent = "글자를 찾지 못했어요. 네모가 글자 줄을 자르지 않게 넉넉히 고르거나, 밝은 곳에서 다시 찍어 보세요."; return; }
       const ta = $("#qq-text");
       ta.value = ta.value.trim() ? ta.value.trim() + "\n" + text : text;
       area.hidden = true; $("#ocr-pick").hidden = false;
-      toast("글자를 넣었어요. 틀린 곳을 고쳐 주세요");
+      toast(good.length < lines.length ? "잘려서 못 읽은 줄은 뺐어요. 틀린 곳을 고쳐 주세요" : "글자를 넣었어요. 틀린 곳을 고쳐 주세요");
       ta.focus(); ta.setSelectionRange(ta.value.length, ta.value.length);
     } catch(e){
       console.error(e);
