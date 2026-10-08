@@ -1,7 +1,7 @@
 // 북트랙 책 정보 서버: /api/book?isbn=9788936434120
 // 서비스 키는 코드에 넣지 않고 Cloudflare 환경변수에서 읽는다.
 //   KAKAO_REST_API_KEY : 카카오 책 검색 (제목, 지은이, 표지, 소개)
-//   NL_CERT_KEY        : 국립중앙도서관 ISBN 서지정보 (책 종류 = 도서관 분류 번호 KDC). 없으면 건너뛴다.
+//   NL_CERT_KEY        : 국립중앙도서관 소장자료 검색 (책 종류 = 도서관 분류 번호 KDC). 없으면 건너뛴다.
 // 같은 ISBN은 30일 동안 저장해 두고 다시 쓴다(성공한 결과만).
 
 const CACHE_DAYS = 30;
@@ -15,7 +15,7 @@ export async function onRequestGet({ request, env, waitUntil }) {
 
   // ?check=1 : 저장본을 건너뛰고 국립중앙도서관 연결 상태도 함께 알려 준다(점검용)
   const check = url.searchParams.get("check") === "1";
-  const cacheKey = new Request(`https://booktrack-cache/book/${isbn}?v=3`);
+  const cacheKey = new Request(`https://booktrack-cache/book/${isbn}?v=4`);
   const cache = caches.default;
   const hit = check ? null : await cache.match(cacheKey);
   if (hit) return withHeader(hit, "x-booktrack-cache", "HIT");
@@ -41,18 +41,6 @@ export async function onRequestGet({ request, env, waitUntil }) {
     sources: [k && "kakao", n && "nl"].filter(Boolean),
   };
   if (!book.title) return json({ error: "not_found" }, 404);
-  if (check && env.NL_CERT_KEY) {
-    // 점검: 빠른 소장자료 검색 주소가 어떤 항목을 주는지 본다 (항목 이름과 앞부분 값만)
-    try {
-      const q = new URLSearchParams({ key: env.NL_CERT_KEY, apiType: "json", srchTarget: "total", kwd: isbn, pageNum: "1", pageSize: "1" });
-      const t0 = Date.now();
-      const r = await fetchWithTimeout(`https://www.nl.go.kr/NL/search/openApi/search.do?${q}`);
-      const text = (await r.text()).replaceAll(env.NL_CERT_KEY, "***");
-      let first = null;
-      try { const j = JSON.parse(text); first = (j.result || j.docs || [])[0] || j; } catch {}
-      book.nlSearch = { ms: Date.now() - t0, status: r.status, first: first ? Object.fromEntries(Object.entries(first).map(([k, v]) => [k, String(v).slice(0, 40)])) : text.slice(0, 300) };
-    } catch (e) { book.nlSearch = { failed: e.name }; }
-  }
   if (check) return json({ ...book, nl:!env.NL_CERT_KEY ? "no key" : nl?.failed || (nl?.empty ? `empty (total ${nl.total})` : nl ? "ok" : "null") });
 
   const res = json(book, 200, { "cache-control": `public, max-age=${CACHE_DAYS * 86400}` });
@@ -81,24 +69,27 @@ async function fromKakao(isbn, key) {
   }
 }
 
-// ── 국립중앙도서관 ISBN 서지정보
+// ── 국립중앙도서관 소장자료 검색 (ISBN으로 찾아 도서관 분류 번호를 얻는다)
+// 처음엔 'ISBN 서지정보'(seoji) 주소를 썼는데 대답에 10~15초가 걸려서(2026-10-08 확인),
+// 같은 키로 쓸 수 있고 0.1초 만에 대답하는 소장자료 검색(search.do)으로 바꿨다. classNo 예: "813.62"
 async function fromNL(isbn, key) {
   try {
-    const q = new URLSearchParams({ cert_key: key, result_style: "json", page_no: "1", page_size: "1", isbn });
-    const r = await fetchWithTimeout(`https://www.nl.go.kr/seoji/SearchApi.do?${q}`);
+    const q = new URLSearchParams({ key, apiType: "json", srchTarget: "total", kwd: isbn, pageNum: "1", pageSize: "5" });
+    const r = await fetchWithTimeout(`https://www.nl.go.kr/NL/search/openApi/search.do?${q}`);
     if (!r.ok) return { failed: `nl ${r.status}` };
     const text = await r.text();
     let data;
-    // 키가 잘못됐거나 승인 전이면 JSON 대신 안내 글이 온다 → 원인을 알 수 있게 앞부분만 남긴다(키는 가림)
+    // 키가 잘못됐으면 JSON 대신 안내 글이 온다 → 원인을 알 수 있게 앞부분만 남긴다(키는 가림)
     try { data = JSON.parse(text); } catch { return { failed: "nl not json: " + text.replaceAll(key, "***").replace(/\s+/g, " ").slice(0, 160) }; }
-    const d = data.docs?.[0];
-    if (!d) return { empty: true, total: data.TOTAL_COUNT ?? data.total_count ?? null };
+    const list = data.result || [];
+    const d = list.find(x => String(x.isbn || "").replace(/\D/g, "").includes(isbn)) || null;
+    if (!d) return { empty: true, total: data.total ?? list.length };
     return {
-      title: clean(d.TITLE),
-      author: clean(d.AUTHOR),
-      publisher: clean(d.PUBLISHER),
-      cover: d.TITLE_URL ? String(d.TITLE_URL).replace(/^http:/, "https:") : "",
-      genre: genreFrom(d.KDC, d.EA_ADD_CODE),
+      title: clean(String(d.titleInfo || "").split(" : ")[0]),
+      author: clean(String(d.authorInfo || "").split(";")[0]).replace(/^(지은이|글|저자|저|지음)\s*:\s*/, ""),
+      publisher: clean(d.pubInfo),
+      cover: "",
+      genre: genreFrom(d.classNo || d.callNo, ""),
     };
   } catch (e) {
     return { failed: `nl ${e.name}` };
