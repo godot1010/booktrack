@@ -96,6 +96,21 @@ svg{display:block;flex:none}
 .covers .spot{flex:0 0 84px}
 
 /* 올해 기록 */
+/* 요즘 많이 읽는 책 (도서관 인기 대출 순위) */
+.mini-seg{display:flex;background:var(--soft);border-radius:10px;padding:3px}
+.mini-seg button{border:0;background:none;padding:5px 11px;font-size:13px;font-weight:600;color:var(--text-3);border-radius:8px}
+.mini-seg button[aria-pressed="true"]{background:var(--card);color:var(--text);box-shadow:0 1px 3px rgba(0,0,0,.08)}
+.ranks{display:flex;flex-direction:column}
+.rank-row{display:flex;align-items:center;gap:12px;width:100%;border:0;background:none;padding:9px 0;text-align:left;border-bottom:1px solid var(--line)}
+.rank-row:last-child{border-bottom:0}
+.rank-row .no{width:22px;flex:none;text-align:center;font-size:17px;font-weight:800;color:var(--text-3)}
+.rank-row .no.top{color:var(--coral)}
+.rank-row .t{min-width:0;flex:1;display:flex;flex-direction:column;gap:1px}
+.rank-row h3{font-size:15px;font-weight:700;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.rank-row .by{font-size:12.5px;color:var(--text-3);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.rank-row .mine{flex:none;font-size:11.5px;font-weight:700;color:var(--coral-ink);background:var(--coral-soft);border-radius:999px;padding:3px 8px}
+.src-note{font-size:12px;color:var(--text-3);margin-top:8px;line-height:1.6}
+.more-btn{width:100%;margin-top:10px}
 .year-strip{display:flex;align-items:center;gap:14px;width:100%;text-align:left;border:0;background:var(--soft);border-radius:16px;padding:14px 16px}
 .year-strip .big{font-size:22px;font-weight:800;color:var(--coral)}
 .year-strip .t{flex:1;font-size:14px;color:var(--text-2)}
@@ -469,6 +484,7 @@ function render(animate){
     v.innerHTML = shelfView();
   }
   else if(r.name === "quotes") v.innerHTML = quotesView();
+  else if(r.name === "popular"){ if(r.arg === "month" || r.arg === "week") popularPeriod = r.arg; v.innerHTML = popularView(); loadPopular(popularPeriod); }
   else if(r.name === "me" || r.name === "settings") v.innerHTML = meView();
   else if(r.name === "search"){
     v.innerHTML = searchView();
@@ -476,7 +492,8 @@ function render(animate){
   }
   else v.innerHTML = homeView();
   if(animate){ v.classList.remove("view-in"); void v.offsetWidth; v.classList.add("view-in"); }
-  const tab = {home: "nav-home", shelf: "nav-shelf", book: "nav-shelf", quotes: "nav-quotes", me: "nav-me", settings: "nav-me"}[r.name] || (r.name === "" ? "nav-home" : "");
+  if(r.name === "home" || r.name === "") loadPopular(popularPeriod);
+  const tab = {home: "nav-home", popular: "nav-home", shelf: "nav-shelf", book: "nav-shelf", quotes: "nav-quotes", me: "nav-me", settings: "nav-me"}[r.name] || (r.name === "" ? "nav-home" : "");
   ["nav-home", "nav-shelf", "nav-quotes", "nav-me"].forEach(id => {
     const el = $("#" + id);
     if(id === tab) el.setAttribute("aria-current", "page"); else el.removeAttribute("aria-current");
@@ -534,6 +551,7 @@ function homeView(){
       : `<div class="empty-card">서점에서 본 책, 누가 권한 책을 담아 두세요.
           <button class="btn sm ghost" type="button" data-go="#/scan">읽고 싶은 책 담기</button></div>`}
   </section>
+  ${popularSection()}
   <section class="section">
     <button class="year-strip" type="button" data-go="#/me"><span class="big num">${doneThisYear}권</span>
       <span class="t">${year}년에 다 읽은 책 · 밑줄 ${allQuotes().length}개</span>${svg('<path d="m9 6 6 6-6 6"/>', 18)}</button>
@@ -1094,6 +1112,104 @@ function shareCardHtml(d){
   </div>`;
 }
 
+// ───────────────────────── 요즘 많이 읽는 책 (도서관 인기 대출 순위) ─────────────────────────
+// 서버(/api/popular)가 도서관 정보나루에서 받아 6시간씩 저장한 순위를 가져온다.
+// 폰에도 6시간 저장해 두어 홈을 열 때마다 기다리지 않게 한다. 못 가져오면 이 칸은 숨긴다.
+let popularPeriod = "week";
+const popular = {week: null, month: null};       // {start, end, items}
+const popularState = {week: "idle", month: "idle"}; // idle | loading | ok | error
+const POP_TTL = 6 * 3600e3;
+
+function loadPopular(period){
+  if(popularState[period] === "loading" || popularState[period] === "ok") return showPopular();
+  try {
+    const saved = JSON.parse(localStorage.getItem("bt_popular_" + period) || "null");
+    if(saved && Date.now() - saved.at < POP_TTL && saved.data?.items?.length){
+      popular[period] = saved.data; popularState[period] = "ok"; return showPopular();
+    }
+  } catch {}
+  popularState[period] = "loading"; showPopular();
+  fetch(`/api/popular?period=${period}`).then(r => r.ok ? r.json() : Promise.reject(r.status)).then(d => {
+    if(!d.items?.length) throw 0;
+    popular[period] = d; popularState[period] = "ok";
+    try { localStorage.setItem("bt_popular_" + period, JSON.stringify({at: Date.now(), data: d})); } catch {}
+  }).catch(() => { popularState[period] = "error"; }).finally(showPopular);
+}
+
+// 홈 칸과 전체 화면을 지금 상태에 맞게 다시 그린다
+function showPopular(){
+  const sec = $("#popular-sec");
+  if(sec){
+    sec.hidden = popularState[popularPeriod] === "error";
+    sec.querySelectorAll("[data-pop]").forEach(b => b.setAttribute("aria-pressed", b.dataset.pop === popularPeriod));
+    $("#popular-box").innerHTML = popularBox(5);
+  }
+  const page = $("#popular-page");
+  if(page) page.innerHTML = popularBox(20);
+}
+
+const popSeg = () => `<div class="mini-seg" role="group" aria-label="기간">
+  <button type="button" data-pop="week" aria-pressed="${popularPeriod === "week"}">주간</button>
+  <button type="button" data-pop="month" aria-pressed="${popularPeriod === "month"}">월간</button></div>`;
+
+function popularSection(){
+  return `<section class="section" id="popular-sec"${popularState[popularPeriod] === "error" ? " hidden" : ""}>
+    <div class="sec-head"><h2>요즘 많이 읽는 책</h2>${popSeg()}</div>
+    <div id="popular-box">${popularBox(5)}</div>
+  </section>`;
+}
+
+function popularBox(n){
+  const st = popularState[popularPeriod], d = popular[popularPeriod];
+  if(st === "error") return `<p class="hint" style="text-align:center;padding:30px 0">순위를 불러오지 못했어요. 잠시 뒤 다시 열어 주세요.</p>`;
+  if(st !== "ok" || !d) return `<p class="hint" style="text-align:center;padding:24px 0">순위를 불러오는 중…</p>`;
+  const short = s => s.slice(5).replace("-", ".");
+  const mineIsbn = new Set(books.map(b => b.isbn.replace(/\D/g, "")).filter(Boolean));
+  return `<div class="ranks">${d.items.slice(0, n).map((it, i) => `<button class="rank-row" type="button" data-pop-item="${i}">
+      <span class="no num${it.rank <= 3 ? " top" : ""}">${it.rank}</span>${cover(it, "sm")}
+      <span class="t"><h3>${esc(it.title)}</h3><span class="by">${esc([it.author, it.publisher].filter(Boolean).join(" · "))}</span></span>
+      ${mineIsbn.has(it.isbn) ? `<span class="mine">서재에 있음</span>` : ""}</button>`).join("")}</div>
+    ${n < d.items.length ? `<button class="btn ghost more-btn" type="button" data-go="#/popular/${popularPeriod}">더 보기 (${d.items.length}위까지)</button>` : ""}
+    <p class="src-note">전국 공공도서관에서 많이 빌린 책 · ${short(d.start)}~${short(d.end)} · 도서관 정보나루</p>`;
+}
+
+function popularView(){
+  return `<div class="topbar"><button class="back" type="button" data-back aria-label="뒤로">${ICON_BACK}</button><h1>요즘 많이 읽는 책</h1>${popSeg()}</div>
+  <div id="popular-page" style="margin-top:6px">${popularBox(20)}</div>`;
+}
+
+// 순위의 책을 누르면: 책 정보 + '읽고 싶은 책에 담기'
+function openPopularSheet(it){
+  const m = $("#modal");
+  const mine = it.isbn && books.find(b => b.isbn.replace(/\D/g, "") === it.isbn);
+  m.innerHTML = `<div class="sheet" role="dialog" aria-modal="true" aria-label="${esc(it.title)}">
+    <div style="display:flex;gap:14px">${cover(it, "md")}<div style="min-width:0;display:flex;flex-direction:column;gap:3px">
+      <span class="hint" style="font-size:12.5px">${it.rank}위${it.genre ? " · " + esc(it.genre) : ""}</span>
+      <h2 style="line-height:1.35">${esc(it.title)}</h2>
+      <span class="hint" style="font-size:13.5px">${esc([it.author, it.publisher, it.year].filter(Boolean).join(" · "))}</span></div></div>
+    ${mine ? `<p class="hint">이미 서재에 있는 책이에요. (${STATUS_LABEL[mine.status]})</p>
+      <div class="two"><button class="btn ghost" type="button" id="pop-close">닫기</button><button class="btn" type="button" id="pop-open">책 보러 가기</button></div>`
+    : `<button class="btn wide" type="button" id="pop-add">읽고 싶은 책에 담기</button>
+      <button class="linkbtn muted" type="button" id="pop-close">닫기</button>`}
+  </div>`;
+  m.hidden = false;
+  $("#pop-close").onclick = () => m.hidden = true;
+  if(mine) $("#pop-open").onclick = () => { m.hidden = true; go("#/book/" + encodeURIComponent(mine.id)); };
+  else $("#pop-add").onclick = async () => {
+    const btn = $("#pop-add"); btn.disabled = true; btn.textContent = "담는 중…";
+    // 카카오 책 정보로 소개·표지를 채우고, 위키백과 작가 소개도 함께 (못 가져오면 순위 정보만으로)
+    let info = {};
+    if(it.isbn){ try { const r = await fetch(`/api/book?isbn=${it.isbn}`); if(r.ok) info = await r.json(); } catch {} }
+    const bio = await fetchAuthorBio(info.author || it.author, it.title);
+    const b = normalizeBook({id: newId(), title: info.title || it.title, author: info.author || it.author, publisher: info.publisher || it.publisher,
+      isbn: it.isbn, cover: info.cover || it.cover, summary: info.summary || "", genre: GENRES.includes(info.genre) ? info.genre : (it.genre || "기타"),
+      authorBio: bio?.bio || "", authorBioUrl: bio?.url || "", status: "want", ...newDates("want"), quotes: [], createdAt: nowIso()});
+    books.push(b); await saveBook(b);
+    m.hidden = true; toast("읽고 싶은 책에 담았어요");
+    render();
+  };
+}
+
 // ───────────────────────── 백업 ─────────────────────────
 function exportBackup(){
   const data = {app: "BOOKTRACK", version: 1, exportedAt: nowIso(), books};
@@ -1153,6 +1269,8 @@ document.addEventListener("click", e => {
   if(t.dataset.open) return go("#/book/" + encodeURIComponent(t.dataset.open));
   if(t.hasAttribute("data-back")) return history.length > 1 ? history.back() : goReplace("#/home");
   if(t.dataset.quickquote){ const b = findBook(t.dataset.quickquote); if(b) openQuoteSheet(b); return; }
+  if(t.dataset.pop){ popularPeriod = t.dataset.pop; if(r.name === "popular") return goReplace("#/popular/" + popularPeriod); showPopular(); return loadPopular(popularPeriod); }
+  if(t.dataset.popItem){ const it = popular[popularPeriod]?.items[+t.dataset.popItem]; if(it) openPopularSheet(it); return; }
 
   if(t.dataset.fstatus){
     t.parentElement.querySelectorAll("button").forEach(x => x.setAttribute("aria-pressed", x === t));
