@@ -41,7 +41,19 @@ export async function onRequestGet({ request, env, waitUntil }) {
     sources: [k && "kakao", n && "nl"].filter(Boolean),
   };
   if (!book.title) return json({ error: "not_found" }, 404);
-  if (check) return json({ ...book, nl: !env.NL_CERT_KEY ? "no key" : nl?.failed || (nl?.empty ? `empty (total ${nl.total})` : nl ? "ok" : "null") });
+  if (check && env.NL_CERT_KEY) {
+    // 점검: 빠른 소장자료 검색 주소가 어떤 항목을 주는지 본다 (항목 이름과 앞부분 값만)
+    try {
+      const q = new URLSearchParams({ key: env.NL_CERT_KEY, apiType: "json", srchTarget: "total", kwd: isbn, pageNum: "1", pageSize: "1" });
+      const t0 = Date.now();
+      const r = await fetchWithTimeout(`https://www.nl.go.kr/NL/search/openApi/search.do?${q}`);
+      const text = (await r.text()).replaceAll(env.NL_CERT_KEY, "***");
+      let first = null;
+      try { const j = JSON.parse(text); first = (j.result || j.docs || [])[0] || j; } catch {}
+      book.nlSearch = { ms: Date.now() - t0, status: r.status, first: first ? Object.fromEntries(Object.entries(first).map(([k, v]) => [k, String(v).slice(0, 40)])) : text.slice(0, 300) };
+    } catch (e) { book.nlSearch = { failed: e.name }; }
+  }
+  if (check) return json({ ...book, nl:!env.NL_CERT_KEY ? "no key" : nl?.failed || (nl?.empty ? `empty (total ${nl.total})` : nl ? "ok" : "null") });
 
   const res = json(book, 200, { "cache-control": `public, max-age=${CACHE_DAYS * 86400}` });
   waitUntil(cache.put(cacheKey, res.clone()));
