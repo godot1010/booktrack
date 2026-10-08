@@ -13,9 +13,11 @@ export async function onRequestGet({ request, env, waitUntil }) {
   if (!/^(\d{13}|\d{9}[\dX])$/.test(isbn)) return json({ error: "bad_isbn" }, 400);
   if (!env.KAKAO_REST_API_KEY && !env.NL_CERT_KEY) return json({ error: "no_key" }, 500);
 
+  // ?check=1 : 저장본을 건너뛰고 국립중앙도서관 연결 상태도 함께 알려 준다(점검용)
+  const check = url.searchParams.get("check") === "1";
   const cacheKey = new Request(`https://booktrack-cache/book/${isbn}?v=3`);
   const cache = caches.default;
-  const hit = await cache.match(cacheKey);
+  const hit = check ? null : await cache.match(cacheKey);
   if (hit) return withHeader(hit, "x-booktrack-cache", "HIT");
 
   const [kakao, nl] = await Promise.all([
@@ -25,7 +27,7 @@ export async function onRequestGet({ request, env, waitUntil }) {
   if (kakao?.failed && (!env.NL_CERT_KEY || nl?.failed)) return json({ error: "upstream", detail: kakao.failed }, 502);
 
   const k = kakao && !kakao.failed ? kakao : null;
-  const n = nl && !nl.failed ? nl : null;
+  const n = nl && !nl.failed && !nl.empty ? nl : null;
   if (!k && !n) return json({ error: "not_found" }, 404);
 
   const book = {
@@ -39,6 +41,7 @@ export async function onRequestGet({ request, env, waitUntil }) {
     sources: [k && "kakao", n && "nl"].filter(Boolean),
   };
   if (!book.title) return json({ error: "not_found" }, 404);
+  if (check) return json({ ...book, nl: !env.NL_CERT_KEY ? "no key" : nl?.failed || (nl?.empty ? `empty (total ${nl.total})` : nl ? "ok" : "null") });
 
   const res = json(book, 200, { "cache-control": `public, max-age=${CACHE_DAYS * 86400}` });
   waitUntil(cache.put(cacheKey, res.clone()));
@@ -72,8 +75,12 @@ async function fromNL(isbn, key) {
     const q = new URLSearchParams({ cert_key: key, result_style: "json", page_no: "1", page_size: "1", isbn });
     const r = await fetchWithTimeout(`https://www.nl.go.kr/seoji/SearchApi.do?${q}`);
     if (!r.ok) return { failed: `nl ${r.status}` };
-    const d = (await r.json()).docs?.[0];
-    if (!d) return null;
+    const text = await r.text();
+    let data;
+    // 키가 잘못됐거나 승인 전이면 JSON 대신 안내 글이 온다 → 원인을 알 수 있게 앞부분만 남긴다(키는 가림)
+    try { data = JSON.parse(text); } catch { return { failed: "nl not json: " + text.replaceAll(key, "***").replace(/\s+/g, " ").slice(0, 160) }; }
+    const d = data.docs?.[0];
+    if (!d) return { empty: true, total: data.TOTAL_COUNT ?? data.total_count ?? null };
     return {
       title: clean(d.TITLE),
       author: clean(d.AUTHOR),
