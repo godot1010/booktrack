@@ -13,7 +13,7 @@ export async function onRequestGet({ request, env, waitUntil }) {
   if (!/^(\d{13}|\d{9}[\dX])$/.test(isbn)) return json({ error: "bad_isbn" }, 400);
   if (!env.KAKAO_REST_API_KEY && !env.NL_CERT_KEY) return json({ error: "no_key" }, 500);
 
-  const cacheKey = new Request(`https://booktrack-cache/book/${isbn}?v=2`);
+  const cacheKey = new Request(`https://booktrack-cache/book/${isbn}?v=3`);
   const cache = caches.default;
   const hit = await cache.match(cacheKey);
   if (hit) return withHeader(hit, "x-booktrack-cache", "HIT");
