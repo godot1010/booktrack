@@ -1,6 +1,6 @@
 {
-  "name": "Book Track",
-  "short_name": "Book Track",
+  "name": "서고 – 책과 밑줄 기록",
+  "short_name": "서고",
   "description": "읽는 책, 읽고 싶은 책, 다 읽은 책과 밑줄 친 문장을 모아 두는 독서 기록장",
   "lang": "ko",
   "start_url": "./",

@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<title>Book Track</title>
+<title>서고</title>
 <meta name="description" content="읽는 책, 읽고 싶은 책, 다 읽은 책과 밑줄 친 문장을 모아 두는 독서 기록장">
 <meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)">
 <meta name="theme-color" content="#16161b" media="(prefers-color-scheme: dark)">
@@ -50,9 +50,8 @@ svg{display:block;flex:none}
 /* ── 머리: 로고 */
 .head{display:flex;align-items:center;gap:8px;padding-block:14px 8px}
 .brand{display:flex;align-items:center;gap:8px;border:0;background:none;padding:0}
-.brand .mark{width:30px;height:30px;border-radius:9px;background:var(--coral);display:flex;align-items:center;justify-content:center;color:#fff}
+.brand .mark{width:30px;height:30px;border-radius:9px;background:var(--coral);display:flex;align-items:center;justify-content:center;color:var(--coral)}
 .brand .word{font-size:20px;font-weight:800;letter-spacing:-0.03em}
-.brand .word b{color:var(--coral);font-weight:800}
 .head .sp{flex:1}
 .icon-btn{border:0;background:none;width:40px;height:40px;border-radius:12px;display:flex;align-items:center;justify-content:center;color:var(--text-2)}
 .icon-btn:active{background:var(--soft)}
@@ -462,8 +461,10 @@ const ICON_EBOOK = svg('<rect x="6" y="3" width="12" height="18" rx="2"/><path d
 const ICON_AUDIO = svg('<path d="M4 14v-2a8 8 0 0 1 16 0v2"/><rect x="3" y="14" width="4" height="6" rx="1.5"/><rect x="17" y="14" width="4" height="6" rx="1.5"/>', 12, 2.2);
 const ICON_PEN =svg('<path d="M12 5v14M5 12h14"/>', 16, 2.4);
 // 로고: 코랄 네모 안에 책갈피
-const LOGO_MARK = `<span class="mark"><svg width="16" height="18" viewBox="0 0 16 18" aria-hidden="true"><path d="M2 1.5h12v15l-6-4.2-6 4.2z" fill="#fff"/></svg></span>`;
-const BRAND = `<button class="brand" type="button" data-go="#/home" aria-label="Book Track 홈">${LOGO_MARK}<span class="word">Book <b>Track</b></span></button>`;
+// 로고: 기댔다 일어서는 책 — '서고'(책 창고)이면서 책을 통해 '다시 일어서고'. 아이콘(tools/make_icons.py)과 같은 모양
+const BOOKS_SVG = size => `<svg width="${size}" height="${size}" viewBox="12 14 88 84" aria-hidden="true"><g transform="rotate(-18 40 88)"><rect x="24" y="34" width="20" height="54" rx="4" fill="#fff" opacity=".55"/></g><rect x="78" y="40" width="14" height="48" rx="3" fill="#fff" opacity=".8"/><rect x="50" y="20" width="24" height="68" rx="4" fill="#fff"/><path d="M60 20h7v17l-3.5-3-3.5 3z" fill="currentColor"/><rect x="18" y="88" width="78" height="5" rx="2.5" fill="#fff" opacity=".85"/></svg>`;
+const LOGO_MARK = `<span class="mark">${BOOKS_SVG(24)}</span>`;
+const BRAND = `<button class="brand" type="button" data-go="#/home" aria-label="서고 홈">${LOGO_MARK}<span class="word">서고</span></button>`;
 
 function toast(msg){
   const t = $("#toast"); t.textContent = msg; t.hidden = false;
@@ -603,8 +604,7 @@ function homeView(){
       <span class="t">${year}년에 다 읽은 책 · 밑줄 ${allQuotes().length}개</span>${svg('<path d="m9 6 6 6-6 6"/>', 18)}</button>
   </section>`;
 }
-const bigMark = () => `<span style="width:64px;height:64px;border-radius:20px;background:var(--coral);display:flex;align-items:center;justify-content:center">
-  <svg width="30" height="34" viewBox="0 0 16 18" aria-hidden="true"><path d="M2 1.5h12v15l-6-4.2-6 4.2z" fill="#fff"/></svg></span>`;
+const bigMark = () => `<span style="width:72px;height:72px;border-radius:22px;background:var(--coral);color:var(--coral);display:flex;align-items:center;justify-content:center">${BOOKS_SVG(56)}</span>`;
 
 // 오늘의 밑줄: 예전에 그은 밑줄 하나를 다시 보여 준다.
 // 같은 날에는 같은 문장이 나오고(날짜로 고름), '다른 문장'을 누르면 다음 것으로 넘어간다.
@@ -1250,7 +1250,7 @@ function openShare(b){
   };
   $("#share-go").onclick = async () => {
     const d = shareData(), url = shareUrl(d);
-    const text = `『${d.t}』${d.a ? " " + d.a : ""}${d.q ? `\n\n“${d.q}”` : ""}\n\nBook Track에서 보낸 책 카드예요.`;
+    const text = `『${d.t}』${d.a ? " " + d.a : ""}${d.q ? `\n\n“${d.q}”` : ""}\n\n서고에서 보낸 책 카드예요.`;
     if(navigator.share){
       try { await navigator.share({title: `『${d.t}』`, text, url}); m.hidden = true; }
       catch(e){ if(e.name !== "AbortError") toast("공유하지 못했어요. 링크 복사를 써 주세요"); }
@@ -1418,7 +1418,7 @@ function normalizeBook(x){
 async function importBackup(file){
   let data;
   try { data = JSON.parse(await file.text()); } catch { return toast("백업 파일을 읽지 못했어요"); }
-  if(!data || data.app !== "BOOKTRACK" || !Array.isArray(data.books)) return toast("Book Track 백업 파일이 아니에요");
+  if(!data || data.app !== "BOOKTRACK" || !Array.isArray(data.books)) return toast("서고 백업 파일이 아니에요");
   let added = 0, updated = 0;
   for(const raw of data.books){
     const b = normalizeBook(raw); if(!b) continue;
