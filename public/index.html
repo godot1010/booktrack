@@ -238,6 +238,17 @@ mark{background:var(--coral-soft);color:var(--coral-ink);border-radius:3px;paddi
 .torch[aria-pressed="true"]{background:#fff;color:#111}
 .scan-msg{position:absolute;left:0;right:0;bottom:12px;text-align:center;color:#fff;font-size:13px;text-shadow:0 1px 3px rgba(0,0,0,.6);padding:0 12px}
 .scan-off{display:flex;align-items:center;justify-content:center;text-align:center;color:#ccc;font-size:14px;padding:20px;height:100%;line-height:1.7}
+/* ISBN 네모 13칸 */
+.isbn-boxes{display:flex;flex-direction:column;gap:8px;margin-top:4px}
+.ib-label{font-size:13px;font-weight:600;color:var(--text-2)}
+.ib{position:relative;display:flex;align-items:center;gap:6px;background:var(--soft);border-radius:14px;padding:12px 10px}
+.ib-isbn{font-size:11px;font-weight:800;color:var(--text-3);letter-spacing:.02em;flex:none}
+.ib .cells{flex:1;min-width:0;display:flex;align-items:center;gap:2px}
+.ib .cell{flex:1;min-width:0;height:34px;border-radius:6px;background:var(--card);border:1.5px solid var(--line-2);display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:700;font-variant-numeric:tabular-nums}
+.ib .cell.on{border-color:var(--text-3)}
+.ib .dash{flex:none;color:var(--text-3);font-weight:700;width:6px;text-align:center}
+.ib input{position:absolute;inset:0;width:100%;height:100%;opacity:0;font-size:16px;border:0;caret-color:transparent}
+.ib:focus-within .cell.now{border-color:var(--coral);box-shadow:0 0 0 2px var(--coral-soft)}
 .isbn-row{display:flex;gap:8px}
 .isbn-row input{flex:1;min-width:0}
 .found{background:var(--card);border:1px solid var(--line);border-radius:20px;padding:16px;display:flex;flex-direction:column;gap:14px;margin-top:14px;box-shadow:var(--shadow)}
@@ -922,10 +933,29 @@ function scanView(){
     ? `<video id="scan-video" playsinline muted></video><div class="scan-frame"></div><div class="scan-msg" id="scan-msg">카메라를 켜는 중…</div>
        <button class="torch" id="scan-torch" type="button" aria-pressed="false" aria-label="플래시" hidden>${svg('<path d="M13 3 6 13h5l-1 8 7-10h-5z"/>', 20)}</button>`
     : `<div class="scan-off">이 브라우저에서는 카메라를 쓸 수 없어요.<br>바코드 아래 숫자 13자리를 넣어 주세요.</div>`}</div>
-  <form class="isbn-row" data-isbnform>
-    <input id="isbn-input" class="field num" inputmode="numeric" placeholder="바코드 아래 숫자 (978…)" autocomplete="off" maxlength="17">
-    <button class="btn" type="submit">찾기</button></form>
+  <form class="isbn-boxes" data-isbnform>
+    <span class="ib-label">바코드가 안 찍히면 아래 숫자 13자리를 넣어 주세요</span>
+    <div class="ib">
+      <span class="ib-isbn">ISBN</span>
+      <div class="cells" id="isbn-cells" aria-hidden="true">${isbnCells("")}</div>
+      <input id="isbn-input" inputmode="numeric" autocomplete="off" maxlength="17" aria-label="ISBN 숫자 13자리">
+    </div>
+    <p class="hint" id="isbn-msg" style="font-size:12.5px;min-height:1em"></p>
+    <button class="btn wide" type="submit">찾기</button></form>
   <div id="scan-result">${scanResultView()}</div>`;
+}
+
+// ISBN 네모 13칸: □□□-□□-□□□-□□□□-□ (3-2-3-4-1). 실제 칸은 위에 겹친 투명 입력칸이 받는다
+// (출판사마다 하이픈 위치는 조금씩 다르지만 숫자 13자리만 맞으면 된다)
+const ISBN_GROUPS = [3, 2, 3, 4, 1];
+function isbnCells(digits){
+  let i = 0, html = "";
+  ISBN_GROUPS.forEach((n, g) => {
+    if(g) html += `<span class="dash">-</span>`;
+    for(let k = 0; k < n; k++, i++)
+      html += `<span class="cell${i === digits.length ? " now" : ""}${digits[i] ? " on" : ""}">${digits[i] || ""}</span>`;
+  });
+  return html;
 }
 
 function scanResultView(){
@@ -1491,6 +1521,18 @@ document.addEventListener("keydown", e => { if(e.key === "Escape") $("#modal").h
 document.addEventListener("input", e => {
   // 찾기: 글자를 칠 때마다 결과만 다시 그림 (입력 칸은 그대로 둠)
   if(e.target.id === "search-input"){ searchQuery = e.target.value; $("#results").innerHTML = searchResults(); return; }
+  // ISBN 네모칸: 숫자만 남겨 13칸에 채우고, 13자리가 되면 검증해서 바로 찾는다
+  if(e.target.id === "isbn-input"){
+    const digits = e.target.value.replace(/\D/g, "").slice(0, 13);
+    e.target.value = digits;
+    $("#isbn-cells").innerHTML = isbnCells(digits);
+    const m = $("#isbn-msg"); m.textContent = ""; m.style.color = "";
+    if(digits.length === 13){
+      if(isbn13ok(digits)) $("[data-isbnform]").requestSubmit();
+      else { m.textContent = "숫자가 맞지 않아요. 바코드 아래 숫자를 다시 확인해 주세요."; m.style.color = "var(--coral-ink)"; }
+    }
+    return;
+  }
   if(!e.target.hasAttribute("data-feel")) return;
   const r = parseRoute(), cur = findBook(r.arg); if(!cur) return;
   cur.feeling = e.target.value;
