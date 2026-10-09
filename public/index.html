@@ -3,10 +3,10 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<title>서고</title>
+<title>Book612</title>
 <meta name="description" content="읽는 책, 읽고 싶은 책, 다 읽은 책과 밑줄 친 문장을 모아 두는 독서 기록장">
-<meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)">
-<meta name="theme-color" content="#16161b" media="(prefers-color-scheme: dark)">
+<meta name="theme-color" content="#f5eedc" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#141a33" media="(prefers-color-scheme: dark)">
 <link rel="manifest" href="manifest.json">
 <link rel="icon" href="icon-192.png">
 <link rel="apple-touch-icon" href="icon-192.png">
@@ -16,21 +16,25 @@
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Jua&display=swap">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
 <style>
-/* 색: 흰 바탕 + 코랄 포인트. 글꼴: 프리텐다드. 어두운 모드는 같은 구조로 색만 바꾼다 */
+/* 색: 어린왕자 — 모래색 바탕 + 밤하늘 남색 + 별 금색 + 장미 빨강. 글꼴: 프리텐다드, 로고는 주아체.
+   (--coral 이름은 예전 코랄 시절 이름 그대로 두고 '중심 색'으로 쓴다: 밝은 모드 남색, 어두운 모드 금색)
+   어두운 모드는 같은 구조로 색만 바꾼다(밤하늘) */
 :root{
-  --bg:#ffffff; --card:#ffffff; --soft:#f6f7f9; --line:#eef0f3; --line-2:#e3e6ea;
-  --text:#191f28; --text-2:#4e5968; --text-3:#8b95a1;
-  --coral:#f76e5a; --coral-press:#e85c47; --coral-soft:#fff0ec; --coral-ink:#c2412d;
-  --green:#2f9e6e; --green-soft:#e8f7ef; --blue:#3182f6; --blue-soft:#eaf3ff;
-  --shadow:0 2px 12px rgba(25,31,40,.06); --scrim:rgba(17,20,26,.45);
+  --bg:#f5eedc; --card:#fffaf0; --soft:#ede4cc; --line:#e7dbc0; --line-2:#dccfae;
+  --text:#1f2a55; --text-2:#4f5677; --text-3:#8a8597;
+  --coral:#2b3a72; --coral-press:#1f2a55; --coral-soft:#e6e3ea; --coral-ink:#2b3a72; --on-accent:#fdf3dc;
+  --gold:#e0a823; --gold-soft:#f6e3ad; --star:#f6c453; --rose:#e4574f; --night:#1f2a55; --night-2:#2b3a72; --cream:#fdf3dc;
+  --green:#3d8a5a; --green-soft:#e1eedd; --blue:#3b5ba8; --blue-soft:#e3e6f2;
+  --shadow:0 2px 12px rgba(31,42,85,.07); --scrim:rgba(20,26,51,.5);
   --font:"Pretendard Variable",Pretendard,-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Malgun Gothic",sans-serif;
   color-scheme:light;
 }
 @media (prefers-color-scheme: dark){:root{
-  --bg:#16161b; --card:#202027; --soft:#24242c; --line:#2c2c35; --line-2:#383842;
-  --text:#f2f4f6; --text-2:#b0b8c1; --text-3:#7d8590;
-  --coral:#ff7b67; --coral-press:#ff8f7d; --coral-soft:#3a2622; --coral-ink:#ffa594;
-  --green:#4cc28c; --green-soft:#1d3329; --blue:#5b9cff; --blue-soft:#1d2a3d;
+  --bg:#141a33; --card:#1d2547; --soft:#232c52; --line:#2a345e; --line-2:#36416e;
+  --text:#f5eedc; --text-2:#cfc8b4; --text-3:#8f8aa3;
+  --coral:#f6c453; --coral-press:#e0a823; --coral-soft:#33365a; --coral-ink:#f6c453; --on-accent:#1f2a55;
+  --gold:#f6c453; --gold-soft:#4a4430; --night:#0f1430; --night-2:#1f2a55;
+  --green:#6cc08a; --green-soft:#1e3a2e; --blue:#8aa4ff; --blue-soft:#25305c;
   --shadow:0 2px 12px rgba(0,0,0,.3); --scrim:rgba(0,0,0,.6); color-scheme:dark}}
 
 *{box-sizing:border-box}
@@ -52,12 +56,25 @@ svg{display:block;flex:none}
 
 /* ── 머리: 로고 */
 .head{display:flex;align-items:center;gap:8px;padding-block:14px 8px}
-.brand{display:flex;align-items:center;gap:5px;border:0;background:none;padding:0}
-.brand .mark{width:32px;height:32px;border-radius:10px;background:var(--coral);display:flex;align-items:center;justify-content:center;color:var(--coral)}
-.brand .word{font-family:Jua,var(--font);font-size:26px;font-weight:400;letter-spacing:0;line-height:1;padding-top:2px}
-.lockup{display:inline-flex;flex-direction:column;align-items:flex-start;font-family:Jua,var(--font);line-height:1}
-.lockup .wm{color:var(--text)}.lockup .tg{color:var(--coral);margin-top:6px}
-.welcome .logo-row{display:flex;align-items:center;gap:8px;margin-bottom:6px}
+.brand{display:flex;align-items:center;gap:7px;border:0;background:none;padding:0;color:var(--text)}
+.brand .word{font-family:Jua,var(--font);font-size:25px;font-weight:400;letter-spacing:0;line-height:1;padding-top:2px}
+.brand .word b{font-weight:400;color:var(--gold)}.brand .word i{font-style:normal;font-size:.56em}
+.logo-lockup{display:block;height:auto;max-width:100%;margin:0 auto 6px}
+/* 로고 움직임: 별이 깜빡이고, 장미가 피었다 진다(8초). '움직임 줄이기'를 켠 폰은 멈춘 그림(활짝 핀 장미) */
+@media (prefers-reduced-motion:no-preference){
+  .lg-tw{animation:lgtw 2.6s ease-in-out infinite}
+  @keyframes lgtw{0%,100%{opacity:1}50%{opacity:.15}}
+  .lg-sp{transform-box:fill-box;transform-origin:center;animation:lgsp 3.2s ease-in-out infinite}
+  @keyframes lgsp{0%,100%{transform:scale(1) rotate(0);opacity:1}50%{transform:scale(.35) rotate(45deg);opacity:.35}}
+  .lg-head{transform-box:fill-box;transform-origin:50% 100%;animation:lgbloom 8s ease-in-out infinite}
+  @keyframes lgbloom{0%{transform:scale(.3) rotate(0);opacity:1}28%{transform:scale(1) rotate(0);opacity:1}62%{transform:scale(1) rotate(0);opacity:1}78%{transform:scale(.88) rotate(38deg);opacity:1}90%{transform:scale(.6) rotate(55deg);opacity:0}91%{transform:scale(.3) rotate(0);opacity:0}100%{transform:scale(.3) rotate(0);opacity:1}}
+  .lg-pet{animation:lgwilt 8s ease-in-out infinite}
+  @keyframes lgwilt{0%,62%{fill:#e4574f}86%{fill:#a35a52}91%,100%{fill:#e4574f}}
+  .lg-pf1{animation:lgfall1 8s ease-in infinite}.lg-pf2{animation:lgfall2 8s ease-in infinite}
+  @keyframes lgfall1{0%,70%{opacity:0;transform:translate(0,0) rotate(0)}74%{opacity:1}94%{opacity:0;transform:translate(-5px,13px) rotate(-140deg)}100%{opacity:0}}
+  @keyframes lgfall2{0%,75%{opacity:0;transform:translate(0,0) rotate(0)}79%{opacity:1}98%{opacity:0;transform:translate(6px,11px) rotate(160deg)}100%{opacity:0}}
+}
+.lg-pf{transform-box:fill-box;transform-origin:center;opacity:0}
 .head .sp{flex:1}
 .icon-btn{border:0;background:none;width:40px;height:40px;border-radius:12px;display:flex;align-items:center;justify-content:center;color:var(--text-2)}
 .icon-btn:active{background:var(--soft)}
@@ -71,18 +88,26 @@ svg{display:block;flex:none}
 .date{font-size:13px;color:var(--text-3);margin:2px 0 14px}
 .section{margin-top:28px}
 .sec-head{display:flex;align-items:baseline;justify-content:space-between;margin-bottom:12px}
-.sec-head h2{font-size:18px;font-weight:700;letter-spacing:-0.02em}
-.sec-head h2 span{color:var(--coral);margin-left:4px}
+.sec-head h2{font-size:18px;font-weight:700;letter-spacing:-0.02em;display:flex;align-items:center;gap:6px}
+.sec-head h2 span{color:var(--gold)}
+.sec-head h2 small{font-size:12.5px;font-weight:500;color:var(--text-3);letter-spacing:0}
 .more{border:0;background:none;font-size:13px;color:var(--text-3);padding:4px 0}
 
 /* 오늘의 밑줄 */
-.today{background:var(--coral-soft);border-radius:20px;padding:18px 18px 14px}
-.today .row{display:flex;justify-content:space-between;align-items:center}
-.today .tag{font-size:13px;font-weight:700;color:var(--coral-ink)}
-.shuffle{border:0;background:none;font-size:12px;color:var(--coral-ink);display:flex;align-items:center;gap:4px;padding:4px 0;opacity:.85}
-.today .open{display:block;width:100%;border:0;background:none;padding:0;text-align:left;margin-top:10px}
+/* 가로등 켜는 사람: 해 질 녘 하늘 카드 */
+.today{position:relative;overflow:hidden;border-radius:22px;padding:18px 18px 14px;color:#fdf3dc;
+  background:linear-gradient(170deg,#1f2a55 0%,#3b3f78 45%,#a2557a 80%,#f08a5d 100%)}
+.today .row{display:flex;justify-content:space-between;align-items:center;position:relative}
+.today .tag{font-size:13px;font-weight:700;color:#f6c453}
+.today .tag small{font-weight:500;color:rgba(253,243,220,.7);margin-left:4px}
+.shuffle{border:0;background:rgba(255,255,255,.14);border-radius:999px;font-size:12px;color:#fdf3dc;display:flex;align-items:center;gap:4px;padding:5px 10px}
+.today .open{display:block;width:100%;border:0;background:none;padding:0 44px 0 0;text-align:left;margin-top:12px;color:inherit;position:relative}
 .today .open p{font-size:18px;line-height:1.65;font-weight:600;letter-spacing:-0.02em;overflow-wrap:anywhere}
-.today .src{display:block;margin-top:10px;font-size:13px;color:var(--text-2)}
+.today .src{display:block;margin-top:10px;font-size:13px;color:rgba(253,243,220,.8)}
+.today .ul{background-image:linear-gradient(transparent 62%,rgba(246,196,83,.35) 62% 92%,transparent 92%)}
+.today .lamp{position:absolute;right:12px;bottom:10px;opacity:.95}
+.today.empty-today p{font-size:15px;line-height:1.7;margin-top:10px;padding-right:44px}
+@media (prefers-reduced-motion:no-preference){.glow{animation:glow 3s ease-in-out infinite}@keyframes glow{0%,100%{opacity:.85}50%{opacity:.35}}}
 
 /* 지금 읽는 책 (옆으로 넘김) */
 .hscroll{display:flex;gap:12px;overflow-x:auto;scroll-snap-type:x mandatory;margin-inline:-20px;padding:2px 20px 6px;scrollbar-width:none}
@@ -108,17 +133,19 @@ svg{display:block;flex:none}
 .ranks{display:flex;flex-direction:column}
 .rank-row{display:flex;align-items:center;gap:12px;width:100%;border:0;background:none;padding:9px 0;text-align:left;border-bottom:1px solid var(--line)}
 .rank-row:last-child{border-bottom:0}
-.rank-row .no{width:22px;flex:none;text-align:center;font-size:17px;font-weight:800;color:var(--text-3)}
-.rank-row .no.top{color:var(--coral)}
+.rank-row .no{width:22px;flex:none;text-align:center;font-family:Jua,var(--font);font-size:19px;font-weight:400;color:var(--text-3)}
+.rank-row .no.top{color:var(--gold)}
 .rank-row .t{min-width:0;flex:1;display:flex;flex-direction:column;gap:1px}
 .rank-row h3{font-size:15px;font-weight:700;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .rank-row .by{font-size:12.5px;color:var(--text-3);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .rank-row .mine{flex:none;font-size:11.5px;font-weight:700;color:var(--coral-ink);background:var(--coral-soft);border-radius:999px;padding:3px 8px}
 .src-note{font-size:12px;color:var(--text-3);margin-top:8px;line-height:1.6}
 .more-btn{width:100%;margin-top:10px}
-.year-strip{display:flex;align-items:center;gap:14px;width:100%;text-align:left;border:0;background:var(--soft);border-radius:16px;padding:14px 16px}
-.year-strip .big{font-size:22px;font-weight:800;color:var(--coral)}
-.year-strip .t{flex:1;font-size:14px;color:var(--text-2)}
+/* 사업가: 나의 별 지도 (올해 기록) */
+.year-strip{display:flex;align-items:center;gap:14px;width:100%;text-align:left;border:0;background:var(--night);color:#fdf3dc;border-radius:20px;padding:16px 16px}
+.year-strip .big{font-family:Jua,var(--font);font-size:26px;font-weight:400;color:#f6c453;line-height:1}
+.year-strip .t{flex:1;font-size:13.5px;color:rgba(253,243,220,.8);line-height:1.5}
+.bao{margin-top:10px;font-size:13px;color:var(--text-2);display:flex;gap:10px;align-items:center;width:100%;text-align:left;background:var(--card);border:1.5px dashed var(--line-2);border-radius:14px;padding:10px 12px;line-height:1.5}
 
 /* ── 표지 (사진이 없으면 색으로 그린 표지) */
 .cover{position:relative;flex:none;aspect-ratio:2/3;background:var(--c);color:#fff;border-radius:6px;overflow:hidden;
@@ -151,7 +178,7 @@ svg{display:block;flex:none}
 .spot .t{font-size:13px;font-weight:600;line-height:1.35;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
 .spot .s{font-size:11.5px;color:var(--text-3);margin-top:-4px}
 .spot:active .cover{transform:scale(.97)}
-.ribbon{position:absolute;top:-2px;right:8px;width:12px;height:22px;background:var(--coral);clip-path:polygon(0 0,100% 0,100% 100%,50% 76%,0 100%);z-index:1}
+.ribbon{position:absolute;top:-2px;right:8px;width:12px;height:22px;background:var(--rose);clip-path:polygon(0 0,100% 0,100% 100%,50% 76%,0 100%);z-index:1}
 
 /* 상태 표시 */
 .pill{display:inline-flex;align-items:center;gap:4px;font-size:12px;font-weight:600;border-radius:999px;padding:3px 9px}
@@ -168,7 +195,7 @@ svg{display:block;flex:none}
 .welcome p{color:var(--text-2);font-size:15px;line-height:1.7}
 
 /* ── 단추 */
-.btn{border:0;border-radius:14px;padding:13px 18px;background:var(--coral);color:#fff;font-weight:700;font-size:15px;display:inline-flex;align-items:center;justify-content:center;gap:6px}
+.btn{border:0;border-radius:14px;padding:13px 18px;background:var(--coral);color:var(--on-accent);font-weight:700;font-size:15px;display:inline-flex;align-items:center;justify-content:center;gap:6px}
 .btn:active{background:var(--coral-press)}
 .btn.ghost{background:var(--soft);color:var(--text)}
 .btn.line{background:none;border:1px solid var(--line-2);color:var(--text)}
@@ -215,13 +242,13 @@ textarea.feel{min-height:130px;line-height:1.7}
 .list{display:flex;flex-direction:column;gap:12px}
 .quote{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:16px 16px 12px;display:flex;flex-direction:column;gap:10px;text-align:left;width:100%}
 .quote p{font-size:16px;line-height:1.7;font-weight:500;white-space:pre-wrap;overflow-wrap:anywhere}
-.ul{background-image:linear-gradient(transparent 62%,color-mix(in srgb,var(--coral) 28%,transparent) 62% 92%,transparent 92%);-webkit-box-decoration-break:clone;box-decoration-break:clone}
+.ul{background-image:linear-gradient(transparent 62%,color-mix(in srgb,var(--star) 45%,transparent) 62% 92%,transparent 92%);-webkit-box-decoration-break:clone;box-decoration-break:clone}
 .quote .src{font-size:12.5px;color:var(--text-3);display:flex;justify-content:space-between;align-items:center;gap:8px}
 .quote .book{display:flex;align-items:center;gap:6px;min-width:0}
 .quote .book i{flex:none;width:8px;height:12px;border-radius:2px;background:var(--c)}
 .quote .book span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .quote .del{border:0;background:none;color:var(--text-3);font-size:12.5px;padding:2px 0}
-mark{background:var(--coral-soft);color:var(--coral-ink);border-radius:3px;padding:0 1px}
+mark{background:var(--gold-soft);color:inherit;border-radius:3px;padding:0 1px}
 
 /* ── 등록 / 수정 */
 .form{display:flex;flex-direction:column;gap:16px}
@@ -236,7 +263,7 @@ mark{background:var(--coral-soft);color:var(--coral-ink);border-radius:3px;paddi
 .scanner{position:relative;border-radius:20px;overflow:hidden;background:#111;aspect-ratio:4/3;max-width:100%;margin-bottom:12px}
 .scanner video{width:100%;height:100%;object-fit:cover;display:block}
 .scan-frame{position:absolute;left:12%;right:12%;top:30%;bottom:30%;border:2px solid rgba(255,255,255,.9);border-radius:12px;box-shadow:0 0 0 999px rgba(0,0,0,.35)}
-.scan-frame::after{content:"";position:absolute;left:4%;right:4%;top:50%;height:2px;background:var(--coral);box-shadow:0 0 8px var(--coral)}
+.scan-frame::after{content:"";position:absolute;left:4%;right:4%;top:50%;height:2px;background:var(--star);box-shadow:0 0 8px var(--star)}
 @media (prefers-reduced-motion:no-preference){.scan-frame::after{animation:scanline 1.1s ease-in-out infinite alternate}
   @keyframes scanline{from{top:12%}to{top:88%}}}
 .torch{position:absolute;top:12px;right:12px;width:42px;height:42px;border-radius:50%;border:0;background:rgba(0,0,0,.45);color:#fff;display:flex;align-items:center;justify-content:center}
@@ -290,7 +317,7 @@ mark{background:var(--coral-soft);color:var(--coral-ink);border-radius:3px;paddi
 .stat.main b{color:var(--coral-ink)}
 .months{display:flex;align-items:flex-end;gap:5px;height:90px;margin-top:6px}
 .months div{flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;height:100%;justify-content:flex-end}
-.months i{display:block;width:100%;max-width:18px;border-radius:5px 5px 2px 2px;background:var(--coral);min-height:3px}
+.months i{display:block;width:100%;max-width:18px;border-radius:5px 5px 2px 2px;background:var(--gold);min-height:3px}
 .months i.zero{background:var(--line-2)}
 .months small{font-size:10.5px;color:var(--text-3)}
 .panel{background:var(--soft);border-radius:18px;padding:18px;display:flex;flex-direction:column;gap:10px}
@@ -303,8 +330,8 @@ nav.bottom{position:fixed;left:0;right:0;bottom:0;background:color-mix(in srgb,v
 nav.bottom .in{max-width:480px;margin:0 auto;display:grid;grid-template-columns:repeat(5,1fr);align-items:center}
 nav.bottom button{border:0;background:none;padding:6px 0;font-size:11px;font-weight:600;color:var(--text-3);display:flex;flex-direction:column;align-items:center;gap:3px}
 nav.bottom button[aria-current="page"]{color:var(--text)}
-nav.bottom .add{justify-self:center;background:var(--coral);color:#fff;width:52px;height:52px;border-radius:18px;justify-content:center;padding:0;box-shadow:0 6px 16px -6px var(--coral)}
-nav.bottom .add:active{background:var(--coral-press)}
+nav.bottom .add{justify-self:center;background:var(--star);color:#1f2a55;width:52px;height:52px;border-radius:50%;justify-content:center;padding:0;box-shadow:0 6px 16px -6px var(--gold)}
+nav.bottom .add:active{background:var(--gold)}
 
 /* ── 창, 알림 */
 .modal{position:fixed;inset:0;background:var(--scrim);display:flex;align-items:flex-end;justify-content:center;z-index:30}
@@ -317,9 +344,9 @@ nav.bottom .add:active{background:var(--coral-press)}
 .crop-wrap{background:#111;border-radius:14px;overflow:hidden;padding:18px}
 .crop{position:relative;width:fit-content;max-width:100%;margin:0 auto;touch-action:none;user-select:none;-webkit-user-select:none;line-height:0}
 .crop img{max-width:100%;max-height:50vh;width:auto;height:auto;display:block;pointer-events:none}
-.crop .sel{position:absolute;border:2px solid var(--coral);box-shadow:0 0 0 999px rgba(0,0,0,.45);cursor:move}
+.crop .sel{position:absolute;border:2px solid var(--star);box-shadow:0 0 0 999px rgba(0,0,0,.45);cursor:move}
 .crop .h{position:absolute;width:36px;height:36px;margin:-18px 0 0 -18px;display:flex;align-items:center;justify-content:center;z-index:1}
-.crop .h::after{content:"";width:16px;height:16px;border-radius:50%;background:#fff;border:3px solid var(--coral);box-sizing:border-box}
+.crop .h::after{content:"";width:16px;height:16px;border-radius:50%;background:#fff;border:3px solid var(--star);box-sizing:border-box}
 .crop .h-nw{left:0;top:0}.crop .h-ne{left:100%;top:0}.crop .h-sw{left:0;top:100%}.crop .h-se{left:100%;top:100%}
 .crop .h-n{left:50%;top:0}.crop .h-s{left:50%;top:100%}.crop .h-w{left:0;top:50%}.crop .h-e{left:100%;top:50%}
 .crop .h-n::after,.crop .h-s::after{width:30px;height:10px;border-radius:5px}
@@ -347,7 +374,7 @@ nav.bottom .add:active{background:var(--coral-press)}
 
 <nav class="bottom" aria-label="메뉴">
   <div class="in">
-    <button id="nav-home" type="button"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 10.5 12 4l8 6.5V19a1 1 0 0 1-1 1h-4.5v-5.5h-5V20H5a1 1 0 0 1-1-1z"/></svg>홈</button>
+    <button id="nav-home" type="button"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="15" r="6"/><path d="M12 9V5.5"/><path d="M12 5.5c-2 0-2.6-1.8-2-3 .8.2 1.4.6 2 1.2.6-.6 1.2-1 2-1.2.6 1.2 0 3-2 3z" fill="currentColor"/></svg>나의 별</button>
     <button id="nav-shelf" type="button"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="4" width="4.5" height="16" rx="1"/><rect x="10" y="4" width="4.5" height="16" rx="1"/><path d="m16.5 5.2 3.6 14.3"/></svg>서재</button>
     <button id="nav-add" class="add" type="button" aria-label="책 등록"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg></button>
     <button id="nav-quotes" type="button"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 4v7a5 5 0 0 0 10 0V4"/><path d="M4 20h16"/></svg>밑줄</button>
@@ -398,7 +425,8 @@ async function dbDelete(id){
 
 // ───────────────────────── 기본 도구 ─────────────────────────
 const GENRES = ["소설", "시", "수필", "인문", "자기계발", "어린이", "만화", "기타"];
-const COVER_COLORS = ["#f76e5a", "#3f9d74", "#3b7be8", "#8a6ae6", "#e8963a", "#2aa5a0", "#df5f8a", "#55657d", "#b5793f", "#6a8f3a"];
+// 그린 표지 색: 동화책 같은 차분한 색 (밤 남색·장미·풀빛·황토·노을·보라·청록·갈색)
+const COVER_COLORS = ["#2b3a72", "#c8504a", "#4f8a63", "#c9932e", "#de7a52", "#6b5b95", "#2f7f78", "#8a6a3b", "#4a6fa5", "#a0556f"];
 const WEEKDAYS = ["일", "월", "화", "수", "목", "금", "토"];
 let books = [];
 let saveTimer = null;
@@ -466,11 +494,39 @@ const ICON_CAMERA = svg('<path d="M4 8a2 2 0 0 1 2-2h2l1.5-2h5L16 6h2a2 2 0 0 1 
 const ICON_EBOOK = svg('<rect x="6" y="3" width="12" height="18" rx="2"/><path d="M11 17h2"/>', 12, 2.2);
 const ICON_AUDIO = svg('<path d="M4 14v-2a8 8 0 0 1 16 0v2"/><rect x="3" y="14" width="4" height="6" rx="1.5"/><rect x="17" y="14" width="4" height="6" rx="1.5"/>', 12, 2.2);
 const ICON_PEN =svg('<path d="M12 5v14M5 12h14"/>', 16, 2.4);
-// 로고: 코랄 네모 안에 책갈피
-// 로고: 기댔다 일어서는 책 — '서고'(책 창고)이면서 책을 통해 '다시 일어서고'. 아이콘(tools/make_icons.py)과 같은 모양
-const BOOKS_SVG = size => `<svg width="${size}" height="${size}" viewBox="12 14 88 84" aria-hidden="true"><g transform="rotate(-18 40 88)"><rect x="24" y="34" width="20" height="54" rx="4" fill="#fff" opacity=".55"/></g><rect x="78" y="40" width="14" height="48" rx="3" fill="#fff" opacity=".8"/><rect x="50" y="20" width="24" height="68" rx="4" fill="#fff"/><path d="M60 20h7v17l-3.5-3-3.5 3z" fill="currentColor"/><rect x="18" y="88" width="78" height="5" rx="2.5" fill="#fff" opacity=".85"/></svg>`;
-const LOGO_MARK = `<span class="mark">${BOOKS_SVG(27)}</span>`;
-const BRAND = `<button class="brand" type="button" data-go="#/home" aria-label="서고 홈">${LOGO_MARK}<span class="word">서고</span></button>`;
+// 어린왕자 그림들: 새싹(읽는 중), 씨앗(읽고 싶은), 철도원의 기차(다른 별 소식), 여우(밑줄), 바오밥, 가로등, 별자리
+const PIC_SPROUT = `<svg width="20" height="20" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21v-8" stroke="#3d8a5a" stroke-width="2.2" stroke-linecap="round"/><path d="M12 13c0-4-3-6-7-6 0 4 3 6 7 6zM12 11c0-4 3-6 7-6 0 4-3 6-7 6z" fill="#5aa874"/></svg>`;
+const PIC_SEED = `<svg width="20" height="20" viewBox="0 0 24 24" aria-hidden="true"><ellipse cx="12" cy="14" rx="5" ry="6.5" fill="#a3825a"/><path d="M12 8c1-2 3-3 4-3" stroke="#5aa874" stroke-width="2" fill="none" stroke-linecap="round"/></svg>`;
+const PIC_TRAIN = `<svg width="20" height="20" viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="4" width="14" height="13" rx="3" fill="#2b3a72"/><rect x="7.5" y="7" width="9" height="4" rx="1" fill="#f6c453"/><circle cx="9" cy="14" r="1.2" fill="#fdf3dc"/><circle cx="15" cy="14" r="1.2" fill="#fdf3dc"/><path d="M7 20l2-3M17 20l-2-3" stroke="#2b3a72" stroke-width="2" stroke-linecap="round"/></svg>`;
+const PIC_FOX = `<svg width="16" height="16" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 4l5 5h8l5-5-1 9-8 8-8-8z" fill="#f08a5d"/><path d="M8 13l4 4 4-4z" fill="#fdf3dc"/><circle cx="9.5" cy="11" r="1.1" fill="#1f2a55"/><circle cx="14.5" cy="11" r="1.1" fill="#1f2a55"/></svg>`;
+const PIC_BAOBAB = `<svg width="28" height="28" viewBox="0 0 24 24" aria-hidden="true"><path d="M10 22c1-4 1-8 0-11h4c-1 3-1 7 0 11z" fill="#8a6a3b"/><circle cx="7" cy="8" r="4" fill="#5aa874"/><circle cx="12" cy="5.5" r="4.5" fill="#4c9a66"/><circle cx="17" cy="8" r="4" fill="#5aa874"/></svg>`;
+const PIC_LAMP = `<svg class="lamp" width="34" height="56" viewBox="0 0 40 64" aria-hidden="true"><circle class="glow" cx="20" cy="12" r="12" fill="#f6c453" opacity=".35"/><path d="M20 20v42M13 62h14" stroke="#fdf3dc" stroke-width="2.4" stroke-linecap="round"/><path d="M13 8h14l-3 10h-8z" fill="#fdf3dc"/><circle cx="20" cy="13" r="3.4" fill="#f6c453"/></svg>`;
+const PIC_STARMAP = `<svg width="56" height="44" viewBox="0 0 56 44" aria-hidden="true"><path d="M6 34L18 12 32 22 48 6" stroke="#f6c453" stroke-width="1" stroke-dasharray="2 2" fill="none" opacity=".6"/><circle class="lg-tw" cx="6" cy="34" r="2.6" fill="#f6c453"/><circle class="lg-tw" style="animation-delay:.6s" cx="18" cy="12" r="2.2" fill="#fff"/><circle class="lg-tw" style="animation-delay:1.2s" cx="32" cy="22" r="2.6" fill="#f6c453"/><circle class="lg-tw" style="animation-delay:1.8s" cx="48" cy="6" r="2.2" fill="#fff"/></svg>`;
+// 로고: 소행성 B612 위의 장미 한 송이 (확정 시안 design/book612-logo.html, 바탕화면 아이콘은 tools/make_icons.py)
+// 좌표는 104×104. 별 위치 [x, y, 반지름, 금색?] — 행성(가운데 52,70 반지름 22)과 장미를 피해서 찍음
+const LOGO_DOTS = [[18,20,1.6,1],[90,44,1.2],[13,52,1],[28,36,.9],[9,30,.8],[36,12,1.1],[62,9,.9],[72,24,1.3,1],[95,62,.9],
+  [87,88,1.1],[13,82,1],[22,95,.8],[79,97,.9],[96,26,.8],[27,60,.9],[80,52,.8,1],[46,22,.7],[8,66,.7],[94,78,.7],[30,80,.6],[70,40,.6]];
+const LOGO_SPARK = [[24,27,3.2],[86,70,3],[40,6,2.4]];
+const ROSE_ICON = `<rect width="104" height="104" rx="24" fill="#2b3a72"/>`
+  + LOGO_DOTS.map(([x, y, r, g], i) => `<circle class="lg-tw" style="animation-delay:${((i * 0.37) % 2.6).toFixed(2)}s" cx="${x}" cy="${y}" r="${r}" fill="${g ? "#f6c453" : "#fff"}"/>`).join("")
+  + LOGO_SPARK.map(([x, y, s], i) => `<path class="lg-sp" style="animation-delay:${i * 0.9}s" d="M${x} ${y-s}Q${x} ${y} ${x+s} ${y}Q${x} ${y} ${x} ${y+s}Q${x} ${y} ${x-s} ${y}Q${x} ${y} ${x} ${y-s}z" fill="#fff"/>`).join("")
+  + `<path class="lg-sp" style="animation-delay:.4s" d="M84 10l2.2 5 5 .6-3.8 3.3 1.1 5-4.5-2.6-4.5 2.6 1.1-5-3.8-3.3 5-.6z" fill="#f6c453"/>
+  <circle cx="52" cy="70" r="22" fill="#f5eedc"/>
+  <circle cx="42" cy="76" r="4.4" fill="#b9a982"/><circle cx="41.2" cy="75.2" r="2.8" fill="#9c8b62"/>
+  <circle cx="60" cy="83" r="3.4" fill="#b9a982"/><circle cx="59.4" cy="82.4" r="2.1" fill="#9c8b62"/>
+  <circle cx="64" cy="67" r="2.2" fill="#b9a982"/><circle cx="63.6" cy="66.6" r="1.3" fill="#9c8b62"/>
+  <circle cx="50" cy="87" r="1.8" fill="#b9a982"/>
+  <g transform="translate(51 67) scale(1.6)">
+   <path d="M0 0c-.6-5 .4-9 0-12" stroke="#3d8a5a" stroke-width="1.8" fill="none" stroke-linecap="round"/>
+   <path d="M0-5c-4-.4-6-3-5.8-5.6 3 .2 5.4 2 5.8 5.6z" fill="#3d8a5a"/>
+   <g class="lg-head"><path class="lg-pet" d="M0-12c-5-1-6.4-5.6-4.4-9.4 1.6-2 3.6-1.8 4.4.2.8-2 2.8-2.2 4.4-.2 2 3.8.6 8.4-4.4 9.4z" fill="#e4574f"/>
+    <path d="M-2.4-19.4c1.2 1.8 3.6 1.8 4.8 0" stroke="#c43c35" stroke-width="1.1" fill="none"/></g>
+   <ellipse class="lg-pf lg-pf1" cx="-2.6" cy="-14" rx="1.7" ry="1" fill="#c9524a"/>
+   <ellipse class="lg-pf lg-pf2" cx="2.8" cy="-15" rx="1.6" ry="1" fill="#c9524a"/>
+  </g>`;
+const logoIcon = size => `<svg width="${size}" height="${size}" viewBox="0 0 104 104" aria-hidden="true">${ROSE_ICON}</svg>`;
+// 맨 위 작은 로고: 아이콘 + 옆에 "Book612" (B와 612는 금색, ook은 작게 → 얼핏 'B612')
+const BRAND = `<button class="brand" type="button" data-go="#/home" aria-label="Book612 나의 별">${logoIcon(32)}<span class="word"><b>B</b><i>ook</i><b>612</b></span></button>`;
 
 function toast(msg){
   const t = $("#toast"); t.textContent = msg; t.hidden = false;
@@ -570,8 +626,8 @@ function homeView(){
   const head = `<header class="head">${BRAND}<span class="sp"></span>
     ${books.length ? `<button class="icon-btn" type="button" data-go="#/search" aria-label="찾기">${ICON_SEARCH}</button>` : ""}</header>`;
   if(!books.length) return `${head}
-    <div class="welcome"><div class="logo-row">${bigMark()}${lockup(44, 13, 8)}</div>
-      <h2>읽은 책과 마음에 남은 문장을<br>한곳에 모아 보세요</h2>
+    <div class="welcome">${logoLockup(150)}
+      <h2>마음에 남은 문장을<br>나의 별에 모아 두세요</h2>
       <p>책 뒷면 바코드만 입력하면,<br>표지와 책 소개가 채워져요.</p>
       <button class="btn wide" type="button" data-go="#/scan">첫 책 등록하기</button>
       <button class="linkbtn muted" type="button" data-go="#/me">백업 파일이 있나요? 불러오기</button>
@@ -586,78 +642,75 @@ function homeView(){
   <p class="date">${now.getMonth()+1}월 ${now.getDate()}일 ${WEEKDAYS[now.getDay()]}요일</p>
   ${todayCard()}
   <section class="section">
-    <div class="sec-head"><h2>지금 읽는 책${reading.length ? `<span>${reading.length}</span>` : ""}</h2>
+    <div class="sec-head"><h2>${PIC_SPROUT}지금 읽는 책${reading.length ? `<span>${reading.length}</span>` : ""}<small>· 키우는 중</small></h2>
       ${reading.length ? `<button class="more" type="button" data-go="#/shelf/reading">모두 보기</button>` : ""}</div>
     ${reading.length ? `<div class="hscroll">${reading.map(b => `<div class="now">
         <button class="open" type="button" data-open="${esc(b.id)}" style="flex:none">${cover(b, "md")}</button>
         <div class="info"><button class="open" type="button" data-open="${esc(b.id)}"><h3>${esc(b.title)}</h3>
           <span class="meta">${esc(b.author)}${b.startedAt ? ` · ${fmtMonthDay(b.startedAt)}부터` : ""}${b.quotes.length ? ` · 밑줄 ${b.quotes.length}` : ""}</span></button>
-          <div class="actions"><button class="btn sm soft" type="button" data-quickquote="${esc(b.id)}">${ICON_PEN}밑줄 긋기</button></div></div>
+          <div class="actions"><button class="btn sm" type="button" data-quickquote="${esc(b.id)}">${PIC_FOX}밑줄 긋기</button></div></div>
       </div>`).join("")}</div>`
       : `<div class="empty-card">지금 읽고 있는 책을 등록해 두면<br>여기서 바로 밑줄을 그을 수 있어요.
           <button class="btn sm" type="button" data-go="#/scan">책 등록하기</button></div>`}
   </section>
   <section class="section">
-    <div class="sec-head"><h2>읽고 싶은 책${want.length ? `<span>${want.length}</span>` : ""}</h2>
+    <div class="sec-head"><h2>${PIC_SEED}읽고 싶은 책${want.length ? `<span>${want.length}</span>` : ""}<small>· 씨앗</small></h2>
       ${want.length ? `<button class="more" type="button" data-go="#/shelf/want">모두 보기</button>` : ""}</div>
     ${want.length ? `<div class="covers">${want.slice(0, 12).map(b =>
-        `<button class="spot" type="button" data-open="${esc(b.id)}" aria-label="${esc(b.title)}">${cover(b, "fill")}<span class="t">${esc(b.title)}</span></button>`).join("")}</div>`
+        `<button class="spot" type="button" data-open="${esc(b.id)}" aria-label="${esc(b.title)}">${cover(b, "fill")}<span class="t">${esc(b.title)}</span></button>`).join("")}</div>
+      ${want.length >= BAOBAB_AT ? `<button class="bao" type="button" data-go="#/shelf/want">${PIC_BAOBAB}<span>씨앗이 ${want.length}개나 있어요. 바오밥나무가 되기 전에 한 권을 심어 볼까요?</span></button>` : ""}`
       : `<div class="empty-card">서점에서 본 책, 누가 권한 책을 담아 두세요.
           <button class="btn sm ghost" type="button" data-go="#/scan">읽고 싶은 책 담기</button></div>`}
   </section>
   ${popularSection()}
   <section class="section">
-    <button class="year-strip" type="button" data-go="#/me"><span class="big num">${doneThisYear}권</span>
-      <span class="t">${year}년에 다 읽은 책 · 밑줄 ${allQuotes().length}개</span>${svg('<path d="m9 6 6 6-6 6"/>', 18)}</button>
+    <div class="sec-head"><h2>나의 별 지도<small>· ${year}년 기록</small></h2></div>
+    <button class="year-strip" type="button" data-go="#/me">${PIC_STARMAP}<span class="t"><span class="big num">${doneThisYear}</span> 권을 다 읽고<br>밑줄 ${allQuotes().length}개를 별처럼 모았어요</span>${svg('<path d="m9 6 6 6-6 6"/>', 18)}</button>
   </section>`;
 }
-const bigMark = () => `<span style="width:68px;height:68px;border-radius:20px;background:var(--coral);color:var(--coral);display:flex;align-items:center;justify-content:center">${BOOKS_SVG(54)}</span>`;
-// ───────────────────────── 로고 글자 (주아체) ─────────────────────────
-// 큰 곳(첫 화면·공유 화면)은 "서고" + 아래 "다시, 일어서고". '서'의 왼쪽 획은 '다'의 왼쪽 획에,
-// '고'의 오른쪽 획은 마지막 '고'의 오른쪽 획에 맞춘다. 글자 상자에는 숨은 여백이 있어서 실제 획 경계(잉크)를 재서 놓는다.
-// 앱 맨 위 작은 로고는 "서고"만(형 결정 A, 2026-10-09).
-const TAGLINE = "다시, 일어서고";
-const juaReady = document.fonts ? document.fonts.load("40px Jua", "서고다시일어").catch(() => {}) : Promise.resolve();
-function lockup(s1, s2, gap){
-  return `<span class="lockup" data-s1="${s1}" data-s2="${s2}" data-gap="${gap}" aria-label="서고, ${TAGLINE}">
-    <span class="wm" style="font-size:${s1}px">서고</span><span class="tg" style="font-size:${s2}px">${TAGLINE}</span></span>`;
-}
+// 읽고 싶은 책(씨앗)이 이만큼 쌓이면 바오밥나무 이야기로 한 권 시작해 보자고 권한다
+const BAOBAB_AT = 10;
+// ───────────────────────── 큰 로고 (첫 화면) ─────────────────────────
+// 아이콘 아래 가운데 "Book612". 글자의 실제 획 왼쪽 끝(B)~오른쪽 끝(2)을 아이콘 폭에 딱 맞춘다.
+// 아이콘과 글자를 한 SVG(viewBox 하나)에 그린다 — 따로 그리면 좁은 화면에서 아이콘만 줄어 정렬이 깨진다.
+const juaReady = document.fonts ? document.fonts.load("100px Jua", "Book612").catch(() => {}) : Promise.resolve();
+const logoLockup = w => `<svg class="logo-lockup" data-w="${w}" width="${w}" height="${w}" viewBox="0 0 104 104" role="img" aria-label="Book612">${ROSE_ICON}</svg>`;
 function fitLockups(root = document){
-  const els = root.querySelectorAll(".lockup:not([data-done])");
+  const els = root.querySelectorAll(".logo-lockup:not([data-done])");
   if(!els.length) return;
   juaReady.then(() => {
-    const ctx = document.createElement("canvas").getContext("2d");
-    const m = (t, s) => { ctx.font = `${s}px Jua`; const r = ctx.measureText(t); return {l: r.actualBoundingBoxLeft, r: r.actualBoundingBoxRight, a: r.actualBoundingBoxAscent, d: r.actualBoundingBoxDescent}; };
+    const ctx = document.createElement("canvas").getContext("2d"), k = .56, base = 100;
+    const m = (t, sz) => { ctx.font = `${sz}px Jua`; return ctx.measureText(t); };
+    const B = m("B", base), O = m("ook", base * k), N = m("612", base);
+    const f = 104 / (B.actualBoundingBoxLeft + B.width + O.width + N.actualBoundingBoxRight), sz = base * f;
+    const lB = B.actualBoundingBoxLeft * f, xO = lB + B.width * f, xN = xO + O.width * f, a = B.actualBoundingBoxAscent * f;
+    const y = 104 + 13 + a, H = y + 1;   // 아이콘–글자 간격은 아이콘의 13%
     els.forEach(el => {
-      const s1 = +el.dataset.s1, s2 = +el.dataset.s2, gap = +el.dataset.gap;
-      const a = m("서", s1), b = m("고", s1), t = m(TAGLINE, s2);
-      const L = -t.l, R = t.r, x1 = L + a.l, x2 = R - b.r;
-      const base1 = Math.max(a.a, b.a), base2 = base1 + Math.max(a.d, b.d) + gap + t.a;
-      const W = R - L, H = base2 + t.d, ox = -L;
-      el.innerHTML = `<svg width="${W.toFixed(1)}" height="${H.toFixed(1)}" viewBox="0 0 ${W} ${H}" style="display:block;overflow:visible" aria-hidden="true">
-        <text x="${ox + x1}" y="${base1}" font-family="Jua" font-size="${s1}" style="fill:var(--text)">서</text>
-        <text x="${ox + x2}" y="${base1}" font-family="Jua" font-size="${s1}" style="fill:var(--text)">고</text>
-        <text x="${ox}" y="${base2}" font-family="Jua" font-size="${s2}" style="fill:var(--coral)">${TAGLINE}</text></svg>`;
+      el.setAttribute("viewBox", `0 0 104 ${H.toFixed(2)}`);
+      el.setAttribute("height", (+el.dataset.w * H / 104).toFixed(1));
+      el.insertAdjacentHTML("beforeend", `<text x="${lB}" y="${y}" font-family="Jua" font-size="${sz}" style="fill:var(--gold)">B</text>
+        <text x="${xO}" y="${y}" font-family="Jua" font-size="${sz * k}" style="fill:var(--text)">ook</text>
+        <text x="${xN}" y="${y}" font-family="Jua" font-size="${sz}" style="fill:var(--gold)">612</text>`);
       el.dataset.done = "1";
     });
   });
 }
-
 
 // 오늘의 밑줄: 예전에 그은 밑줄 하나를 다시 보여 준다.
 // 같은 날에는 같은 문장이 나오고(날짜로 고름), '다른 문장'을 누르면 다음 것으로 넘어간다.
 let quoteShift = 0;
 function todayCard(){
   const all = allQuotes().sort((x, y) => (x.createdAt || "").localeCompare(y.createdAt || "") || x.id.localeCompare(y.id));
-  if(!all.length) return "";
+  if(!all.length) return `<div class="today empty-today"><div class="row"><span class="tag">오늘의 노을 문장<small>· 오늘의 밑줄</small></span></div>
+    <p>마음에 남은 문장에 밑줄을 그어 두면,<br>날마다 여기서 하나씩 다시 꺼내 드려요.</p>${PIC_LAMP}</div>`;
   const d = new Date();
   const q = all[(titleHash(`${d.getFullYear()}-${d.getMonth()}-${d.getDate()}`) + quoteShift) % all.length];
   return `<div class="today">
-    <div class="row"><span class="tag">오늘의 밑줄</span>
+    <div class="row"><span class="tag">오늘의 노을 문장<small>· 오늘의 밑줄</small></span>
       ${all.length > 1 ? `<button class="shuffle" type="button" data-shuffle>${ICON_SHUFFLE}다른 문장</button>` : ""}</div>
     <button class="open" type="button" data-open="${esc(q.b.id)}"><p><span class="ul">${esc(q.text)}</span></p>
       <span class="src">${esc(q.b.title)}${q.page ? ` · p.${esc(q.page)}` : ""}${q.createdAt ? ` · ${fmtDate(q.createdAt)}에 그음` : ""}</span></button>
-  </div>`;
+    ${PIC_LAMP}</div>`;
 }
 
 // ───────────────────────── 서재 ─────────────────────────
@@ -1288,7 +1341,7 @@ function openShare(b){
   };
   $("#share-go").onclick = async () => {
     const d = shareData(), url = shareUrl(d);
-    const text = `『${d.t}』${d.a ? " " + d.a : ""}${d.q ? `\n\n“${d.q}”` : ""}\n\n서고에서 보낸 책 카드예요.`;
+    const text = `『${d.t}』${d.a ? " " + d.a : ""}${d.q ? `\n\n“${d.q}”` : ""}\n\nBook612에서 보낸 책 카드예요.`;
     if(navigator.share){
       try { await navigator.share({title: `『${d.t}』`, text, url}); m.hidden = true; }
       catch(e){ if(e.name !== "AbortError") toast("공유하지 못했어요. 링크 복사를 써 주세요"); }
@@ -1369,7 +1422,7 @@ const popSeg = () => `<div class="mini-seg" role="group" aria-label="기간">
 
 function popularSection(){
   return `<section class="section" id="popular-sec"${popularState[popularPeriod] === "error" ? " hidden" : ""}>
-    <div class="sec-head"><h2>요즘 많이 읽는 책</h2>${popSeg()}</div>
+    <div class="sec-head"><h2>${PIC_TRAIN}다른 별에서는<small>· 많이 읽는 책</small></h2>${popSeg()}</div>
     <div id="popular-box">${popularBox(5)}</div>
   </section>`;
 }
@@ -1456,7 +1509,7 @@ function normalizeBook(x){
 async function importBackup(file){
   let data;
   try { data = JSON.parse(await file.text()); } catch { return toast("백업 파일을 읽지 못했어요"); }
-  if(!data || data.app !== "BOOKTRACK" || !Array.isArray(data.books)) return toast("서고 백업 파일이 아니에요");
+  if(!data || data.app !== "BOOKTRACK" || !Array.isArray(data.books)) return toast("Book612 백업 파일이 아니에요");
   let added = 0, updated = 0;
   for(const raw of data.books){
     const b = normalizeBook(raw); if(!b) continue;

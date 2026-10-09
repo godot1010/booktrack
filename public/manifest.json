@@ -1,13 +1,13 @@
 {
-  "name": "서고 – 책과 밑줄 기록",
-  "short_name": "서고",
+  "name": "Book612 – 책과 밑줄 기록",
+  "short_name": "Book612",
   "description": "읽는 책, 읽고 싶은 책, 다 읽은 책과 밑줄 친 문장을 모아 두는 독서 기록장",
   "lang": "ko",
   "start_url": "./",
   "scope": "./",
   "display": "standalone",
-  "background_color": "#ffffff",
-  "theme_color": "#ffffff",
+  "background_color": "#f5eedc",
+  "theme_color": "#f5eedc",
   "icons": [
     {
       "src": "icon-192.png",
