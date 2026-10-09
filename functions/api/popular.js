@@ -14,7 +14,7 @@ export async function onRequestGet({ request, env, waitUntil }) {
   if (!env.LIBRARY_API_KEY) return json({ error: "no_key" }, 500);
 
   const today = kstDate(new Date());
-  const cacheKey = new Request(`https://booktrack-cache/popular/${period}/${today}?v=1`);
+  const cacheKey = new Request(`https://booktrack-cache/popular/${period}/${today}?v=2`);
   const cache = caches.default;
   const hit = await cache.match(cacheKey);
   if (hit) return hit;
@@ -41,7 +41,7 @@ export async function onRequestGet({ request, env, waitUntil }) {
 }
 
 async function fetchPopular(key, start, end) {
-  const q = new URLSearchParams({ authKey: key, startDt: start, endDt: end, pageNo: "1", pageSize: String(SIZE), format: "json" });
+  const q = new URLSearchParams({ authKey: key, startDt: start, endDt: end, pageNo: "1", pageSize: "50", format: "json" });
   const ctl = new AbortController();
   const t = setTimeout(() => ctl.abort(), TIMEOUT_MS);
   let r;
@@ -51,9 +51,9 @@ async function fetchPopular(key, start, end) {
   const data = await r.json();
   if (data?.response?.error) throw new Error(`library ${data.response.error}`);
   const docs = data?.response?.docs || [];
-  return docs.map(x => x.doc || x).filter(d => d && d.bookname).map((d, i) => ({
-    rank: Number(d.ranking) || i + 1,
-    title: clean(d.bookname),
+  const seen = new Set();
+  return docs.map(x => x.doc || x).filter(d => d && d.bookname).map(d => ({
+    title: cleanTitle(d.bookname),
     author: cleanAuthor(d.authors),
     publisher: clean(d.publisher),
     year: clean(d.publication_year),
@@ -61,12 +61,25 @@ async function fetchPopular(key, start, end) {
     cover: d.bookImageURL ? String(d.bookImageURL).replace(/^http:/, "https:") : "",
     loans: Number(d.loan_count) || 0,
     genre: genreFrom(d.class_no, d.addition_symbol),
-  }));
+  }))
+  // 같은 책의 여러 권(예: 『흔한남매』 1~20권)이 순위를 다 차지하지 않게, 제목이 같으면 한 번만 둔다
+  .filter(it => { const k = it.title.replace(/\s/g, ""); if (seen.has(k)) return false; seen.add(k); return true; })
+  .slice(0, SIZE)
+  .map((it, i) => ({ rank: i + 1, ...it }));
 }
 
-// '지은이: 한강 ; 옮긴이: 홍길동' → '한강'
+// '안녕이라 그랬어 :김애란 소설' → '안녕이라 그랬어'
+function cleanTitle(s) {
+  return clean(String(s || "").split(/\s*[:=]\s*/)[0]) || clean(s);
+}
+
+// '지은이: 한강 ; 옮긴이: 홍길동' → '한강', '앤디 위어 지음' → '앤디 위어', '한로로 (HANRORO) (지은이)' → '한로로'
 function cleanAuthor(s) {
-  return clean(String(s || "").split(/[;]/)[0]).replace(/^(지은이|글쓴이|글|저자|저|지음|엮은이|편저|글·그림|글\/그림)\s*:\s*/, "").trim();
+  return clean(String(s || "").split(/[;,]/)[0])
+    .replace(/^(지은이|글쓴이|글|저자|저|지음|엮은이|편저|원작|글·그림|글\/그림)\s*:\s*/, "")
+    .replace(/\s*\([^)]*\)/g, "")
+    .replace(/\s+(지음|저|글|엮음|편저|글·그림|원작)$/, "")
+    .trim();
 }
 
 function clean(s) {
