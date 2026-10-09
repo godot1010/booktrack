@@ -15,14 +15,16 @@ export async function onRequestGet({ request, env, waitUntil }) {
 
   // ?check=1 : 저장본을 건너뛰고 국립중앙도서관 연결 상태도 함께 알려 준다(점검용)
   const check = url.searchParams.get("check") === "1";
-  const cacheKey = new Request(`https://booktrack-cache/book/${isbn}?v=4`);
+  const cacheKey = new Request(`https://booktrack-cache/book/${isbn}?v=5`);
   const cache = caches.default;
   const hit = check ? null : await cache.match(cacheKey);
   if (hit) return withHeader(hit, "x-booktrack-cache", "HIT");
 
-  const [kakao, nl] = await Promise.all([
+  const [kakao, nl, lib] = await Promise.all([
     env.KAKAO_REST_API_KEY ? fromKakao(isbn, env.KAKAO_REST_API_KEY) : null,
     env.NL_CERT_KEY ? fromNL(isbn, env.NL_CERT_KEY) : null,
+    // 국립중앙도서관에 아직 없는 책(신간 등)을 위해 도서관 정보나루에서도 분류 번호를 찾는다
+    env.LIBRARY_API_KEY && isbn.length === 13 ? fromLibrary(isbn, env.LIBRARY_API_KEY) : null,
   ]);
   if (kakao?.failed && (!env.NL_CERT_KEY || nl?.failed)) return json({ error: "upstream", detail: kakao.failed }, 502);
 
@@ -37,11 +39,13 @@ export async function onRequestGet({ request, env, waitUntil }) {
     publisher: k?.publisher || n?.publisher || "",
     cover: k?.cover || n?.cover || "",
     summary: k?.summary || "",
-    genre: n?.genre || "",
-    sources: [k && "kakao", n && "nl"].filter(Boolean),
+    genre: n?.genre || lib?.genre || "",
+    sources: [k && "kakao", n && "nl", lib?.genre && !n?.genre && "library"].filter(Boolean),
   };
+  if (!book.title && lib?.title) book.title = lib.title;
   if (!book.title) return json({ error: "not_found" }, 404);
-  if (check) return json({ ...book, nl:!env.NL_CERT_KEY ? "no key" : nl?.failed || (nl?.empty ? `empty (total ${nl.total})` : nl ? "ok" : "null") });
+  if (check) return json({ ...book, nl: !env.NL_CERT_KEY ? "no key" : nl?.failed || (nl?.empty ? `empty (total ${nl.total})` : nl ? `ok (${nl.classNo || "분류 없음"})` : "null"),
+    library: !env.LIBRARY_API_KEY ? "no key" : lib?.failed || (lib ? `ok (${lib.classNo || "분류 없음"})` : "null") });
 
   const res = json(book, 200, { "cache-control": `public, max-age=${CACHE_DAYS * 86400}` });
   waitUntil(cache.put(cacheKey, res.clone()));
@@ -90,9 +94,30 @@ async function fromNL(isbn, key) {
       publisher: clean(d.pubInfo),
       cover: "",
       genre: genreFrom(d.classNo || d.callNo, ""),
+      classNo: String(d.classNo || d.callNo || ""),
     };
   } catch (e) {
     return { failed: `nl ${e.name}` };
+  }
+}
+
+// ── 도서관 정보나루 도서 상세 (ISBN → 분류 번호). 키는 '요즘 많이 읽는 책'과 같은 LIBRARY_API_KEY
+async function fromLibrary(isbn, key) {
+  try {
+    const q = new URLSearchParams({ authKey: key, isbn13: isbn, loaninfoYN: "N", format: "json" });
+    const r = await fetchWithTimeout(`http://data4library.kr/api/srchDtlList?${q}`);
+    if (!r.ok) return { failed: `library ${r.status}` };
+    const data = await r.json();
+    if (data?.response?.error) return { failed: `library ${data.response.error}` };
+    const d = data?.response?.detail?.[0]?.book;
+    if (!d) return null;
+    return {
+      title: clean(String(d.bookname || "").split(/\s*[:=]\s*/)[0]),
+      classNo: String(d.class_no || ""),
+      genre: genreFrom(d.class_no, d.addition_symbol),
+    };
+  } catch (e) {
+    return { failed: `library ${e.name}` };
   }
 }
 
