@@ -11,6 +11,7 @@
 <meta property="og:type" content="website">
 <meta name="theme-color" content="#ffffff">
 <link rel="icon" href="icon-192.png">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Jua&display=swap">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
 <style>
 /* 공유받은 사람이 보는 책 카드 (앱이 없어도 열림). 앱과 같은 흰 바탕 + 코랄 */
@@ -27,9 +28,9 @@
 body{margin:0;min-height:100vh;background:var(--bg);color:var(--text);font-family:var(--font);font-size:15px;line-height:1.55;letter-spacing:-0.01em;word-break:keep-all;
   padding:env(safe-area-inset-top,0px) 20px env(safe-area-inset-bottom,0px)}
 .wrap{max-width:440px;margin:0 auto;padding-block:20px 40px;display:flex;flex-direction:column;gap:20px}
-.brand{display:flex;align-items:center;gap:9px;text-decoration:none;color:var(--text)}
-.mark{width:30px;height:30px;border-radius:9px;background:var(--coral);color:var(--coral);display:flex;align-items:center;justify-content:center}
-.word{font-size:23px;font-weight:800;letter-spacing:-0.02em;line-height:1}
+.brand{display:flex;align-items:center;gap:6px;text-decoration:none;color:var(--text)}
+.mark{width:46px;height:46px;border-radius:13px;background:var(--coral);color:var(--coral);display:flex;align-items:center;justify-content:center}
+.lockup{display:inline-flex;flex-direction:column;font-family:Jua,var(--font);line-height:1}.lockup .tg{color:var(--coral);margin-top:4px}
 h1{font-size:24px;font-weight:800;letter-spacing:-0.03em;margin:0}
 .card{background:var(--soft);border-radius:22px;padding:20px;display:flex;flex-direction:column;gap:16px}
 .rec{font-size:13px;color:var(--coral-ink);font-weight:700}
@@ -58,7 +59,39 @@ h2{font-size:20px;font-weight:800;line-height:1.35;margin:0;overflow-wrap:anywhe
 const COVER_COLORS = ["#f76e5a", "#3f9d74", "#3b7be8", "#8a6ae6", "#e8963a", "#2aa5a0", "#df5f8a", "#55657d", "#b5793f", "#6a8f3a"];
 const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 const hash = t => { let h = 0; for(const c of String(t)) h = (h * 31 + c.charCodeAt(0)) >>> 0; return h; };
-const BRAND = `<a class="brand" href="/"><span class="mark"><svg width="25" height="25" viewBox="12 14 88 84" aria-hidden="true"><g transform="rotate(-18 40 88)"><rect x="24" y="34" width="20" height="54" rx="4" fill="#fff" opacity=".55"/></g><rect x="78" y="40" width="14" height="48" rx="3" fill="#fff" opacity=".8"/><rect x="50" y="20" width="24" height="68" rx="4" fill="#fff"/><path d="M60 20h7v17l-3.5-3-3.5 3z" fill="currentColor"/><rect x="18" y="88" width="78" height="5" rx="2.5" fill="#fff" opacity=".85"/></svg></span><span class="word">서고</span></a>`;
+// ───────────────────────── 로고 글자 (주아체) ─────────────────────────
+// 큰 곳(첫 화면·공유 화면)은 "서고" + 아래 "다시, 일어서고". '서'의 왼쪽 획은 '다'의 왼쪽 획에,
+// '고'의 오른쪽 획은 마지막 '고'의 오른쪽 획에 맞춘다. 글자 상자에는 숨은 여백이 있어서 실제 획 경계(잉크)를 재서 놓는다.
+// 앱 맨 위 작은 로고는 "서고"만(형 결정 A, 2026-10-09).
+const TAGLINE = "다시, 일어서고";
+const juaReady = document.fonts ? document.fonts.load("40px Jua", "서고다시일어").catch(() => {}) : Promise.resolve();
+function lockup(s1, s2, gap){
+  return `<span class="lockup" data-s1="${s1}" data-s2="${s2}" data-gap="${gap}" aria-label="서고, ${TAGLINE}">
+    <span class="wm" style="font-size:${s1}px">서고</span><span class="tg" style="font-size:${s2}px">${TAGLINE}</span></span>`;
+}
+function fitLockups(root = document){
+  const els = root.querySelectorAll(".lockup:not([data-done])");
+  if(!els.length) return;
+  juaReady.then(() => {
+    const ctx = document.createElement("canvas").getContext("2d");
+    const m = (t, s) => { ctx.font = `${s}px Jua`; const r = ctx.measureText(t); return {l: r.actualBoundingBoxLeft, r: r.actualBoundingBoxRight, a: r.actualBoundingBoxAscent, d: r.actualBoundingBoxDescent}; };
+    els.forEach(el => {
+      const s1 = +el.dataset.s1, s2 = +el.dataset.s2, gap = +el.dataset.gap;
+      const a = m("서", s1), b = m("고", s1), t = m(TAGLINE, s2);
+      const L = -t.l, R = t.r, x1 = L + a.l, x2 = R - b.r;
+      const base1 = Math.max(a.a, b.a), base2 = base1 + Math.max(a.d, b.d) + gap + t.a;
+      const W = R - L, H = base2 + t.d, ox = -L;
+      el.innerHTML = `<svg width="${W.toFixed(1)}" height="${H.toFixed(1)}" viewBox="0 0 ${W} ${H}" style="display:block;overflow:visible" aria-hidden="true">
+        <text x="${ox + x1}" y="${base1}" font-family="Jua" font-size="${s1}" style="fill:var(--text)">서</text>
+        <text x="${ox + x2}" y="${base1}" font-family="Jua" font-size="${s1}" style="fill:var(--text)">고</text>
+        <text x="${ox}" y="${base2}" font-family="Jua" font-size="${s2}" style="fill:var(--coral)">${TAGLINE}</text></svg>`;
+      el.dataset.done = "1";
+    });
+  });
+}
+
+const BRAND = `<a class="brand" href="/"><span class="mark"><svg width="38" height="38" viewBox="12 14 88 84" aria-hidden="true"><g transform="rotate(-18 40 88)"><rect x="24" y="34" width="20" height="54" rx="4" fill="#fff" opacity=".55"/></g><rect x="78" y="40" width="14" height="48" rx="3" fill="#fff" opacity=".8"/><rect x="50" y="20" width="24" height="68" rx="4" fill="#fff"/><path d="M60 20h7v17l-3.5-3-3.5 3z" fill="currentColor"/><rect x="18" y="88" width="78" height="5" rx="2.5" fill="#fff" opacity=".85"/></svg></span>${lockup(30, 9.5, 5)}</a>`;
+
 
 // 주소 '#' 뒤에 담긴 책 카드 읽기
 function read(){
@@ -96,6 +129,7 @@ if(!d){
     <a class="cta" href="/">나도 서고에 독서 기록 남기기</a>
     <p class="small">서고는 읽은 책과 밑줄 친 문장을 모아 두는 독서 기록장이에요. 책에서 힘을 얻어 다시 일어서고.</p>`;
 }
+fitLockups(app);
 </script>
 </body>
 </html>
