@@ -228,6 +228,8 @@ mark{background:var(--coral-soft);color:var(--coral-ink);border-radius:3px;paddi
 .scan-frame::after{content:"";position:absolute;left:4%;right:4%;top:50%;height:2px;background:var(--coral);box-shadow:0 0 8px var(--coral)}
 @media (prefers-reduced-motion:no-preference){.scan-frame::after{animation:scanline 1.1s ease-in-out infinite alternate}
   @keyframes scanline{from{top:12%}to{top:88%}}}
+.torch{position:absolute;top:12px;right:12px;width:42px;height:42px;border-radius:50%;border:0;background:rgba(0,0,0,.45);color:#fff;display:flex;align-items:center;justify-content:center}
+.torch[aria-pressed="true"]{background:#fff;color:#111}
 .scan-msg{position:absolute;left:0;right:0;bottom:12px;text-align:center;color:#fff;font-size:13px;text-shadow:0 1px 3px rgba(0,0,0,.6);padding:0 12px}
 .scan-off{display:flex;align-items:center;justify-content:center;text-align:center;color:#ccc;font-size:14px;padding:20px;height:100%;line-height:1.7}
 .isbn-row{display:flex;gap:8px}
@@ -877,7 +879,8 @@ function scanView(){
   return `<div class="topbar"><button class="back" type="button" data-back aria-label="뒤로">${ICON_BACK}</button><h1>책 등록</h1></div>
   ${waysBar("scan")}
   <div class="scanner">${canDetect
-    ? `<video id="scan-video" playsinline muted></video><div class="scan-frame"></div><div class="scan-msg" id="scan-msg">카메라를 켜는 중…</div>`
+    ? `<video id="scan-video" playsinline muted></video><div class="scan-frame"></div><div class="scan-msg" id="scan-msg">카메라를 켜는 중…</div>
+       <button class="torch" id="scan-torch" type="button" aria-pressed="false" aria-label="플래시" hidden>${svg('<path d="M13 3 6 13h5l-1 8 7-10h-5z"/>', 20)}</button>`
     : `<div class="scan-off">이 폰에서는 카메라로 바코드를 읽을 수 없어요.<br>바코드 아래 숫자 13자리를 넣어 주세요.</div>`}</div>
   <form class="isbn-row" data-isbnform>
     <input id="isbn-input" class="field num" inputmode="numeric" placeholder="바코드 아래 숫자 (978…)" autocomplete="off" maxlength="17">
@@ -922,11 +925,15 @@ async function fetchAuthorBio(author, title){
 
 const showScanResult = () => { const el = $("#scan-result"); if(el) el.innerHTML = scanResultView(); };
 
+// 바코드 읽기를 잘 되게 하려고 (2026-10-09, 형이 "잘 안 찍힌다"):
+//  1) 높은 화질(1920×1080)로 받는다  2) 자동 초점을 계속 맞추고, 지원하면 1.5배 줌 → 조금 떨어져도 바코드가 크게 잡힌다
+//  3) 화면의 네모 부분만 잘라 키워서 읽고, 세 번에 한 번은 화면 전체도 읽는다  4) 지원하면 플래시 버튼
 async function startScan(){
   if(!canDetect || scanStream) return;
   const msg = t => { const m = $("#scan-msg"); if(m) m.textContent = t; };
   try {
-    scanStream = await navigator.mediaDevices.getUserMedia({video: {facingMode: "environment", width: {ideal: 1280}}, audio: false});
+    scanStream = await navigator.mediaDevices.getUserMedia({
+      video: {facingMode: {ideal: "environment"}, width: {ideal: 1920}, height: {ideal: 1080}}, audio: false});
   } catch(e){
     msg("카메라를 쓸 수 없어요. 아래에 숫자를 넣어 주세요.");
     return;
@@ -934,17 +941,55 @@ async function startScan(){
   if(parseRoute().name !== "scan"){ stopScan(); return; }
   const video = $("#scan-video");
   video.srcObject = scanStream; await video.play().catch(() => {});
-  msg("책 뒷면 바코드를 네모 안에 맞춰 주세요");
+
+  // 초점·줌·플래시 (폰이 지원하는 것만)
+  const track = scanStream.getVideoTracks()[0];
+  const caps = track.getCapabilities?.() || {};
+  const adv = [];
+  if(caps.focusMode?.includes("continuous")) adv.push({focusMode: "continuous"});
+  if(caps.zoom) adv.push({zoom: Math.min(caps.zoom.max, Math.max(caps.zoom.min, 1.5))});
+  if(adv.length) track.applyConstraints({advanced: adv}).catch(() => {});
+  const torchBtn = $("#scan-torch");
+  if(caps.torch && torchBtn){
+    let on = false;
+    torchBtn.hidden = false;
+    torchBtn.onclick = () => { on = !on; track.applyConstraints({advanced: [{torch: on}]}).catch(() => {}); torchBtn.setAttribute("aria-pressed", on); };
+  }
+  msg("바코드를 네모 안에 가득 차게 맞춰 주세요");
+
   let detector;
   try { detector = new BarcodeDetector({formats: ["ean_13"]}); } catch { msg("이 폰은 바코드를 못 읽어요. 아래에 숫자를 넣어 주세요."); return; }
+
+  // 화면의 네모(.scan-frame)가 실제 영상의 어디인지 계산해서 그 부분만 잘라 읽는다 (영상은 object-fit: cover로 잘려 보임)
+  const canvas = document.createElement("canvas"), ctx = canvas.getContext("2d", {willReadFrequently: true});
+  const frameCrop = () => {
+    const vw = video.videoWidth, vh = video.videoHeight, el = video.getBoundingClientRect(), fr = $(".scan-frame")?.getBoundingClientRect();
+    if(!vw || !fr) return null;
+    const s = Math.max(el.width / vw, el.height / vh);                   // 화면 px ÷ 영상 px
+    const ox = (vw * s - el.width) / 2, oy = (vh * s - el.height) / 2;  // 잘려 나간 가장자리
+    const pad = 20;                                                      // 네모보다 조금 넉넉하게
+    const x = Math.max(0, (fr.left - el.left + ox - pad) / s), y = Math.max(0, (fr.top - el.top + oy - pad) / s);
+    const w = Math.min(vw - x, (fr.width + pad * 2) / s), h = Math.min(vh - y, (fr.height + pad * 2) / s);
+    return w > 20 && h > 20 ? {x, y, w, h} : null;
+  };
+
+  let n = 0;
   const tick = async () => {
     if(!scanStream) return;
     try {
-      const codes = await detector.detect(video);
-      const code = codes.map(c => c.rawValue).find(v => /^97[89]\d{10}$/.test(v) && isbn13ok(v));
+      let source = video;
+      const c = n++ % 3 !== 2 ? frameCrop() : null;
+      if(c){
+        const k = Math.min(2, 1200 / c.w);
+        canvas.width = Math.round(c.w * k); canvas.height = Math.round(c.h * k);
+        ctx.drawImage(video, c.x, c.y, c.w, c.h, 0, 0, canvas.width, canvas.height);
+        source = canvas;
+      }
+      const codes = await detector.detect(source);
+      const code = codes.map(x => x.rawValue).find(v => /^97[89]\d{10}$/.test(v) && isbn13ok(v));
       if(code){ navigator.vibrate?.(60); stopScan(); return lookupIsbn(code); }
     } catch {}
-    scanTimer = setTimeout(tick, 250);
+    scanTimer = setTimeout(tick, 150);
   };
   tick();
 }
