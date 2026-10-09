@@ -78,7 +78,7 @@ if(!d){
     <a class="cta" href="/">Book Track 둘러보기</a>`;
 } else {
   document.title = `『${d.t}』 — Book Track 책 카드`;
-  // 표지 사진은 책 정보 서비스(카카오, 국립중앙도서관) 주소일 때만 보여 준다
+  // 표지 사진은 책 정보 서비스(카카오, 국립중앙도서관, 알라딘 이미지) 주소일 때만 보여 준다
   const okCover = /^https:\/\/([a-z0-9-]+\.)*(kakaocdn\.net|nl\.go\.kr)\//.test(d.c || "");
   const state = ["지금 읽고 있어요", "다 읽었어요", "읽고 싶은 책이에요"][d.s] || "지금 읽고 있어요";
   app.innerHTML = `${BRAND}
