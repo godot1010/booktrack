@@ -476,6 +476,31 @@ nav.bottom .nv:active svg{transform:scale(.9)}
   .st-leaf{transform-box:fill-box;transform-origin:50% 100%;animation:stleaf 2.4s ease-in-out 4.2s infinite}@keyframes stleaf{0%,100%{transform:rotate(-4deg)}50%{transform:rotate(4deg)}}
 }
 @media (prefers-reduced-motion:reduce){.st-drop,.st-splash{display:none}}
+/* 길들인 문장: 책별 묶음 머리글, 여우가 꺼내 준 문장 창 */
+.q-book{display:flex;align-items:center;gap:10px;width:100%;border:0;background:none;padding:0;text-align:left;margin:22px 0 10px}
+.q-book:first-of-type{margin-top:4px}
+.q-book .t{flex:1;min-width:0;display:flex;flex-direction:column}
+.q-book b{font-size:16px;font-weight:800;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.q-book .t span{font-size:12.5px;color:var(--text-3)}
+.q-book .n{font-size:13px;font-weight:700;color:#c75b2a}
+.fox-sheet{background:var(--night);color:#fdf3dc}
+.fox-pick{position:relative;display:flex;flex-direction:column;align-items:center;text-align:center;gap:12px;padding:6px 4px 4px}
+.fox-pick .fox-pic svg{overflow:visible}
+.fox-q{font-size:19px;line-height:1.7;font-weight:600;letter-spacing:-0.02em;overflow-wrap:anywhere}
+.fox-q .ul{background-image:linear-gradient(transparent 62%,rgba(246,196,83,.35) 62% 92%,transparent 92%)}
+.fox-src{font-size:13px;color:rgba(253,243,220,.72);line-height:1.6}
+.fox-sheet .btn.ghost{background:rgba(255,255,255,.12);color:#fdf3dc}
+.fox-sheet .btn:not(.ghost){background:#f6c453;color:#1f2a55}
+.spark{position:absolute;color:#f6c453;font-size:14px;opacity:0}
+.spark.s1{left:22%;top:4px}.spark.s2{right:24%;top:18px;font-size:10px}.spark.s3{left:30%;top:46px;font-size:9px}
+@media (prefers-reduced-motion:no-preference){
+  .fox-pick .fox-pic{animation:foxhop .6s ease-out}
+  @keyframes foxhop{0%{transform:translateY(14px) scale(.8);opacity:0}60%{transform:translateY(-4px)}100%{transform:none;opacity:1}}
+  .fox-q{animation:stfade .7s ease-out .15s both}
+  .spark{animation:spark 2.4s ease-in-out infinite}.spark.s2{animation-delay:.6s}.spark.s3{animation-delay:1.2s}
+  @keyframes spark{0%,100%{opacity:0;transform:scale(.5)}50%{opacity:1;transform:scale(1.2) rotate(20deg)}}
+}
+@media (prefers-reduced-motion:reduce){.spark{opacity:.8}}
 .toast{position:fixed;left:50%;bottom:104px;transform:translateX(-50%);background:var(--text);color:var(--bg);padding:10px 18px;border-radius:14px;font-size:14px;font-weight:600;z-index:40;max-width:calc(100% - 40px);text-align:center}
 </style>
 </head>
@@ -1489,17 +1514,64 @@ function formView(b){
 }
 
 // ───────────────────────── 밑줄 모음 ─────────────────────────
+// 정렬: 최근 순 / 오래된 순 / 책별로 묶기. 마지막 고른 것을 기억
+const QSORTS = [["recent", "최근 순"], ["old", "오래된 순"], ["book", "책별로"]];
+let quoteSort = (() => { try { const v = localStorage.getItem("bt_quote_sort"); return QSORTS.some(x => x[0] === v) ? v : "recent"; } catch { return "recent"; } })();
+const byTime = (x, y) => (x.createdAt || "").localeCompare(y.createdAt || "") || x.id.localeCompare(y.id);
+// 책 안에서는 읽은 자리 순서(쪽·%·시간이 숫자로 읽히면 그 순서, 아니면 그은 순서)
+const posNum = q => { const m = String(q.page || "").match(/\d+(?::\d+)*/); return m ? m[0].split(":").reduce((a, n) => a * 60 + +n, 0) : Infinity; };
 function quotesView(){
-  const all = allQuotes().sort((x, y) => (y.createdAt || "").localeCompare(x.createdAt || ""));
+  const all = allQuotes();
+  const nBooks = new Set(all.map(q => q.b.id)).size;
+  let body = "";
+  if(quoteSort === "book"){
+    // 가장 최근에 밑줄을 그은 책부터
+    const groups = new Map();
+    [...all].sort(byTime).reverse().forEach(q => { if(!groups.has(q.b.id)) groups.set(q.b.id, []); groups.get(q.b.id).push(q); });
+    body = [...groups.values()].map(qs => {
+      const b = qs[0].b;
+      qs.sort((x, y) => posNum(x) - posNum(y) || byTime(x, y));
+      return `<button class="q-book" type="button" data-open="${esc(b.id)}">${cover(b, "sm")}<span class="t"><b>${esc(b.title)}</b><span>${esc(b.author)}</span></span><span class="n num">${qs.length}개</span></button>
+        <div class="list">${qs.map(q => quoteCard(q)).join("")}</div>`;
+    }).join("");
+  } else {
+    const list = [...all].sort(byTime);
+    if(quoteSort === "recent") list.reverse();
+    body = `<div class="list">${list.map(q => quoteCard(q)).join("")}</div>`;
+  }
   return `<div class="page-title"><h1>${titleIcon("nav-quotes")}길들인 문장</h1>
     ${all.length ? `<button class="icon-btn" type="button" data-go="#/search" aria-label="찾기">${ICON_SEARCH}</button>` : ""}</div>
   <p class="page-sub">여우처럼 하나씩 길들인 밑줄 모음</p>
-  ${all.length ? `<div class="night-card" style="margin-bottom:16px"><span class="pic">${PIC_FOX.replace(/16/g, "30")}</span>
-      <span class="tx"><span class="tag">길들인 문장</span><b class="num">${new Set(all.map(q => q.b.id)).size}권에서 ${all.length}개</b>
-      <p>길들인 문장은 나에게 하나뿐인 문장이 돼요. 읽다가 멈춘 자리를 모아 두었어요.</p></span></div>
-    <div class="list">${all.map(q => quoteCard(q)).join("")}</div>`
+  ${all.length ? `<div class="night-card" style="margin-bottom:14px"><span class="pic">${PIC_FOX.replace(/16/g, "30")}</span>
+      <span class="tx"><span class="tag">길들인 문장</span><b class="num">${nBooks}권에서 ${all.length}개</b>
+      <p>길들인 문장은 나에게 하나뿐인 문장이 돼요. 읽다가 멈춘 자리를 모아 두었어요.</p>
+      <button class="btn sm" type="button" data-foxpick>${svg('<path d="M12 3l2.6 5.6 6 .7-4.5 4.1 1.2 6-5.3-3-5.3 3 1.2-6L3.4 9.3l6-.7z"/>', 15, 2)}여우야, 문장 하나 꺼내 줘</button></span></div>
+    <div class="shelf-bar"><span class="num">${all.length}개</span>
+      <select id="quote-sort" class="sort" aria-label="정렬">${QSORTS.map(([k, l]) => `<option value="${k}"${k === quoteSort ? " selected" : ""}>${l}</option>`).join("")}</select></div>
+    ${body}`
     : `<div class="empty"><span class="pic">${PIC_FOX.replace(/16/g, "44")}</span><p>읽다가 마음에 남은 문장에 밑줄을 그으면<br>여우처럼 하나씩 길들여져 여기에 모여요.</p>
       ${books.some(b => b.status === "reading") ? "" : `<button class="btn" type="button" data-go="#/scan">책 등록하기</button>`}</div>`}`;
+}
+
+// 여우가 골라 주는 문장: 예전 밑줄 하나를 크게 꺼내 보여 준다(방금 본 것은 건너뜀)
+let foxLast = "";
+function openFoxPick(){
+  const all = allQuotes(); if(!all.length) return;
+  const pool = all.length > 1 ? all.filter(q => q.id !== foxLast) : all;
+  const q = pool[Math.floor(Math.random() * pool.length)]; foxLast = q.id;
+  const m = $("#modal");
+  m.innerHTML = `<div class="sheet fox-sheet" role="dialog" aria-modal="true" aria-label="여우가 꺼내 준 문장">
+    <div class="fox-pick">
+      <span class="fox-pic">${$("#nav-quotes svg") ? $("#nav-quotes svg").outerHTML.replace(/width="26" height="26"/, 'width="54" height="54"') : ""}</span>
+      <span class="spark s1">✦</span><span class="spark s2">✦</span><span class="spark s3">✦</span>
+      <p class="fox-q"><span class="ul">${esc(q.text)}</span></p>
+      <span class="fox-src">『${esc(q.b.title)}』 ${esc(q.b.author)}${q.page ? ` · ${esc(fmtPos(q.page, q.b.format))}` : ""}${q.createdAt ? `<br>${fmtDate(q.createdAt)}에 길들인 문장` : ""}</span>
+    </div>
+    <div class="two"><button class="btn ghost" type="button" id="fox-again">${all.length > 1 ? "다른 문장" : "닫기"}</button><button class="btn" type="button" id="fox-open">책 보러 가기</button></div>
+  </div>`;
+  m.hidden = false;
+  $("#fox-again").onclick = () => all.length > 1 ? openFoxPick() : (m.hidden = true);
+  $("#fox-open").onclick = () => { m.hidden = true; go("#/book/" + encodeURIComponent(q.b.id)); };
 }
 
 // ───────────────────────── 나: 기록과 백업 ─────────────────────────
@@ -1827,6 +1899,7 @@ document.addEventListener("click", e => {
   if(t.hasAttribute("data-export")) return exportBackup();
   if(t.hasAttribute("data-goal")) return openGoalSheet();
   if(t.hasAttribute("data-story")) return openStory();
+  if(t.hasAttribute("data-foxpick")) return openFoxPick();
   if(t.hasAttribute("data-import")) return $("#import-file").click();
   if(!cur) return;
 
@@ -1951,6 +2024,11 @@ document.addEventListener("submit", async e => {
 });
 
 document.addEventListener("change", e => {
+  if(e.target.id === "quote-sort"){
+    quoteSort = e.target.value;
+    try { localStorage.setItem("bt_quote_sort", quoteSort); } catch {}
+    return render();
+  }
   if(e.target.id !== "shelf-sort") return;
   shelfSort = e.target.value;
   try { localStorage.setItem("bt_shelf_sort", shelfSort); } catch {}
