@@ -926,16 +926,22 @@ function setupVoice(){
     const rec = new SpeechRec();
     rec.lang = "ko-KR"; rec.interimResults = true; rec.continuous = true;
     const base = ta.value.trim() ? ta.value.replace(/\s+$/, "") + " " : "";
-    let done = "";
+    let heard = "";
+    // 받은 결과 전체를 매번 처음부터 다시 엮는다.
+    // 안드로이드 크롬은 앞 결과를 이어 붙인 '누적' 결과를 새 칸으로 또 보내서("세상에" → "세상에 가치" → …),
+    // 그대로 이어 붙이면 같은 말이 겹쳐 나온다(형 폰에서 확인). 앞 결과로 시작하는 결과는 앞 것을 바꿔 치운다.
     rec.onresult = e => {
       if($("#modal").hidden) return stopVoice();
-      let interim = "";
-      for(let i = e.resultIndex; i < e.results.length; i++){
-        const t = e.results[i][0].transcript;
-        if(e.results[i].isFinal) done += (done && !/\s$/.test(done) ? " " : "") + spokenMarks(t.trim());
-        else interim += t;
+      const segs = [], bare = x => x.replace(/\s+/g, "");
+      for(let i = 0; i < e.results.length; i++){
+        const t = e.results[i][0].transcript.trim(); if(!t) continue;
+        const last = segs[segs.length - 1];
+        if(last !== undefined && bare(t).startsWith(bare(last))) segs[segs.length - 1] = t;
+        else if(last !== undefined && bare(last).startsWith(bare(t))) continue;
+        else segs.push(t);
       }
-      ta.value = base + done + (interim ? (done ? " " : "") + interim : "");
+      heard = spokenMarks(segs.join(" "));
+      ta.value = base + heard;
     };
     rec.onerror = e => {
       msg.textContent = {"not-allowed": "마이크를 쓸 수 있게 허락해 주세요. (브라우저 주소창 옆 자물쇠 → 마이크)",
@@ -947,7 +953,7 @@ function setupVoice(){
       if(voiceRec === rec) voiceRec = null;
       setOn(false);
       ta.value = ta.value.trim();
-      if(done && !/허락|인터넷|들리지|찾지|쓸 수 없/.test(msg.textContent)) msg.textContent = "다 받아 적었어요. 틀린 글자를 고친 뒤 저장해 주세요.";
+      if(heard && !/허락|인터넷|들리지|찾지|쓸 수 없/.test(msg.textContent)) msg.textContent = "다 받아 적었어요. 틀린 글자를 고친 뒤 저장해 주세요.";
     };
     msg.textContent = "여우가 귀 기울여 듣고 있어요. 밑줄 친 문장을 또박또박 읽어 주세요.";
     area.hidden = false; setOn(true); voiceRec = rec;
