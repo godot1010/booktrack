@@ -184,6 +184,17 @@ svg{display:block;flex:none}
 
 /* ── 서재: 칩 + 표지 격자 */
 .chips{display:flex;gap:8px;overflow-x:auto;margin:0 -20px 18px;padding:2px 20px;scrollbar-width:none}
+/* 서재: 칩은 내려도 화면 위에 붙어 있게, 그 아래 권수 + 정렬 */
+.shelf-chips{position:sticky;top:0;z-index:4;background:var(--bg);margin-bottom:6px;padding-block:10px}
+.shelf-bar{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;font-size:13px;color:var(--text-3)}
+.sort{appearance:none;-webkit-appearance:none;border:1px solid var(--line-2);background:var(--card) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%238a8597' stroke-width='3' stroke-linecap='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E") no-repeat right 10px center;
+  border-radius:999px;padding:6px 28px 6px 12px;font-size:13px;font-weight:600;color:var(--text-2)}
+.year-head{display:flex;align-items:baseline;gap:6px;font-family:Jua,var(--font);font-size:20px;color:var(--text);margin:26px 0 12px}
+.year-head:first-of-type{margin-top:4px}
+.year-head small{font-family:var(--font);font-size:12.5px;color:var(--text-3)}
+/* 맨 위로: 많이 내려가면 오른쪽 아래에 별 단추 */
+.to-top{position:fixed;right:max(16px,calc(50% - 224px));bottom:calc(84px + env(safe-area-inset-bottom,0px));z-index:6;width:46px;height:46px;border-radius:50%;
+  border:0;background:var(--night);color:#f6c453;display:flex;align-items:center;justify-content:center;box-shadow:0 6px 16px -6px rgba(20,26,51,.6)}
 .chips::-webkit-scrollbar{display:none}
 .chip{flex:none;border:1px solid var(--line-2);background:var(--card);border-radius:999px;padding:8px 14px;font-size:14px;color:var(--text-2);font-weight:500}
 .chip .n{margin-left:5px;color:var(--text-3);font-weight:500}
@@ -410,6 +421,7 @@ nav.bottom .add:active{background:var(--gold)}
     <button id="nav-me" type="button"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="8.5" r="3.8"/><path d="M5 20a7 7 0 0 1 14 0"/></svg>나</button>
   </div>
 </nav>
+<button id="to-top" class="to-top" type="button" aria-label="맨 위로" hidden><svg width="22" height="22" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3l2.6 5.6 6 .7-4.5 4.1 1.2 6-5.3-3-5.3 3 1.2-6L3.4 9.3l6-.7z" fill="currentColor"/></svg></button>
 <div id="toast" class="toast" role="status" hidden></div>
 <div id="modal" class="modal" hidden></div>
 <input id="import-file" type="file" accept=".json,application/json" hidden>
@@ -754,11 +766,19 @@ function todayCard(){
 }
 
 // ───────────────────────── 서재 ─────────────────────────
+// 정렬: 최근 담은 순(다 읽음 칸은 다 읽은 날 순) / 제목 가나다순 / 지은이순. 마지막 고른 것을 기억
+const SORTS = [["recent", "최근 담은 순"], ["title", "제목 가나다순"], ["author", "지은이순"]];
+let shelfSort = (() => { try { const v = localStorage.getItem("bt_shelf_sort"); return SORTS.some(x => x[0] === v) ? v : "recent"; } catch { return "recent"; } })();
+const ko = (a, b) => a.localeCompare(b, "ko");
+function sortBooks(list){
+  if(shelfSort === "title") return list.sort((a, b) => ko(a.title, b.title));
+  if(shelfSort === "author") return list.sort((a, b) => ko(a.author || "ㅎㅎ", b.author || "ㅎㅎ") || ko(a.title, b.title));
+  return list.sort((a, b) => shelfFilter === "done" ? (b.finishedAt || "").localeCompare(a.finishedAt || "") : (b.createdAt || "").localeCompare(a.createdAt || ""));
+}
 function shelfView(){
   if(["ebook", "audio"].includes(shelfFilter) && !books.some(FILTERS.find(x => x[0] === shelfFilter)[2])) shelfFilter = "all";
   const f = FILTERS.find(x => x[0] === shelfFilter);
-  const list = books.filter(f[2]).sort((a, b) =>
-    shelfFilter === "done" ? (b.finishedAt || "").localeCompare(a.finishedAt || "") : (b.createdAt || "").localeCompare(a.createdAt || ""));
+  const list = sortBooks(books.filter(f[2]));
   const empty = {
     all: "조종사가 사막에서 어린왕자를 만났듯,<br>첫 책을 만나 보세요.",
     reading: "지금 읽는 책이 없어요.",
@@ -766,13 +786,23 @@ function shelfView(){
     done: "다 읽은 책이 여기에 모여요.",
     rec: "책 화면에서 ‘추천하고 싶어요’를 누르면<br>여기에 모여요.",
   }[shelfFilter];
+  const spot = b => `<button class="spot" type="button" data-open="${esc(b.id)}">${ribbonMark(b)}${cover(b, "fill")}
+      <span class="t">${esc(b.title)}</span><span class="s">${shelfFilter === "all" ? STATUS_LABEL[b.status] : esc(b.author)}</span></button>`;
+  // 다 읽은 책을 최근 순으로 볼 때는 해마다 나눠 보여 준다
+  let body;
+  if(shelfFilter === "done" && shelfSort === "recent"){
+    const years = new Map();
+    list.forEach(b => { const y = b.finishedAt ? new Date(b.finishedAt).getFullYear() + "년" : "날짜 없음"; if(!years.has(y)) years.set(y, []); years.get(y).push(b); });
+    body = [...years].map(([y, bs]) => `<h2 class="year-head">${y}<small>${bs.length}권</small></h2><div class="grid">${bs.map(spot).join("")}</div>`).join("");
+  } else body = `<div class="grid">${list.map(spot).join("")}</div>`;
   return `<div class="page-title"><h1>서재</h1>
     ${books.length ? `<button class="icon-btn" type="button" data-go="#/search" aria-label="찾기">${ICON_SEARCH}</button>` : ""}</div>
   <p class="page-sub">나의 별에 심은 책들</p>
-  <div class="chips" role="tablist">${FILTERS.filter(([k, , fn]) => !["ebook", "audio"].includes(k) || k === shelfFilter || books.some(fn)).map(([k, l, fn]) =>
+  <div class="chips shelf-chips" role="tablist">${FILTERS.filter(([k, , fn]) => !["ebook", "audio"].includes(k) || k === shelfFilter || books.some(fn)).map(([k, l, fn]) =>
     `<button class="chip" role="tab" type="button" data-go-replace="#/shelf/${k}" aria-pressed="${k === shelfFilter}">${l}<span class="n num">${books.filter(fn).length}</span></button>`).join("")}</div>
-  ${list.length ? `<div class="grid">${list.map(b => `<button class="spot" type="button" data-open="${esc(b.id)}">${ribbonMark(b)}${cover(b, "fill")}
-      <span class="t">${esc(b.title)}</span><span class="s">${shelfFilter === "all" ? STATUS_LABEL[b.status] : esc(b.author)}</span></button>`).join("")}</div>`
+  ${list.length ? `<div class="shelf-bar"><span class="num">${list.length}권</span>
+      <select id="shelf-sort" class="sort" aria-label="정렬">${SORTS.map(([k, l]) => `<option value="${k}"${k === shelfSort ? " selected" : ""}>${k === "recent" && shelfFilter === "done" ? "다 읽은 순" : l}</option>`).join("")}</select></div>
+    ${body}`
     : `<div class="empty">${PIC_PLANE(44)}<p>${empty}</p>${["all", "reading", "want"].includes(shelfFilter) ? `<button class="btn" type="button" data-go="#/scan">책 등록하기</button>` : ""}</div>`}`;
 }
 
@@ -1833,6 +1863,18 @@ document.addEventListener("submit", async e => {
     }
   }
 });
+
+document.addEventListener("change", e => {
+  if(e.target.id !== "shelf-sort") return;
+  shelfSort = e.target.value;
+  try { localStorage.setItem("bt_shelf_sort", shelfSort); } catch {}
+  render();
+});
+// 화면 두 장 넘게 내려가면 '맨 위로' 별 단추를 보여 준다
+const toTop = $("#to-top");
+window.addEventListener("scroll", () => { toTop.hidden = window.scrollY < innerHeight * 1.5; }, {passive: true});
+window.addEventListener("hashchange", () => { toTop.hidden = true; });
+toTop.addEventListener("click", () => window.scrollTo({top: 0, behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth"}));
 
 $("#import-file").addEventListener("change", e => {
   const file = e.target.files[0]; e.target.value = "";
