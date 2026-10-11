@@ -381,6 +381,8 @@ mark{background:var(--gold-soft);color:inherit;border-radius:3px;padding:0 1px}
 .months small{font-size:10.5px;color:var(--text-3)}
 .panel{background:var(--soft);border-radius:18px;padding:18px;display:flex;flex-direction:column;gap:10px}
 .panel strong{font-size:16px}
+.panel.backup{gap:8px;padding:14px 16px}.panel.backup p{font-size:13px;line-height:1.6}.panel.backup .btn{padding:10px 12px}
+.panel.backup .last{font-size:12px;color:var(--text-3);text-align:center}
 .panel p{font-size:14px;color:var(--text-2);line-height:1.65}
 
 /* ── 아래 메뉴 */
@@ -1769,14 +1771,10 @@ function meView(){
   </section>
   <section class="section"><div class="list">
     <button class="row-card" type="button" data-story>${titleIcon("nav-me", 28)}<span class="t"><h3>첫 만남 이야기 다시 보기</h3><span class="by">사막에 내린 조종사와 책 씨앗 이야기</span></span></button>
-    <div class="panel"><strong>기록은 이 폰 안에만 저장돼요</strong>
-      <p>로그인이 없고, 기록을 서버로 보내지 않아요. 대신 앱을 지우거나 폰을 바꾸면 기록이 사라지니, 가끔 백업 파일을 만들어 두세요.</p></div>
-    <div class="panel"><strong>백업 파일 만들기</strong>
-      <p>지금까지의 기록을 파일 하나로 저장해요. 카톡 나에게 보내기나 드라이브에 올려 두면 안전해요.</p>
-      <button class="btn" type="button" data-export>백업 파일 저장</button></div>
-    <div class="panel"><strong>백업 파일 불러오기</strong>
-      <p>새 폰에서 백업 파일을 고르면 기록이 돌아와요. 이미 있는 책은 더 최근에 고친 쪽으로 맞춰요.</p>
-      <button class="btn line" type="button" data-import>백업 파일 고르기</button></div>
+    <div class="panel backup"><strong>기록 지키기 · 백업</strong>
+      <p>기록은 이 폰 안에만 있어요(서버로 보내지 않아요). 앱을 지우거나 폰을 바꾸기 전에 백업 파일을 만들어 카톡 나에게 보내기나 드라이브에 두세요.</p>
+      <div class="two"><button class="btn sm" type="button" data-export>백업 저장</button><button class="btn sm line" type="button" data-import>불러오기</button></div>
+      <span class="last">${(() => { try { const d = localStorage.getItem("bt_last_backup"); return d ? `마지막 백업 ${fmtDate(d)}` : "아직 백업한 적이 없어요"; } catch { return ""; } })()}</span></div>
   </div></section>`;
 }
 
@@ -1985,7 +1983,9 @@ function exportBackup(){
   a.download = `booktrack-backup-${d.getFullYear()}${String(d.getMonth()+1).padStart(2,"0")}${String(d.getDate()).padStart(2,"0")}.json`;
   document.body.appendChild(a); a.click(); a.remove();
   setTimeout(() => URL.revokeObjectURL(a.href), 5000);
+  try { localStorage.setItem("bt_last_backup", nowIso()); } catch {}
   toast("백업 파일을 저장했어요");
+  if(parseRoute().name === "me") render();
 }
 
 // 옛 기록이나 다른 버전 파일도 안전하게 읽도록 모양을 맞춘다
