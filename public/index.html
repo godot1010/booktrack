@@ -79,9 +79,10 @@ svg{display:block;flex:none}
 .icon-btn{border:0;background:none;width:40px;height:40px;border-radius:12px;display:flex;align-items:center;justify-content:center;color:var(--text-2)}
 .icon-btn:active{background:var(--soft)}
 .page-title{display:flex;align-items:center;gap:8px;padding-block:16px 12px}
-.page-title h1{font-size:24px;font-weight:800;letter-spacing:-0.03em;flex:1}
+.page-title h1{font-size:24px;font-weight:800;letter-spacing:-0.03em;flex:1;display:flex;align-items:center;gap:8px}
+.page-title h1 svg,.topbar h1 svg{overflow:visible;flex:none}
 .topbar{display:flex;align-items:center;gap:4px;padding-block:8px}
-.topbar h1{font-size:18px;font-weight:700;flex:1}
+.topbar h1{font-size:18px;font-weight:700;flex:1;display:flex;align-items:center;gap:7px}
 .back{border:0;background:none;width:40px;height:40px;margin-left:-10px;display:flex;align-items:center;justify-content:center;color:var(--text)}
 
 /* ── 홈 구역 */
@@ -791,6 +792,16 @@ function homeView(){
 }
 // 읽고 싶은 책(씨앗)이 이만큼 쌓이면 바오밥나무 이야기로 한 권 시작해 보자고 권한다
 const BAOBAB_AT = 10;
+// 화면 제목 옆 아이콘: 아래 메뉴 칸의 움직이는 아이콘을 그대로 가져와 크게 (색은 그 칸의 색)
+function titleIcon(navId, size = 30){
+  const b = document.getElementById(navId), svgEl = b && b.querySelector("svg");
+  if(!svgEl) return "";
+  const c = svgEl.cloneNode(true);
+  c.setAttribute("width", Math.round(size * (navId === "nav-add" ? 30 / 26 : 1))); c.setAttribute("height", size);
+  c.classList.add(navId.replace("nav-", "nv-"));  // 칸 색 변수(--nv-c)를 따라가서 어두운 모드도 맞음
+  c.style.color = "var(--nv-c)";
+  return c.outerHTML;
+}
 // ───────────────────────── 큰 로고 (첫 화면) ─────────────────────────
 // 아이콘 아래 가운데 "Book612". 글자의 실제 획 왼쪽 끝(B)~오른쪽 끝(2)을 아이콘 폭에 딱 맞춘다.
 // 아이콘과 글자를 한 SVG(viewBox 하나)에 그린다 — 따로 그리면 좁은 화면에서 아이콘만 줄어 정렬이 깨진다.
@@ -867,7 +878,7 @@ function shelfView(){
     list.forEach(b => { const y = b.finishedAt ? new Date(b.finishedAt).getFullYear() + "년" : "날짜 없음"; if(!years.has(y)) years.set(y, []); years.get(y).push(b); });
     body = [...years].map(([y, bs]) => `<h2 class="year-head">${y}<small>${bs.length}권</small></h2><div class="grid">${bs.map(spot).join("")}</div>`).join("");
   } else body = `<div class="grid">${list.map(spot).join("")}</div>`;
-  return `<div class="page-title"><h1>장미정원</h1>
+  return `<div class="page-title"><h1>${titleIcon("nav-shelf")}장미정원</h1>
     ${books.length ? `<button class="icon-btn" type="button" data-go="#/search" aria-label="찾기">${ICON_SEARCH}</button>` : ""}</div>
   <p class="page-sub">나의 별에 심은 책들 · 씨앗에서 새싹, 꽃으로</p>
   <div class="shelf-chips"><div class="shelf-tabs" role="tablist">${FILTERS.filter(([k]) => !["ebook", "audio"].includes(k)).map(([k, l, fn]) =>
@@ -1224,7 +1235,7 @@ function loadZXing(){
 }
 
 function scanView(){
-  return `<div class="topbar"><button class="back" type="button" data-back aria-label="뒤로">${ICON_BACK}</button><h1>책 등록</h1></div>
+  return `<div class="topbar"><button class="back" type="button" data-back aria-label="뒤로">${ICON_BACK}</button><h1>${titleIcon("nav-add", 24)}씨앗 심기</h1></div>
   ${waysBar("scan")}
   <p class="page-sub" style="margin:-4px 0 12px">${PIC_ABACUS}상인의 주판처럼 빠르게 채워 드려요. 바코드를 네모 안에 비춰 주세요.</p>
   <div class="scanner">${canCamera
@@ -1416,7 +1427,7 @@ async function lookupIsbn(isbn){
 let lookupQuery = "", lookupItems = null, lookupStatus = "idle";
 
 function lookupView(){
-  return `<div class="topbar"><button class="back" type="button" data-back aria-label="뒤로">${ICON_BACK}</button><h1>책 등록</h1></div>
+  return `<div class="topbar"><button class="back" type="button" data-back aria-label="뒤로">${ICON_BACK}</button><h1>${titleIcon("nav-add", 24)}씨앗 심기</h1></div>
   ${waysBar("lookup")}
   <form class="isbn-row" data-lookupform>
     <input id="lookup-input" class="field" type="search" placeholder="책 제목이나 지은이" value="${esc(lookupQuery)}" autocomplete="off" enterkeyhint="search">
@@ -1461,7 +1472,7 @@ async function pickLookup(it){
 function formView(b){
   const isNew = !b;
   b = b || {title: "", author: "", publisher: "", genre: "소설", summary: "", authorBio: "", status: "reading", rec: false};
-  return `<div class="topbar"><button class="back" type="button" data-back aria-label="뒤로">${ICON_BACK}</button><h1>${isNew ? "책 등록" : "책 정보 수정"}</h1></div>
+  return `<div class="topbar"><button class="back" type="button" data-back aria-label="뒤로">${ICON_BACK}</button><h1>${isNew ? titleIcon("nav-add", 24) + "씨앗 심기" : "책 정보 수정"}</h1></div>
   ${isNew ? waysBar("manual") : ""}
   <form class="form" data-bookform>
     <label>책 제목<input id="f-title" class="field" value="${esc(b.title)}" required autocomplete="off"></label>
@@ -1480,7 +1491,7 @@ function formView(b){
 // ───────────────────────── 밑줄 모음 ─────────────────────────
 function quotesView(){
   const all = allQuotes().sort((x, y) => (y.createdAt || "").localeCompare(x.createdAt || ""));
-  return `<div class="page-title"><h1>길들인 문장</h1>
+  return `<div class="page-title"><h1>${titleIcon("nav-quotes")}길들인 문장</h1>
     ${all.length ? `<button class="icon-btn" type="button" data-go="#/search" aria-label="찾기">${ICON_SEARCH}</button>` : ""}</div>
   <p class="page-sub">여우처럼 하나씩 길들인 밑줄 모음</p>
   ${all.length ? `<div class="night-card" style="margin-bottom:16px"><span class="pic">${PIC_FOX.replace(/16/g, "30")}</span>
@@ -1498,8 +1509,8 @@ function meView(){
   const months = Array.from({length: 12}, (_, m) => doneYear.filter(b => new Date(b.finishedAt).getMonth() === m).length);
   const max = Math.max(1, ...months);
   const goal = goalOf(year), pct = goal ? Math.min(100, Math.round(doneYear.length / goal * 100)) : 0;
-  return `<div class="page-title"><h1>조종사</h1></div>
-  <p class="page-sub">${PIC_PLANE(20)}조종사의 비행 일지 · 나의 기록과 백업</p>
+  return `<div class="page-title"><h1>${titleIcon("nav-me")}조종사</h1></div>
+  <p class="page-sub">조종사의 비행 일지 · 나의 기록과 백업</p>
   <div class="night-card" style="margin-bottom:12px"><span class="pic">${PIC_CROWN}</span>
     <span class="tx"><span class="tag">왕의 명령 · ${year}년 목표</span>
       ${goal ? `<b class="num">${doneYear.length} / ${goal}권</b><span class="goal-bar"><i style="width:${pct}%"></i></span>
