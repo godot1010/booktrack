@@ -34,6 +34,8 @@ body{margin:0;min-height:100vh;background:var(--bg);color:var(--text);font-famil
 h1{font-size:24px;font-weight:800;letter-spacing:-0.03em;margin:0}
 .card{background:var(--soft);border:1px solid var(--line);border-radius:22px;padding:20px;display:flex;flex-direction:column;gap:16px}
 .rec{font-size:13px;color:var(--rose);font-weight:700}
+/* 『어린 왕자』의 헌사('어린 시절의 레옹 베르트에게')처럼, 받는 친구에게 바치는 한 줄 */
+.dedi{font-family:Jua,var(--font);font-size:20px;color:var(--gold);margin:0 0 -10px}
 .top{display:flex;gap:16px;align-items:flex-start}
 .top .t{min-width:0;display:flex;flex-direction:column;gap:4px}
 .kind{font-size:12.5px;color:var(--text-3)}
@@ -92,6 +94,7 @@ if(!d){
   const okCover = /^https:\/\/([a-z0-9-]+\.)*(kakaocdn\.net|nl\.go\.kr)\//.test(d.c || "") || /^https:\/\/image\.aladin\.co\.kr\//.test(d.c || "");
   const state = ["지금 읽고 있어요", "다 읽었어요", "읽고 싶은 책이에요"][d.s] || "지금 읽고 있어요";
   app.innerHTML = `${BRAND}
+    <p class="dedi">어린 시절의 ${esc(String(d.w || "친구").slice(0, 12))}에게</p>
     <h1>${d.r ? "이 책을 추천해요" : ["이 책을 읽고 있어요", "이 책을 다 읽었어요", "이 책이 읽고 싶어요"][d.s] || "이 책을 읽고 있어요"}</h1>
     <article class="card">
       ${d.r ? `<span class="rec">추천하고 싶은 책</span>` : ""}
