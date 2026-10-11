@@ -446,6 +446,35 @@ nav.bottom .nv:active svg{transform:scale(.9)}
 .share-opts label{display:flex;gap:8px;align-items:flex-start;font-size:14px;line-height:1.5}
 .share-opts input{margin-top:3px;accent-color:var(--coral);flex:none;width:18px;height:18px}
 .share-opts .qtext{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+/* ── 첫 만남 이야기 (처음 열 때 한 번, 세 장) ── */
+.story{position:fixed;inset:0;z-index:60;background:#141a33;color:#fdf3dc;display:flex;flex-direction:column;align-items:center;justify-content:center;
+  padding:env(safe-area-inset-top,0px) 0 env(safe-area-inset-bottom,0px)}
+.story .in{width:100%;max-width:420px;display:flex;flex-direction:column;flex:1;justify-content:center;position:relative}
+.story .skip{position:absolute;top:14px;right:18px;border:0;background:none;color:rgba(253,243,220,.7);font-size:14px;padding:6px}
+.story svg.scene{display:block;width:100%;height:auto}
+.story .txt{padding:6px 26px 0;text-align:center;min-height:132px}
+.story h2{font-family:Jua,var(--font);font-weight:400;font-size:26px;line-height:1.35;margin:4px 0 10px;color:#fdf3dc}
+.story p{font-size:15px;line-height:1.75;color:rgba(253,243,220,.8)}
+.story .foot{display:flex;align-items:center;justify-content:space-between;padding:18px 24px 28px}
+.story .dots{display:flex;gap:6px}.story .dots i{width:7px;height:7px;border-radius:50%;background:rgba(253,243,220,.3);transition:width .2s}
+.story .dots i.on{background:#f6c453;width:20px;border-radius:4px}
+.story .nx{border:0;border-radius:14px;padding:13px 22px;font-weight:700;font-size:15px;background:#f6c453;color:#1f2a55}
+@media (prefers-reduced-motion:no-preference){
+  .story .txt{animation:stfade .6s ease-out}
+  @keyframes stfade{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+  .st-tw{animation:sttw 2.6s ease-in-out infinite}@keyframes sttw{0%,100%{opacity:1}50%{opacity:.2}}
+  .st-smoke{animation:stsmoke 3s ease-out infinite}@keyframes stsmoke{0%{transform:translate(0,0) scale(.6);opacity:.7}100%{transform:translate(-8px,-26px) scale(1.4);opacity:0}}
+  .st-shoot{animation:stshoot 4s ease-in infinite}@keyframes stshoot{0%,60%{transform:translate(0,0);opacity:0}65%{opacity:1}85%{transform:translate(-140px,70px);opacity:0}100%{opacity:0}}
+  .st-scarf{transform-box:fill-box;transform-origin:0% 50%;animation:stscarf 1.2s ease-in-out infinite}@keyframes stscarf{0%,100%{transform:skewY(-6deg) scaleX(1)}50%{transform:skewY(8deg) scaleX(1.12)}}
+  .st-float{animation:stfloat 4s ease-in-out infinite}@keyframes stfloat{0%,100%{transform:translateY(0)}50%{transform:translateY(-4px)}}
+  .st-seed{animation:stseed .9s cubic-bezier(.5,0,.8,1) both}@keyframes stseed{0%{transform:translateY(-70px);opacity:0}30%{opacity:1}100%{transform:translateY(0)}}
+  .st-can{transform-box:fill-box;transform-origin:80% 80%;animation:stcan 1.2s ease-out .9s both}@keyframes stcan{0%{transform:translate(30px,-20px) rotate(10deg);opacity:0}100%{transform:none;opacity:1}}
+  .st-drop{animation:stdrop 1s ease-in infinite;opacity:0}@keyframes stdrop{0%{transform:translate(0,0);opacity:0}15%{opacity:1}90%{opacity:1}100%{transform:translate(-17px,24px);opacity:0}}
+  .st-splash{animation:stsplash 1s ease-out infinite;opacity:0}@keyframes stsplash{0%,70%{opacity:0;transform:scale(.4)}80%{opacity:.9}100%{opacity:0;transform:scale(1.4)}}
+  .st-grow{transform-box:fill-box;transform-origin:50% 100%;animation:stgrow 1.6s cubic-bezier(.3,1.4,.6,1) 2.6s both}@keyframes stgrow{0%{transform:scale(0)}100%{transform:scale(1)}}
+  .st-leaf{transform-box:fill-box;transform-origin:50% 100%;animation:stleaf 2.4s ease-in-out 4.2s infinite}@keyframes stleaf{0%,100%{transform:rotate(-4deg)}50%{transform:rotate(4deg)}}
+}
+@media (prefers-reduced-motion:reduce){.st-drop,.st-splash{display:none}}
 .toast{position:fixed;left:50%;bottom:104px;transform:translateX(-50%);background:var(--text);color:var(--bg);padding:10px 18px;border-radius:14px;font-size:14px;font-weight:600;z-index:40;max-width:calc(100% - 40px);text-align:center}
 </style>
 </head>
@@ -1488,6 +1517,7 @@ function meView(){
     <div class="months">${months.map((n, m) => `<div><i class="${n ? "" : "zero"}" style="height:${n ? Math.round(n / max * 70) + 6 : 3}px" title="${m+1}월 ${n}권"></i><small>${m+1}</small></div>`).join("")}</div>
   </section>
   <section class="section"><div class="list">
+    <button class="row-card" type="button" data-story>${PIC_PLANE(28)}<span class="t"><h3>첫 만남 이야기 다시 보기</h3><span class="by">사막에 내린 조종사와 책 씨앗 이야기</span></span></button>
     <div class="panel"><strong>기록은 이 폰 안에만 저장돼요</strong>
       <p>로그인이 없고, 기록을 서버로 보내지 않아요. 대신 앱을 지우거나 폰을 바꾸면 기록이 사라지니, 가끔 백업 파일을 만들어 두세요.</p></div>
     <div class="panel"><strong>백업 파일 만들기</strong>
@@ -1785,6 +1815,7 @@ document.addEventListener("click", e => {
   }
   if(t.hasAttribute("data-export")) return exportBackup();
   if(t.hasAttribute("data-goal")) return openGoalSheet();
+  if(t.hasAttribute("data-story")) return openStory();
   if(t.hasAttribute("data-import")) return $("#import-file").click();
   if(!cur) return;
 
@@ -1925,6 +1956,82 @@ $("#import-file").addEventListener("change", e => {
   if(file) importBackup(file);
 });
 
+// ───────────────────────── 첫 만남 이야기 ─────────────────────────
+// 처음 열 때 한 번: 사막에 멈춘 비행기 → 모래 언덕 위 아이(뒷모습) → 소행성에 책 씨앗을 심고 물을 주면 싹이 틈.
+// 그림은 원작을 베끼지 않고 우리가 그린 모양. 본 뒤에는 localStorage bt_story_seen. 조종사 화면에서 다시 볼 수 있다.
+const STARS = (list) => `<g fill="#fff">${list.map(([x, y, r], i) => `<circle class="st-tw" style="animation-delay:${(i * .45) % 2.2}s" cx="${x}" cy="${y}" r="${r}"/>`).join("")}</g>`;
+const STORY = [
+  {svg: `${STARS([[40,40,1.4],[90,70,1],[150,30,1.6],[220,55,1.1],[290,35,1.4],[310,95,1],[60,110,1]])}
+    <circle cx="270" cy="70" r="16" fill="#fdf3dc" opacity=".9"/><circle cx="277" cy="64" r="14" fill="#141a33"/>
+    <path d="M0 200 Q80 160 170 190 T340 180 V250 H0z" fill="#c9a86a"/><path d="M0 220 Q100 195 200 222 T340 214 V250 H0z" fill="#b08d52"/>
+    <g transform="translate(118 150) rotate(-8)">
+      <circle class="st-smoke" cx="18" cy="2" r="7" fill="#8a8597" opacity=".6"/><circle class="st-smoke" style="animation-delay:1.4s" cx="18" cy="2" r="6" fill="#8a8597" opacity=".6"/>
+      <rect x="18" y="8" width="70" height="4.5" rx="2.2" fill="#f6c453"/><path d="M24 12.5v18M76 12.5v18" stroke="#fdf3dc" stroke-width="1.6"/>
+      <path d="M6 22l-3-11h7l6 9 70 1c7 0 10 4 10 8s-3 8-10 8L14 36c-5 0-8-4-8-9z" fill="#e4574f"/>
+      <rect x="20" y="40" width="62" height="4" rx="2" fill="#f6c453"/>
+      <path d="M100 20v20" stroke="#fdf3dc" stroke-width="3" stroke-linecap="round" transform="rotate(25 100 30)"/>
+      <circle cx="52" cy="52" r="5" fill="none" stroke="#fdf3dc" stroke-width="2.4"/></g>`,
+   h: "사막 한가운데,<br>비행기가 멈춰 섰어요", p: "조종사는 혼자였어요.<br>머리 위엔 별만 가득했죠."},
+  {svg: `${STARS([[30,30,1.3],[110,50,1.1],[190,25,1.5],[250,75,1],[315,40,1.3],[70,95,1]])}
+    <g class="st-shoot"><path d="M300 30l-34 17" stroke="#f6c453" stroke-width="2" stroke-linecap="round"/><circle cx="300" cy="30" r="2.4" fill="#fff"/></g>
+    <path d="M0 205 Q120 150 230 185 T340 175 V250 H0z" fill="#c9a86a"/><path d="M0 225 Q90 205 180 226 T340 218 V250 H0z" fill="#b08d52"/>
+    <g transform="translate(150 118)"><g class="st-float">
+      <path d="M14 22c-2 0-3 1-3 3l-3 34h28l-3-34c0-2-1-3-3-3z" fill="#4f8a63"/><path d="M8 58l-2 8h32l-2-8z" fill="#3d6f50"/>
+      <circle cx="22" cy="12" r="10" fill="#f6c453"/><path d="M13 9c2-8 16-8 18 0-3-3-6-4-9-4s-6 1-9 4z" fill="#e0a823"/>
+      <g class="st-scarf"><path d="M30 22c10-2 20 2 30-3-6 6-18 10-30 8z" fill="#f6c453"/></g><path d="M13 22h18v5H13z" fill="#f6c453"/></g></g>`,
+   h: "그때, 아주 작은<br>목소리가 들렸어요", p: "모래 언덕 위에 낯선 아이가<br>별을 올려다보고 있었어요."},
+  {svg: `${STARS([[40,45,1.4],[300,150,1.3],[70,150,1],[110,80,1.1],[160,22,1.2],[30,210,1]])}
+    <path class="st-tw" d="M60 60l2.2 5 5 .6-3.8 3.3 1.1 5-4.5-2.6-4.5 2.6 1.1-5-3.8-3.3 5-.6z" fill="#f6c453"/>
+    <circle cx="170" cy="182" r="62" fill="#f5eedc"/><path d="M170 120a62 62 0 0 1 0 124a76 76 0 0 0 0-124z" fill="#c9b893" opacity=".5"/>
+    <circle cx="140" cy="200" r="10" fill="#b9a982"/><circle cx="138" cy="198" r="6.5" fill="#9c8b62"/><circle cx="202" cy="212" r="7" fill="#b9a982"/><circle cx="200" cy="160" r="4" fill="#b9a982"/>
+    <g class="st-grow"><path d="M170 118V92" stroke="#3d8a5a" stroke-width="3" stroke-linecap="round"/>
+      <g class="st-leaf"><path d="M170 102c0-8-5-12-13-12 0 8 5 12 13 12z" fill="#5aa874"/><path d="M170 98c0-8 5-12 13-12 0 8-5 12-13 12z" fill="#4c9a66"/></g></g>
+    <g class="st-seed"><rect x="161" y="108" width="18" height="15" rx="2.6" fill="#f6c453" stroke="#d99a16" stroke-width="1.4"/><path d="M164.5 108v15" stroke="#d99a16" stroke-width="1.3"/><path d="M174 108h3v5l-1.5-1.2-1.5 1.2z" fill="#e4574f"/></g>
+    <path d="M150 121q20-7 40 0" stroke="#9c8b62" stroke-width="3" fill="none" stroke-linecap="round"/>
+    <g class="st-can"><g transform="translate(212 58) rotate(-22)"><rect x="0" y="0" width="38" height="28" rx="6" fill="#4a6fa5"/>
+      <path d="M38 6c10-1 12 8 4 16" stroke="#4a6fa5" stroke-width="4" fill="none" stroke-linecap="round"/><path d="M2 10L-26 -4" stroke="#4a6fa5" stroke-width="5" stroke-linecap="round"/>
+      <rect x="-34" y="-10" width="11" height="9" rx="2" fill="#3b5ba8" transform="rotate(26 -28 -5)"/><rect x="6" y="6" width="26" height="4" rx="2" fill="#fdf3dc" opacity=".35"/></g></g>
+    <g transform="translate(188 74)">${[[0,0,1.9],[-4,2,2.2],[3,3,2.5],[-1,5,2.75]].map(([x, y, d]) => `<ellipse class="st-drop" style="animation-delay:${d}s" cx="${x}" cy="${y}" rx="1.5" ry="2.5" fill="#8ec5ff"/>`).join("")}</g>
+    <g transform="translate(170 106)"><ellipse class="st-splash" style="animation-delay:1.9s" cx="0" cy="0" rx="9" ry="2.4" fill="none" stroke="#8ec5ff" stroke-width="1.2"/></g>`,
+   h: "“책 씨앗 심어 줄래?”", p: "책을 심고, 마음에 남은 문장을 가꿔 줘.<br>언제든 다시 꺼내 볼 수 있게."},
+];
+const storySeen = () => { try { return localStorage.getItem("bt_story_seen") === "1"; } catch { return true; } };
+function openStory(){
+  let i = 0;
+  const el = document.createElement("div");
+  el.className = "story"; el.setAttribute("role", "dialog"); el.setAttribute("aria-modal", "true"); el.setAttribute("aria-label", "첫 만남 이야기");
+  el.innerHTML = `<div class="in"><button class="skip" type="button" data-st="skip">건너뛰기</button><div class="stage"></div>
+    <div class="foot"><div class="dots">${STORY.map(() => "<i></i>").join("")}</div><button class="nx" type="button" data-st="next"></button></div></div>`;
+  document.body.appendChild(el);
+  const show = n => {
+    i = n;
+    el.querySelector(".stage").innerHTML = `<svg class="scene" viewBox="0 0 340 250" aria-hidden="true">${STORY[n].svg}</svg>
+      <div class="txt"><h2>${STORY[n].h}</h2><p>${STORY[n].p}</p></div>`;
+    el.querySelectorAll(".dots i").forEach((d, k) => d.classList.toggle("on", k === n));
+    el.querySelector(".nx").textContent = n < STORY.length - 1 ? "다음" : books.length ? "B612로 가기" : "첫 책 심기";
+    el.querySelector(".skip").hidden = n === STORY.length - 1;
+  };
+  const close = () => {
+    try { localStorage.setItem("bt_story_seen", "1"); } catch {}
+    el.remove();
+  };
+  el.addEventListener("click", e => {
+    const b = e.target.closest("[data-st]"); if(!b) return;
+    if(b.dataset.st === "skip") return show(STORY.length - 1);
+    if(i < STORY.length - 1) return show(i + 1);
+    close(); if(!books.length) go("#/scan");
+  });
+  // 옆으로 밀어서 넘기기
+  let x0 = null;
+  el.addEventListener("touchstart", e => { x0 = e.touches[0].clientX; }, {passive: true});
+  el.addEventListener("touchend", e => {
+    if(x0 === null) return; const dx = e.changedTouches[0].clientX - x0; x0 = null;
+    if(dx < -50 && i < STORY.length - 1) show(i + 1); else if(dx > 50 && i > 0) show(i - 1);
+  });
+  show(0);
+  el.querySelector(".nx").focus();
+}
+
 // ───────────────────────── 시작 ─────────────────────────
 (async () => {
   try { books = (await dbAll()).map(normalizeBook).filter(Boolean); }
@@ -1932,6 +2039,7 @@ $("#import-file").addEventListener("change", e => {
   // 브라우저가 저장 공간을 마음대로 비우지 않게 요청
   if(navigator.storage && navigator.storage.persist) navigator.storage.persist().catch(() => {});
   render(true);
+  if(!storySeen()) openStory();
 })();
 
 if("serviceWorker" in navigator) window.addEventListener("load", () => navigator.serviceWorker.register("sw.js").catch(() => {}));
