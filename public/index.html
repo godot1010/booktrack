@@ -501,6 +501,72 @@ nav.bottom .nv:active svg{transform:scale(.9)}
   @keyframes spark{0%,100%{opacity:0;transform:scale(.5)}50%{opacity:1;transform:scale(1.2) rotate(20deg)}}
 }
 @media (prefers-reduced-motion:reduce){.spark{opacity:.8}}
+/* ── 동화 장치들 (2026-10-11 형 "남은 동화 아이디어 다") ── */
+/* ① 시간 따라 바뀌는 하늘: 홈 맨 위 (새벽·낮·노을·밤), 밤엔 별과 별똥별 */
+.sky{position:relative;margin:0 -20px 6px;padding:0 20px 12px;border-radius:0 0 26px 26px;overflow:hidden}
+.sky > :not(.sky-art){position:relative;z-index:1}
+.sky-art{position:absolute;inset:0;width:100%;height:100%;z-index:0;pointer-events:none}
+.sky-dawn{background:linear-gradient(180deg,#6f6aa8 0%,#c99aa8 45%,#f2c4a2 75%,var(--bg) 100%)}
+.sky-day{background:linear-gradient(180deg,#bcdcf0 0%,#dcecf3 55%,var(--bg) 100%)}
+.sky-dusk{background:linear-gradient(180deg,#3f3a78 0%,#a2557a 45%,#e98a6a 75%,var(--bg) 100%)}
+.sky-night{background:linear-gradient(180deg,#0f1430 0%,#24305f 60%,var(--bg) 100%)}
+.sky-night .brand,.sky-night .date,.sky-night .icon-btn,.sky-dusk .brand,.sky-dusk .date,.sky-dusk .icon-btn,.sky-dawn .brand,.sky-dawn .date,.sky-dawn .icon-btn{color:#fdf3dc}
+.sky-dusk .brand .word b,.sky-dawn .brand .word b,.sky-night .brand .word b{color:#f6c453}
+.sky .date{margin-bottom:6px}
+.sky .date small{margin-left:6px;opacity:.8}
+/* ② 44번의 노을: '다른 문장'을 누르면 해가 한 번 진다 */
+.today .sun{position:absolute;right:58px;bottom:-14px;width:30px;height:30px;border-radius:50%;background:#f6a75a;box-shadow:0 0 18px 6px rgba(246,167,90,.5);opacity:0}
+.today .count{font-size:11.5px;color:rgba(253,243,220,.75);margin-top:8px;display:block}
+/* ③ 자라는 정원: 표지 왼쪽 위 씨앗·새싹·꽃·바오밥 */
+.grow-badge{position:absolute;top:-7px;left:-7px;z-index:2;width:24px;height:24px;border-radius:50%;background:rgba(255,250,240,.95);display:flex;align-items:center;justify-content:center;box-shadow:0 1px 3px rgba(0,0,0,.2)}
+.bao-note{background:var(--card);border:1.5px dashed var(--line-2);border-radius:16px;padding:12px 14px;display:flex;flex-direction:column;gap:10px;margin-top:12px;font-size:13.5px;color:var(--text-2);line-height:1.6}
+.bao-note .top{display:flex;gap:10px;align-items:center}
+/* ⑥ 별 지도 */
+.starmap{background:var(--night);border-radius:20px;padding:12px 12px 8px;color:#fdf3dc}
+.starmap svg{display:block;width:100%;height:auto}
+.starmap .cap{display:flex;justify-content:space-between;font-size:12px;color:rgba(253,243,220,.7);padding:4px 4px 0}
+/* ④⑤ 축하 장면 (씨앗 심기·새싹·꽃·여우) */
+.celebrate{position:fixed;inset:0;z-index:55;display:flex;align-items:center;justify-content:center;background:rgba(20,26,51,.35);padding:20px}
+.celebrate .card{background:var(--night);color:#fdf3dc;border-radius:26px;padding:18px 22px 20px;text-align:center;width:min(300px,100%);box-shadow:0 20px 50px -20px rgba(0,0,0,.6)}
+.celebrate svg{display:block;width:150px;height:130px;margin:0 auto;overflow:visible}
+.celebrate b{display:block;font-family:Jua,var(--font);font-weight:400;font-size:22px;margin-top:4px}
+.celebrate span{display:block;font-size:13px;color:rgba(253,243,220,.75);margin-top:4px;line-height:1.55}
+/* ⑨ 기다리는 동안 한마디 */
+.waiting{display:flex;flex-direction:column;align-items:center;gap:10px;text-align:center;padding:26px 0;color:var(--text-2);font-size:14px}
+.wdots{display:flex;gap:6px}.wdots i{width:7px;height:7px;border-radius:50%;background:var(--gold)}
+/* ⑩ 화면이 바뀔 때 별가루 */
+.dust{position:fixed;inset:0;pointer-events:none;z-index:45;overflow:hidden}
+.dust i{position:absolute;font-style:normal;color:#f6c453;font-size:12px;opacity:0}
+@media (prefers-reduced-motion:no-preference){
+  .sky-art .tw{animation:lgtw 2.6s ease-in-out infinite}
+  .sky-art .shoot{animation:skyshoot 9s ease-in infinite}
+  @keyframes skyshoot{0%,82%{transform:translate(0,0);opacity:0}84%{opacity:1}94%{transform:translate(-160px,60px);opacity:0}100%{opacity:0}}
+  .sky-art .drift{animation:drift 30s linear infinite}
+  @keyframes drift{from{transform:translateX(-30px)}to{transform:translateX(30px)}}
+  .today.setting .sun{animation:sunset 1.6s ease-in forwards}
+  @keyframes sunset{0%{opacity:1;transform:translateY(-70px)}70%{opacity:1}100%{opacity:0;transform:translateY(10px)}}
+  .today.setting{animation:dusk 1.6s ease-in-out}
+  @keyframes dusk{50%{filter:brightness(1.25) saturate(1.2)}}
+  .starmap .tw{animation:lgtw 2.4s ease-in-out infinite}
+  .starmap .newest{transform-box:fill-box;transform-origin:center;animation:sttw 1.6s ease-in-out infinite}
+  .celebrate .card{animation:popin .35s cubic-bezier(.3,1.4,.6,1)}
+  @keyframes popin{from{transform:scale(.85);opacity:0}to{transform:none;opacity:1}}
+  .cb-drop{animation:stseed .8s cubic-bezier(.5,0,.8,1) both}
+  .cb-grow{transform-box:fill-box;transform-origin:50% 100%;animation:stgrow 1s cubic-bezier(.3,1.4,.6,1) .6s both}
+  .cb-bloom{transform-box:fill-box;transform-origin:50% 100%;animation:stgrow .9s cubic-bezier(.3,1.6,.6,1) .9s both}
+  .cb-fly{animation:cbfly 1.4s ease-in 1.5s both}
+  @keyframes cbfly{0%{transform:translate(0,0) scale(.6);opacity:0}20%{opacity:1}100%{transform:translate(40px,-120px) scale(1.4);opacity:0}}
+  .cb-hop{animation:cbhop .7s ease-out}
+  @keyframes cbhop{0%{transform:translateY(20px);opacity:0}60%{transform:translateY(-6px)}100%{transform:none;opacity:1}}
+  .cb-spark{animation:spark 1.6s ease-in-out infinite}
+  .wdots i{animation:wdot 1.2s ease-in-out infinite}.wdots i:nth-child(2){animation-delay:.2s}.wdots i:nth-child(3){animation-delay:.4s}
+  @keyframes wdot{0%,100%{transform:translateY(0);opacity:.4}50%{transform:translateY(-5px);opacity:1}}
+  .dust i{animation:dust .9s ease-out forwards}
+  @keyframes dust{0%{opacity:0;transform:translateY(6px) scale(.4)}40%{opacity:1}100%{opacity:0;transform:translateY(-18px) scale(1.1) rotate(40deg)}}
+}
+@media (prefers-reduced-motion:no-preference){@keyframes sttw{0%,100%{opacity:1}50%{opacity:.2}}@keyframes stgrow{0%{transform:scale(0)}100%{transform:scale(1)}}
+  @keyframes stseed{0%{transform:translateY(-70px);opacity:0}30%{opacity:1}100%{transform:translateY(0)}}
+  @keyframes spark{0%,100%{opacity:0;transform:scale(.5)}50%{opacity:1;transform:scale(1.2) rotate(20deg)}}}
 .toast{position:fixed;left:50%;bottom:104px;transform:translateX(-50%);background:var(--text);color:var(--bg);padding:10px 18px;border-radius:14px;font-size:14px;font-weight:600;z-index:40;max-width:calc(100% - 40px);text-align:center}
 </style>
 </head>
@@ -746,7 +812,7 @@ function render(animate){
   }
   else v.innerHTML = homeView();
   fitLockups(v);
-  if(animate){ v.classList.remove("view-in"); void v.offsetWidth; v.classList.add("view-in"); }
+  if(animate){ v.classList.remove("view-in"); void v.offsetWidth; v.classList.add("view-in"); starDust(); }
   if(r.name === "home" || r.name === "") loadPopular(popularPeriod);
   const tab = {home: "nav-home", popular: "nav-home", lookup: "", scan: "", add: "", shelf: "nav-shelf", book: "nav-shelf", quotes: "nav-quotes", me: "nav-me", settings: "nav-me"}[r.name] || (r.name === "" ? "nav-home" : "");
   ["nav-home", "nav-shelf", "nav-quotes", "nav-me"].forEach(id => {
@@ -785,8 +851,9 @@ function homeView(){
   const year = now.getFullYear();
   const doneThisYear = books.filter(b => b.status === "done" && b.finishedAt && new Date(b.finishedAt).getFullYear() === year).length;
 
-  return `${head}
-  <p class="date">${now.getMonth()+1}월 ${now.getDate()}일 ${WEEKDAYS[now.getDay()]}요일</p>
+  const phase = skyPhase(now.getHours());
+  return `<div class="sky sky-${phase}">${skyArt(phase)}${head}
+  <p class="date">${now.getMonth()+1}월 ${now.getDate()}일 ${WEEKDAYS[now.getDay()]}요일<small>· ${SKY_WORD[phase]}</small></p></div>
   ${todayCard()}
   <section class="section">
     <div class="sec-head"><h2>${PIC_SPROUT}지금 읽는 책${reading.length ? `<span>${reading.length}</span>` : ""}<small>· 키우는 중</small></h2>
@@ -804,7 +871,7 @@ function homeView(){
     <div class="sec-head"><h2>${PIC_SEED}읽고 싶은 책${want.length ? `<span>${want.length}</span>` : ""}<small>· 씨앗</small></h2>
       ${want.length ? `<button class="more" type="button" data-go="#/shelf/want">모두 보기</button>` : ""}</div>
     ${want.length ? `<div class="covers">${want.slice(0, 12).map(b =>
-        `<button class="spot" type="button" data-open="${esc(b.id)}" aria-label="${esc(b.title)}">${cover(b, "fill")}<span class="t">${esc(b.title)}</span></button>`).join("")}</div>
+        `<button class="spot" type="button" data-open="${esc(b.id)}" aria-label="${esc(b.title)}">${growBadge(b)}${cover(b, "fill")}<span class="t">${esc(b.title)}</span></button>`).join("")}</div>
       ${want.length >= BAOBAB_AT ? `<button class="bao" type="button" data-go="#/shelf/want">${PIC_BAOBAB}<span>씨앗이 ${want.length}개나 있어요. 바오밥나무가 되기 전에 한 권을 심어 볼까요?</span></button>` : ""}`
       : `<div class="empty-card">서점에서 본 책, 누가 권한 책을 담아 두세요.
           <button class="btn sm ghost" type="button" data-go="#/scan">읽고 싶은 책 담기</button></div>`}
@@ -812,9 +879,90 @@ function homeView(){
   ${popularSection()}
   <section class="section">
     <div class="sec-head"><h2>나의 별 지도<small>· ${year}년 기록</small></h2></div>
-    <button class="year-strip" type="button" data-go="#/me">${PIC_STARMAP}<span class="t"><span class="big num">${doneThisYear}</span> 권을 다 읽고<br>밑줄 ${allQuotes().length}개를 별처럼 모았어요</span>${svg('<path d="m9 6 6 6-6 6"/>', 18)}</button>
+    <button class="year-strip" type="button" data-go="#/me">${starMap(books.filter(b => b.status === "done" && b.finishedAt && new Date(b.finishedAt).getFullYear() === year), 72, 48, true)}<span class="t"><span class="big num">${doneThisYear}</span> 권을 다 읽고<br>밑줄 ${allQuotes().length}개를 별처럼 모았어요</span>${svg('<path d="m9 6 6 6-6 6"/>', 18)}</button>
   </section>`;
 }
+// ───────────────────────── 동화 장치들 ─────────────────────────
+const reducedMotion = () => matchMedia("(prefers-reduced-motion: reduce)").matches;
+// ① 시간 따라 바뀌는 하늘 (폰 시각): 새벽 5~8시 / 낮 8~17시 / 노을 17~19시 / 밤
+const skyPhase = h => h >= 5 && h < 8 ? "dawn" : h >= 8 && h < 17 ? "day" : h >= 17 && h < 19 ? "dusk" : "night";
+const SKY_WORD = {dawn: "새벽 하늘", day: "맑은 낮", dusk: "노을 지는 저녁", night: "별이 뜬 밤"};
+function skyArt(phase){
+  const stars = Array.from({length: 18}, (_, i) => { const x = (i * 53 + 17) % 360, y = (i * 29 + 7) % 70; return `<circle class="tw" style="animation-delay:${(i * .37) % 2.6}s" cx="${x}" cy="${y}" r="${i % 4 === 0 ? 1.4 : .8}" fill="#fff"/>`; }).join("");
+  const art = {
+    dawn: `<circle cx="60" cy="96" r="22" fill="#fbd9a0" opacity=".9"/><g class="drift" opacity=".7"><ellipse cx="250" cy="34" rx="34" ry="8" fill="#fff"/><ellipse cx="275" cy="28" rx="20" ry="7" fill="#fff"/></g>`,
+    day: `<circle cx="262" cy="28" r="16" fill="#fbe08a"/><circle cx="262" cy="28" r="24" fill="#fbe08a" opacity=".25"/><g class="drift" opacity=".85"><ellipse cx="90" cy="30" rx="36" ry="9" fill="#fff"/><ellipse cx="116" cy="23" rx="20" ry="8" fill="#fff"/><ellipse cx="230" cy="58" rx="26" ry="6" fill="#fff"/></g>`,
+    dusk: `<circle cx="300" cy="100" r="26" fill="#f6a75a"/><circle cx="300" cy="100" r="40" fill="#f6a75a" opacity=".25"/>${stars.split("</circle>").slice(0, 4).join("</circle>")}</circle>`,
+    night: `${stars}<path d="M262 16a12 12 0 1 0 8 21a10 10 0 1 1-8-21z" fill="#fdf3dc"/><g class="shoot"><path d="M300 10l-30 14" stroke="#f6c453" stroke-width="1.6" stroke-linecap="round"/><circle cx="300" cy="10" r="1.8" fill="#fff"/></g>`,
+  }[phase];
+  return `<svg class="sky-art" viewBox="0 0 360 110" preserveAspectRatio="xMidYMin slice" aria-hidden="true">${art}</svg>`;
+}
+// ② 44번의 노을: 오늘 '다른 문장'을 누른 횟수 (어린 왕자는 슬픈 날 해 지는 걸 44번 봤다)
+const sunsetCount = () => { try { const v = JSON.parse(localStorage.getItem("bt_sunsets") || "{}"); return v.d === new Date().toDateString() ? v.n : 0; } catch { return 0; } };
+const bumpSunset = () => { const n = sunsetCount() + 1; try { localStorage.setItem("bt_sunsets", JSON.stringify({d: new Date().toDateString(), n})); } catch {} return n; };
+// ③ 자라는 정원: 읽고 싶은 = 씨앗, 읽는 중 = 새싹, 다 읽음 = 꽃. 읽고 싶은 채 90일이 지나면 바오밥
+const BAOBAB_DAYS = 90;
+const isBaobab = b => b.status === "want" && b.createdAt && (Date.now() - new Date(b.createdAt)) > BAOBAB_DAYS * 864e5;
+const GROW_SVG = {
+  seed: `<svg width="15" height="15" viewBox="0 0 24 24"><ellipse cx="12" cy="14" rx="5" ry="6.5" fill="#a3825a"/><path d="M12 8c1-2 3-3 4-3" stroke="#5aa874" stroke-width="2" fill="none" stroke-linecap="round"/></svg>`,
+  sprout: `<svg width="16" height="16" viewBox="0 0 24 24"><path d="M12 21v-8" stroke="#3d8a5a" stroke-width="2.4" stroke-linecap="round"/><path d="M12 13c0-4-3-6-7-6 0 4 3 6 7 6zM12 11c0-4 3-6 7-6 0 4-3 6-7 6z" fill="#5aa874"/></svg>`,
+  flower: `<svg width="16" height="16" viewBox="0 0 24 24"><path d="M12 21v-9" stroke="#3d8a5a" stroke-width="2.2" stroke-linecap="round"/><path d="M12 13c-4.6-.7-5.8-5.3-3.9-8.7 1.6-1.6 3.2-1.4 3.9.4.7-1.8 2.3-2 3.9-.4 1.9 3.4.7 8-3.9 8.7z" fill="#e4574f"/></svg>`,
+  baobab: `<svg width="17" height="17" viewBox="0 0 24 24"><path d="M10 22c1-4 1-8 0-11h4c-1 3-1 7 0 11z" fill="#8a6a3b"/><circle cx="7" cy="8" r="4" fill="#5aa874"/><circle cx="12" cy="5.5" r="4.5" fill="#4c9a66"/><circle cx="17" cy="8" r="4" fill="#5aa874"/></svg>`,
+};
+const growBadge = b => { const k = isBaobab(b) ? "baobab" : {want: "seed", reading: "sprout", done: "flower"}[b.status]; return `<span class="grow-badge" title="${{seed: "씨앗", sprout: "새싹", flower: "꽃", baobab: "바오밥"}[k]}">${GROW_SVG[k]}</span>`; };
+// ⑥ 나의 별 지도: 다 읽은 책 하나가 별 하나. 달(가로) 순서로 놓고, 높이는 책마다 정해진 자리, 읽은 순서대로 선을 잇는다
+function starMap(done, w = 320, h = 150, small = false){
+  const list = done.slice().sort((a, b) => (a.finishedAt || "").localeCompare(b.finishedAt || ""));
+  const pts = list.map(b => { const d = new Date(b.finishedAt), hs = titleHash(b.id);
+    return {b, x: 14 + ((d.getMonth() + (d.getDate() - 1) / 31) / 12) * (w - 28) + ((hs % 9) - 4), y: 14 + (hs >> 4) % (h - 34)}; });
+  const line = pts.length > 1 ? `<path d="M${pts.map(p => `${p.x.toFixed(1)} ${p.y.toFixed(1)}`).join("L")}" stroke="#f6c453" stroke-width="${small ? .8 : 1}" stroke-dasharray="3 3" fill="none" opacity=".55"/>` : "";
+  const bg = Array.from({length: small ? 6 : 26}, (_, i) => `<circle class="tw" style="animation-delay:${(i * .41) % 2.4}s" cx="${(i * 67 + 11) % w}" cy="${(i * 31 + 5) % h}" r=".7" fill="#fff" opacity=".6"/>`).join("");
+  const stars = pts.map((p, i) => { const last = i === pts.length - 1, r = small ? (last ? 2.6 : 1.8) : (last ? 4 : 2.8);
+    return `<path class="${last ? "newest" : ""}" d="M${p.x} ${p.y - r * 1.6}L${p.x + r * .5} ${p.y - r * .5}L${p.x + r * 1.6} ${p.y}L${p.x + r * .5} ${p.y + r * .5}L${p.x} ${p.y + r * 1.6}L${p.x - r * .5} ${p.y + r * .5}L${p.x - r * 1.6} ${p.y}L${p.x - r * .5} ${p.y - r * .5}z" fill="${i % 3 === 1 ? "#fff" : "#f6c453"}"><title>${esc(p.b.title)}</title></path>`; }).join("");
+  const empty = !pts.length && !small ? `<text x="${w / 2}" y="${h / 2 + 4}" text-anchor="middle" fill="#fdf3dc" opacity=".6" font-size="12">다 읽은 책이 첫 별이 돼요</text>` : "";
+  return `<svg viewBox="0 0 ${w} ${h}" width="${small ? w : "100%"}" ${small ? `height="${h}"` : ""} aria-hidden="true">${bg}${line}${stars}${empty}</svg>`;
+}
+// ④⑤ 축하 장면: 씨앗 심기 / 새싹 / 꽃(+ 별 지도에 별 하나) / 여우(밑줄)
+const CB_SCENE = {
+  seed: `<ellipse cx="75" cy="118" rx="58" ry="12" fill="#c9b893"/><g class="cb-drop"><rect x="66" y="92" width="18" height="15" rx="2.6" fill="#f6c453" stroke="#d99a16" stroke-width="1.4"/><path d="M76 92h3v5l-1.5-1.2-1.5 1.2z" fill="#e4574f"/></g>
+    <g class="cb-grow"><path d="M75 92V70" stroke="#3d8a5a" stroke-width="3" stroke-linecap="round"/><path d="M75 80c0-8-5-12-13-12 0 8 5 12 13 12zM75 76c0-8 5-12 13-12 0 8-5 12-13 12z" fill="#5aa874"/></g>`,
+  sprout: `<ellipse cx="75" cy="118" rx="58" ry="12" fill="#c9b893"/><g class="cb-grow" style="animation-delay:.1s"><path d="M75 112V64" stroke="#3d8a5a" stroke-width="3.4" stroke-linecap="round"/><path d="M75 84c0-11-7-16-18-16 0 11 7 16 18 16zM75 78c0-11 7-16 18-16 0 11-7 16-18 16z" fill="#5aa874"/></g>`,
+  flower: `<ellipse cx="75" cy="118" rx="58" ry="12" fill="#c9b893"/><g class="cb-grow" style="animation-delay:.1s"><path d="M75 112V56" stroke="#3d8a5a" stroke-width="3.4" stroke-linecap="round"/><path d="M75 92c-12 .6-17-6-17-12 9-.6 15 4 17 12z" fill="#5aa874"/></g>
+    <g class="cb-bloom"><path d="M75 60c-14-2-17-15-12-25 5-5 9-4 12 1 3-5 7-6 12-1 5 10 2 23-12 25z" fill="#e4574f"/><path d="M69 42c3 4 9 4 12 0" stroke="#c43c35" stroke-width="2" fill="none"/></g>
+    <path class="cb-fly" d="M98 40l2.6 5.6 6 .7-4.5 4.1 1.2 6-5.3-3-5.3 3 1.2-6-4.5-4.1 6-.7z" fill="#f6c453"/>`,
+  fox: `<g class="cb-hop" transform="translate(33 8) scale(3.4)"><path d="M14.6 20.4c4.4.4 7.2-2 6.6-5.8-1.4 1.6-3.6 2.4-5.6 2" fill="#f08a5d" stroke="#c75b2a" stroke-width="1.2" stroke-linejoin="round" class="nv-tail"/><path d="M7.6 21c-1.6 0-2.4-1.2-2.2-2.8.3-2.8 1.6-5.2 3.4-6.6L8.2 6.4l2 1.7 2-1.7-.4 5.2c1.6 1.3 2.6 3.7 2.6 6v1c0 1.4-1 2.4-2.4 2.4z" fill="#f08a5d" stroke="#c75b2a" stroke-width="1.2" stroke-linejoin="round"/><path d="M7.4 21c.2-2 1.4-3.4 2.6-3.4s2.2 1.4 2.4 3.4" fill="#fdf3dc"/><circle cx="9.4" cy="10.6" r=".8" fill="#1f2a55" class="nv-blink"/></g>
+    <text class="cb-spark" x="22" y="30" fill="#f6c453" font-size="16">✦</text><text class="cb-spark" style="animation-delay:.5s" x="120" y="22" fill="#f6c453" font-size="12">✦</text><text class="cb-spark" style="animation-delay:1s" x="128" y="70" fill="#f6c453" font-size="10">✦</text>`,
+};
+function celebrate(kind, title, sub = ""){
+  if(reducedMotion()) return toast(title);
+  document.querySelector(".celebrate")?.remove();
+  const el = document.createElement("div");
+  el.className = "celebrate"; el.setAttribute("role", "status");
+  el.innerHTML = `<div class="card"><svg viewBox="0 0 150 130" aria-hidden="true">${CB_SCENE[kind]}</svg><b>${title}</b>${sub ? `<span>${sub}</span>` : ""}</div>`;
+  el.addEventListener("click", () => el.remove());
+  document.body.appendChild(el);
+  setTimeout(() => el.remove(), kind === "flower" ? 3200 : 2300);
+}
+// 책을 정원에 넣었을 때 (상태마다 다른 장면)
+const plantedScene = st => st === "want" ? celebrate("seed", "씨앗을 심었어요", "읽고 싶은 책으로 장미정원에 담았어요")
+  : st === "done" ? celebrate("flower", "꽃이 피었어요", "별 하나가 나의 별 지도에 박혔어요") : celebrate("sprout", "새싹이 돋았어요", "지금 읽는 책으로 장미정원에 심었어요");
+// ⑨ 기다리는 동안 한마디 (인물들이 돌아가며)
+const WAIT_LINES = {
+  scan: ["상인이 주판을 튕기는 중이에요…", "책 정보를 찾는 중이에요…"],
+  lookup: ["지리학자가 커다란 책을 펼치는 중이에요…", "지리학자가 지도를 뒤지는 중이에요…"],
+  popular: ["철도원이 다른 별 소식을 싣고 오는 중이에요…", "기차가 다른 별에서 출발했어요…"],
+  any: ["가로등 켜는 사람이 불을 켜는 중이에요…", "여우가 귀를 쫑긋 세우는 중이에요…"],
+};
+const waiting = kind => { const l = WAIT_LINES[kind] || WAIT_LINES.any; return `<div class="waiting"><span class="wdots"><i></i><i></i><i></i></span>${l[Math.floor(Date.now() / 4000) % l.length]}</div>`; };
+// ⑩ 화면이 바뀔 때 별가루
+function starDust(){
+  if(reducedMotion()) return;
+  const box = document.createElement("div"); box.className = "dust";
+  box.innerHTML = Array.from({length: 7}, (_, i) => `<i style="left:${8 + Math.random() * 84}%;top:${6 + Math.random() * 40}%;animation-delay:${i * 60}ms;font-size:${8 + Math.random() * 8}px">✦</i>`).join("");
+  document.body.appendChild(box);
+  setTimeout(() => box.remove(), 1400);
+}
+
 // 읽고 싶은 책(씨앗)이 이만큼 쌓이면 바오밥나무 이야기로 한 권 시작해 보자고 권한다
 const BAOBAB_AT = 10;
 // 화면 제목 옆 아이콘: 아래 메뉴 칸의 움직이는 아이콘을 그대로 가져와 크게 (색은 그 칸의 색)
@@ -867,7 +1015,8 @@ function todayCard(){
       ${all.length > 1 ? `<button class="shuffle" type="button" data-shuffle>${ICON_SHUFFLE}다른 문장</button>` : ""}</div>
     <button class="open" type="button" data-open="${esc(q.b.id)}"><p><span class="ul">${esc(q.text)}</span></p>
       <span class="src">${esc(q.b.title)}${q.page ? ` · ${esc(fmtPos(q.page, q.b.format))}` : ""}${q.createdAt ? ` · ${fmtDate(q.createdAt)}에 그음` : ""}</span></button>
-    ${PIC_LAMP}</div>`;
+    ${(() => { const n = sunsetCount(); return n ? `<span class="count">${n >= 44 ? "오늘 44번째 노을이에요. 어린 왕자도 이만큼 봤대요." : `오늘 ${n}번째 노을`}</span>` : ""; })()}
+    <span class="sun" aria-hidden="true"></span>${PIC_LAMP}</div>`;
 }
 
 // ───────────────────────── 서재 ─────────────────────────
@@ -891,7 +1040,7 @@ function shelfView(){
     done: "다 읽은 책이 여기에 모여요.",
     rec: "책 화면에서 ‘추천하고 싶어요’를 누르면<br>여기에 모여요.",
   }[shelfFilter];
-  const spot = b => `<button class="spot" type="button" data-open="${esc(b.id)}">${ribbonMark(b)}${cover(b, "fill")}
+  const spot = b => `<button class="spot" type="button" data-open="${esc(b.id)}">${ribbonMark(b)}${growBadge(b)}${cover(b, "fill")}
       <span class="t">${esc(b.title)}</span><span class="s">${shelfFilter === "all" ? STATUS_LABEL[b.status] : esc(b.author)}</span></button>`;
   const fmtChips = FILTERS.filter(([k, , fn]) => ["ebook", "audio"].includes(k) && books.some(fn)).map(([k, l, fn]) =>
     `<button class="fchip" type="button" data-go-replace="#/shelf/${k === shelfFilter ? "all" : k}" aria-pressed="${k === shelfFilter}">${l} <span class="num">${books.filter(fn).length}</span></button>`).join("");
@@ -985,6 +1134,8 @@ function detailView(b){
     ${statusSeg("status", b.status)}
     <button class="recbtn" type="button" data-rec aria-pressed="${b.rec}"><span class="mini"></span>${b.rec ? "추천 목록에 있어요" : "추천하고 싶어요"}</button>
   </div>
+  ${isBaobab(b) ? `<div class="bao-note"><div class="top">${PIC_BAOBAB}<span>담아 둔 지 ${Math.floor((Date.now() - new Date(b.createdAt)) / 864e5)}일, 바오밥이 자라기 시작했어요. 지금 읽기 시작할까요, 아니면 뽑아 줄까요?</span></div>
+    <div class="two"><button class="btn sm" type="button" data-status="reading">읽기 시작</button><button class="btn sm ghost" type="button" data-delbook>뽑기</button></div></div>` : ""}
   ${dates ? `<p class="dates num">${dates}</p>` : ""}
 
   <section class="block"><div class="block-head"><h3>밑줄${b.quotes.length ? `<span>${b.quotes.length}</span>` : ""}</h3>
@@ -1294,7 +1445,7 @@ function isbnCells(digits){
 
 function scanResultView(){
   const s = scanState;
-  if(s.status === "loading") return `<p class="hint" style="text-align:center;padding:24px 0">책 정보를 찾는 중이에요…</p>`;
+  if(s.status === "loading") return waiting("scan");
   if(s.status === "dup") return `<div class="found"><p>『${esc(s.book.title)}』은(는) 이미 정원에 있어요.</p>
     <div class="two"><button class="btn ghost" type="button" data-scanagain>다른 책 찍기</button><button class="btn" type="button" data-open="${esc(s.book.id)}">책 보러 가기</button></div></div>`;
   if(s.status === "error") return `<div class="found">${oops(esc(s.message))}
@@ -1462,7 +1613,7 @@ function lookupView(){
 }
 
 function lookupListHtml(){
-  if(lookupStatus === "loading") return `<p class="hint" style="text-align:center;padding:24px 0">찾는 중…</p>`;
+  if(lookupStatus === "loading") return waiting("lookup");
   if(lookupStatus === "error") return oops("찾지 못했어요. 잠시 뒤 다시 해 보거나 직접 입력해 주세요.");
   if(!lookupItems) return `<p class="hint" style="padding:14px 2px">전자책·오디오북처럼 바코드가 없는 책은 제목으로 찾아 등록하세요.</p>`;
   if(!lookupItems.length) return `<p class="hint" style="text-align:center;padding:24px 0">‘${esc(lookupQuery)}’로 찾은 책이 없어요. 제목을 짧게 줄이거나 지은이로 찾아보세요.</p>`;
@@ -1596,11 +1747,14 @@ function meView(){
     <div class="stat"><span>밑줄 친 문장</span><b class="num">${allQuotes().length}</b></div>
     <div class="stat"><span>정원의 모든 책</span><b class="num">${books.length}</b></div>
   </div>
-  <section class="section"><div class="sec-head"><h2>나의 별 지도<small>· ${year}년 달마다 다 읽은 책</small></h2></div>
+  <section class="section"><div class="sec-head"><h2>나의 별 지도<small>· 다 읽은 책 하나가 별 하나</small></h2></div>
+    <div class="starmap">${starMap(doneYear)}<div class="cap"><span>1월</span><span>${year}년 · 별 ${doneYear.length}개</span><span>12월</span></div></div>
+  </section>
+  <section class="section"><div class="sec-head"><h2>달마다 다 읽은 책</h2></div>
     <div class="months">${months.map((n, m) => `<div><i class="${n ? "" : "zero"}" style="height:${n ? Math.round(n / max * 70) + 6 : 3}px" title="${m+1}월 ${n}권"></i><small>${m+1}</small></div>`).join("")}</div>
   </section>
   <section class="section"><div class="list">
-    <button class="row-card" type="button" data-story>${PIC_PLANE(28)}<span class="t"><h3>첫 만남 이야기 다시 보기</h3><span class="by">사막에 내린 조종사와 책 씨앗 이야기</span></span></button>
+    <button class="row-card" type="button" data-story>${titleIcon("nav-me", 28)}<span class="t"><h3>첫 만남 이야기 다시 보기</h3><span class="by">사막에 내린 조종사와 책 씨앗 이야기</span></span></button>
     <div class="panel"><strong>기록은 이 폰 안에만 저장돼요</strong>
       <p>로그인이 없고, 기록을 서버로 보내지 않아요. 대신 앱을 지우거나 폰을 바꾸면 기록이 사라지니, 가끔 백업 파일을 만들어 두세요.</p></div>
     <div class="panel"><strong>백업 파일 만들기</strong>
@@ -1736,7 +1890,7 @@ function popularSection(){
 function popularBox(n){
   const st = popularState[popularPeriod], d = popular[popularPeriod];
   if(st === "error") return oops("순위를 불러오지 못했어요. 잠시 뒤 다시 열어 주세요.");
-  if(st !== "ok" || !d) return `<p class="hint" style="text-align:center;padding:24px 0">순위를 불러오는 중…</p>`;
+  if(st !== "ok" || !d) return waiting("popular");
   const short = s => s.slice(5).replace("-", ".");
   const mineIsbn = new Set(books.map(b => b.isbn.replace(/\D/g, "")).filter(Boolean));
   return `<div class="ranks">${d.items.slice(0, n).map((it, i) => `<button class="rank-row" type="button" data-pop-item="${i}">
@@ -1780,7 +1934,7 @@ function openPopularSheet(it){
       isbn: it.isbn, cover: info.cover || it.cover, summary: info.summary || "", genre: GENRES.includes(info.genre) ? info.genre : (it.genre || "기타"),
       authorBio: bio?.bio || "", authorBioUrl: bio?.url || "", status: "want", ...newDates("want"), quotes: [], createdAt: nowIso()});
     books.push(b); await saveBook(b);
-    m.hidden = true; toast("읽고 싶은 책에 담았어요");
+    m.hidden = true; plantedScene("want");
     render();
   };
 }
@@ -1877,7 +2031,7 @@ document.addEventListener("click", e => {
     t.parentElement.querySelectorAll("button").forEach(x => x.setAttribute("aria-pressed", x === t));
     return;
   }
-  if(t.hasAttribute("data-shuffle")){ quoteShift++; return render(); }
+  if(t.hasAttribute("data-shuffle")){ quoteShift++; bumpSunset(); render(); $(".today")?.classList.add("setting"); return; }
   if(t.dataset.pickgenre && scanState.book){
     scanState.book.genre = t.dataset.pickgenre;
     t.parentElement.querySelectorAll("button").forEach(x => x.setAttribute("aria-pressed", x === t));
@@ -1894,7 +2048,7 @@ document.addEventListener("click", e => {
       ...newDates(st), quotes: [], createdAt: nowIso()});
     books.push(b); saveBook(b);
     scanState = {status: "idle"};
-    toast(addedToast(st)); return goReplace("#/book/" + encodeURIComponent(b.id));
+    plantedScene(st); return goReplace("#/book/" + encodeURIComponent(b.id));
   }
   if(t.hasAttribute("data-export")) return exportBackup();
   if(t.hasAttribute("data-goal")) return openGoalSheet();
@@ -1906,8 +2060,8 @@ document.addEventListener("click", e => {
   if(t.dataset.status){
     if(cur.status === t.dataset.status) return;
     cur.status = t.dataset.status;
-    if(cur.status === "done"){ cur.finishedAt = nowIso(); cur.startedAt ||= nowIso(); toast("다 읽었어요. 꽃이 피었어요"); }
-    else if(cur.status === "reading"){ cur.finishedAt = ""; cur.startedAt ||= nowIso(); toast("오늘부터 읽는 중이에요"); }
+    if(cur.status === "done"){ cur.finishedAt = nowIso(); cur.startedAt ||= nowIso(); celebrate("flower", "꽃이 피었어요", "다 읽었어요. 별 하나가 나의 별 지도에 박혔어요"); }
+    else if(cur.status === "reading"){ cur.finishedAt = ""; cur.startedAt ||= nowIso(); celebrate("sprout", "새싹이 돋았어요", "오늘부터 읽는 중이에요"); }
     else { cur.startedAt = ""; cur.finishedAt = ""; toast("읽고 싶은 책으로 옮겼어요"); }
     saveBook(cur); return render();
   }
@@ -1995,7 +2149,7 @@ document.addEventListener("submit", async e => {
     if(!text){ $("#qq-text").focus(); toast("문장을 적어 주세요"); return; }
     b.quotes.push({id: newId(), text, page: $("#qq-page").value.trim(), createdAt: nowIso()});
     await saveBook(b);
-    $("#modal").hidden = true; render(); toast("밑줄을 그었어요");
+    $("#modal").hidden = true; render(); celebrate("fox", "길들였어요", "이 문장은 이제 나에게 하나뿐인 문장이에요");
     return;
   }
 
@@ -2018,7 +2172,7 @@ document.addEventListener("submit", async e => {
         ...newDates(st), quotes: [], createdAt: nowIso()});
       draftIsbn = "";
       books.push(b); await saveBook(b);
-      toast(addedToast(st)); goReplace("#/book/" + encodeURIComponent(b.id));
+      plantedScene(st); goReplace("#/book/" + encodeURIComponent(b.id));
     }
   }
 });
