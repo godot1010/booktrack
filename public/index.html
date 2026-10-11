@@ -191,9 +191,15 @@ svg{display:block;flex:none}
 .shelf-tabs button{border:0;background:none;border-radius:11px;padding:7px 2px 6px;display:flex;flex-direction:column;align-items:center;gap:1px;color:var(--text-2);min-width:0}
 .shelf-tabs button b{font-size:12.5px;font-weight:600;white-space:nowrap;letter-spacing:-0.03em}
 .shelf-tabs button span{font-size:11.5px;color:var(--text-3)}
-.shelf-tabs button[aria-pressed="true"]{background:var(--coral);color:var(--on-accent)}
-.shelf-tabs button[aria-pressed="true"] b{font-weight:800}
-.shelf-tabs button[aria-pressed="true"] span{color:var(--on-accent);opacity:.75}
+/* 칸마다 어린왕자 색: 전체 = 밤하늘, 읽는 중 = 새싹, 읽고 싶은 = 씨앗, 다 읽음 = 별, 추천 = 장미. 고른 칸은 그 색 바탕 */
+.shelf-tabs .t-all{--tc:#2b3a72}.shelf-tabs .t-reading{--tc:#3d8a5a}.shelf-tabs .t-want{--tc:#8a6a3b}.shelf-tabs .t-done{--tc:#b07d0c}.shelf-tabs .t-rec{--tc:#c8504a}
+@media (prefers-color-scheme: dark){
+  .shelf-tabs .t-all{--tc:#a9b8f5}.shelf-tabs .t-reading{--tc:#7fcf98}.shelf-tabs .t-want{--tc:#d3b089}.shelf-tabs .t-done{--tc:#f6c453}.shelf-tabs .t-rec{--tc:#f08a80}}
+.shelf-tabs button b{color:var(--tc)}
+.shelf-tabs button[aria-pressed="true"]{background:var(--tc)}
+.shelf-tabs button[aria-pressed="true"] b{font-weight:800;color:#fff}
+.shelf-tabs button[aria-pressed="true"] span{color:#fff;opacity:.8}
+@media (prefers-color-scheme: dark){.shelf-tabs button[aria-pressed="true"] b,.shelf-tabs button[aria-pressed="true"] span{color:#141a33}}
 .fchips{display:flex;gap:6px;align-items:center}
 .fchip{border:1px solid var(--line-2);background:var(--card);border-radius:999px;padding:5px 10px;font-size:12.5px;font-weight:600;color:var(--text-2)}
 .fchip[aria-pressed="true"]{background:var(--coral);border-color:var(--coral);color:var(--on-accent)}
@@ -813,7 +819,7 @@ function shelfView(){
     ${books.length ? `<button class="icon-btn" type="button" data-go="#/search" aria-label="찾기">${ICON_SEARCH}</button>` : ""}</div>
   <p class="page-sub">나의 별에 심은 책들</p>
   <div class="shelf-chips"><div class="shelf-tabs" role="tablist">${FILTERS.filter(([k]) => !["ebook", "audio"].includes(k)).map(([k, l, fn]) =>
-    `<button role="tab" type="button" data-go-replace="#/shelf/${k}" aria-pressed="${k === shelfFilter}"><b>${l}</b><span class="num">${books.filter(fn).length}</span></button>`).join("")}</div></div>
+    `<button class="t-${k}" role="tab" type="button" data-go-replace="#/shelf/${k}" aria-pressed="${k === shelfFilter}"><b>${l}</b><span class="num">${books.filter(fn).length}</span></button>`).join("")}</div></div>
   ${list.length ? `<div class="shelf-bar">${fmtWrap || `<span class="num">${list.length}권</span>`}
       <select id="shelf-sort" class="sort" aria-label="정렬">${SORTS.map(([k, l]) => `<option value="${k}"${k === shelfSort ? " selected" : ""}>${k === "recent" && shelfFilter === "done" ? "다 읽은 순" : l}</option>`).join("")}</select></div>
     ${body}`
