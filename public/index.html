@@ -372,20 +372,23 @@ mark{background:var(--gold-soft);color:inherit;border-radius:3px;padding:0 1px}
 nav.bottom{position:fixed;left:0;right:0;bottom:0;background:color-mix(in srgb,var(--bg) 94%,transparent);backdrop-filter:blur(10px);border-top:1px solid var(--line);
   padding:6px 12px calc(6px + env(safe-area-inset-bottom,0px));z-index:5}
 nav.bottom .in{max-width:480px;margin:0 auto;display:grid;grid-template-columns:repeat(5,1fr);align-items:center}
-nav.bottom button{border:0;background:none;padding:6px 0;font-size:11px;font-weight:600;color:var(--text-3);display:flex;flex-direction:column;align-items:center;gap:3px}
+nav.bottom button{border:0;background:none;padding:6px 0;font-size:11px;font-weight:600;color:var(--text-3);display:flex;flex-direction:column;align-items:center;gap:3px;white-space:nowrap;letter-spacing:-0.03em}
 nav.bottom button[aria-current="page"]{color:var(--text)}
 #nav-home[aria-current="page"]{color:#2b3a72;--ic-acc:#e4574f;--ic-fill:#f6e3ad}
-#nav-shelf[aria-current="page"]{color:#3d8a5a;--ic-acc:#5aa874;--ic-fill:#e1eedd}
+#nav-shelf[aria-current="page"]{color:#c8504a;--ic-acc:#e4574f;--ic-fill:#5aa874}
 #nav-quotes[aria-current="page"]{color:#c75b2a;--ic-fill:#f8d2bc}
 #nav-me[aria-current="page"]{color:#2b3a72;--ic-acc:#e4574f;--ic-fill:#f6c453}
 @media (prefers-color-scheme: dark){
   #nav-home[aria-current="page"]{color:#f5eedc;--ic-fill:#4a4430}
-  #nav-shelf[aria-current="page"]{color:#7fcf98;--ic-fill:#1e3a2e}
+  #nav-shelf[aria-current="page"]{color:#f08a80;--ic-acc:#e4574f;--ic-fill:#5aa874}
   #nav-quotes[aria-current="page"]{color:#f0a070;--ic-fill:#4a2e22}
   #nav-me[aria-current="page"]{color:#f5eedc}}
 /* 가운데 별 단추: 책 등록(씨앗 심기) */
-nav.bottom .add{justify-self:center;width:58px;height:58px;margin-top:-22px;justify-content:center;padding:0;background:none;filter:drop-shadow(0 4px 8px rgba(224,168,35,.45))}
-nav.bottom .add:active{transform:scale(.94)}
+/* 가운데 별 단추: 다른 칸과 같은 줄에, 아이콘보다 조금만 크게 + 이름 */
+nav.bottom .add .star{height:24px;display:flex;align-items:center;justify-content:center}
+nav.bottom .add .star svg{margin:-6px 0 -4px;filter:drop-shadow(0 2px 3px rgba(224,168,35,.4))}
+nav.bottom .add{color:var(--gold)}
+nav.bottom .add:active .star{transform:scale(.92)}
 
 /* ── 창, 알림 */
 .modal{position:fixed;inset:0;background:var(--scrim);display:flex;align-items:flex-end;justify-content:center;z-index:30}
@@ -441,11 +444,11 @@ nav.bottom .add:active{transform:scale(.94)}
 
 <nav class="bottom" aria-label="메뉴">
   <div class="in">
-    <button id="nav-home" type="button"><svg width="24" height="24" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="15" r="6.2" fill="var(--ic-fill,none)" stroke="currentColor" stroke-width="1.9"/><path d="M12 8.8a6.2 6.2 0 0 1 0 12.4a7.6 7.6 0 0 0 0-12.4z" fill="currentColor" opacity=".35"/><circle cx="9.6" cy="17" r="1.7" fill="none" stroke="currentColor" stroke-width="1.2"/><circle cx="9.4" cy="12.6" r=".75" fill="currentColor"/><path d="M12 8.8V5.6" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"/><path d="M12 5.6c-2 0-2.6-1.8-2-3 .8.2 1.4.6 2 1.2.6-.6 1.2-1 2-1.2.6 1.2 0 3-2 3z" fill="var(--ic-acc,currentColor)"/></svg>나의 별</button>
-    <button id="nav-shelf" type="button"><svg width="24" height="24" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 14h12l-1.6 6.2a1 1 0 0 1-1 .8H8.6a1 1 0 0 1-1-.8z" fill="var(--ic-fill,none)" stroke="currentColor" stroke-width="1.9" stroke-linejoin="round"/><path d="M12 14V9" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"/><path d="M12 9.5c0-3-2.2-4.6-5.2-4.6 0 3 2.2 4.6 5.2 4.6zM12 8c0-3 2.2-4.6 5.2-4.6 0 3-2.2 4.6-5.2 4.6z" fill="var(--ic-acc,currentColor)"/></svg>정원</button>
-    <button id="nav-add" class="add" type="button" aria-label="책 등록 (씨앗 심기)"><svg width="56" height="56" viewBox="0 0 52 52" aria-hidden="true"><path d="M26 2.5l6.6 14.3 15.6 1.8-11.6 10.6 3.2 15.4L26 36.8l-13.8 7.8 3.2-15.4L3.8 18.6l15.6-1.8z" fill="#f6c453" stroke="#e0a823" stroke-width="1.5" stroke-linejoin="round"/><path d="M26 18.5v13M19.5 25h13" stroke="#1f2a55" stroke-width="2.8" stroke-linecap="round"/></svg></button>
-    <button id="nav-quotes" type="button"><svg width="24" height="24" viewBox="0 0 24 24" aria-hidden="true"><path d="M3.5 4l5 5h7l5-5-1 9.5-7.5 7.5-7.5-7.5z" fill="var(--ic-fill,none)" stroke="currentColor" stroke-width="1.9" stroke-linejoin="round"/><circle cx="9.3" cy="12" r="1.1" fill="currentColor"/><circle cx="14.7" cy="12" r="1.1" fill="currentColor"/><path d="M11 16h2" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"/></svg>여우</button>
-    <button id="nav-me" type="button"><svg width="24" height="24" viewBox="0 0 24 24" aria-hidden="true"><g transform="rotate(45 12 12)"><path d="M12 2.6c.9 0 1.5.8 1.5 1.8v5.2l7.3 4.3v1.9l-7.3-2.2v4.6l2.2 1.7v1.6L12 20.6l-3.7.9v-1.6l2.2-1.7v-4.6l-7.3 2.2v-1.9l7.3-4.3V4.4c0-1 .6-1.8 1.5-1.8z" fill="var(--ic-acc,none)" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/></g></svg>조종사</button>
+    <button id="nav-home" type="button"><svg width="24" height="24" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="15" r="6.2" fill="var(--ic-fill,none)" stroke="currentColor" stroke-width="1.9"/><path d="M12 8.8a6.2 6.2 0 0 1 0 12.4a7.6 7.6 0 0 0 0-12.4z" fill="currentColor" opacity=".35"/><circle cx="9.6" cy="17" r="1.7" fill="none" stroke="currentColor" stroke-width="1.2"/><circle cx="9.4" cy="12.6" r=".75" fill="currentColor"/><path d="M12 8.8V5.6" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"/><path d="M12 5.6c-2 0-2.6-1.8-2-3 .8.2 1.4.6 2 1.2.6-.6 1.2-1 2-1.2.6 1.2 0 3-2 3z" fill="var(--ic-acc,currentColor)"/></svg>B612</button>
+    <button id="nav-shelf" type="button"><svg width="24" height="24" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21v-9.2" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"/><path d="M12 17.2c-3.4.2-5.2-1.8-5.2-3.8 2.6-.2 4.6 1.2 5.2 3.8z" fill="var(--ic-fill,none)" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/><path d="M12 11.8c-4-.6-5-4.6-3.4-7.6 1.4-1.4 2.8-1.2 3.4.4.6-1.6 2-1.8 3.4-.4 1.6 3 .6 7-3.4 7.6z" fill="var(--ic-acc,none)" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/><path d="M10.2 6.6c.8 1.2 2.8 1.2 3.6 0" stroke="currentColor" stroke-width="1.3" fill="none" stroke-linecap="round"/></svg>장미정원</button>
+    <button id="nav-add" class="add" type="button" aria-label="책 등록 (씨앗 심기)"><span class="star"><svg width="34" height="34" viewBox="0 0 52 52" aria-hidden="true"><path d="M26 2.5l6.6 14.3 15.6 1.8-11.6 10.6 3.2 15.4L26 36.8l-13.8 7.8 3.2-15.4L3.8 18.6l15.6-1.8z" fill="#f6c453" stroke="#d99a16" stroke-width="2" stroke-linejoin="round"/><path d="M26 18.5v13M19.5 25h13" stroke="#1f2a55" stroke-width="3.4" stroke-linecap="round"/></svg></span>씨앗 심기</button>
+    <button id="nav-quotes" type="button"><svg width="24" height="24" viewBox="0 0 24 24" aria-hidden="true"><path d="M3.5 4l5 5h7l5-5-1 9.5-7.5 7.5-7.5-7.5z" fill="var(--ic-fill,none)" stroke="currentColor" stroke-width="1.9" stroke-linejoin="round"/><circle cx="9.3" cy="12" r="1.1" fill="currentColor"/><circle cx="14.7" cy="12" r="1.1" fill="currentColor"/><path d="M11 16h2" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"/></svg>길들인 문장</button>
+    <button id="nav-me" type="button"><svg width="24" height="24" viewBox="0 0 24 24" aria-hidden="true"><rect x="6.6" y="4.6" width="11.4" height="2.1" rx="1" fill="var(--ic-fill,none)" stroke="currentColor" stroke-width="1.4"/><path d="M9 6.7v7M15.6 6.7v7" stroke="currentColor" stroke-width="1.3"/><path d="M3.4 9.4 2.9 6.6l2.6.3 1.6 2.6L18 9.8c1.4 0 2.1.7 2.1 1.7s-.7 1.7-2.1 1.7L4.8 13c-1-.1-1.6-.8-1.4-2z" fill="var(--ic-acc,none)" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/><rect x="7.4" y="13.7" width="10" height="1.9" rx=".95" fill="var(--ic-fill,none)" stroke="currentColor" stroke-width="1.4"/><path d="M21.3 7.4v8.2" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><circle cx="20.5" cy="11.5" r=".8" fill="currentColor"/><path d="M12.4 15.6v1.6" stroke="currentColor" stroke-width="1.3"/><circle cx="12.4" cy="19" r="1.6" fill="none" stroke="currentColor" stroke-width="1.4"/></svg>조종사</button>
   </div>
 </nav>
 <button id="to-top" class="to-top" type="button" aria-label="맨 위로" hidden><svg width="22" height="22" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3l2.6 5.6 6 .7-4.5 4.1 1.2 6-5.3-3-5.3 3 1.2-6L3.4 9.3l6-.7z" fill="currentColor"/></svg></button>
@@ -825,7 +828,7 @@ function shelfView(){
     list.forEach(b => { const y = b.finishedAt ? new Date(b.finishedAt).getFullYear() + "년" : "날짜 없음"; if(!years.has(y)) years.set(y, []); years.get(y).push(b); });
     body = [...years].map(([y, bs]) => `<h2 class="year-head">${y}<small>${bs.length}권</small></h2><div class="grid">${bs.map(spot).join("")}</div>`).join("");
   } else body = `<div class="grid">${list.map(spot).join("")}</div>`;
-  return `<div class="page-title"><h1>정원</h1>
+  return `<div class="page-title"><h1>장미정원</h1>
     ${books.length ? `<button class="icon-btn" type="button" data-go="#/search" aria-label="찾기">${ICON_SEARCH}</button>` : ""}</div>
   <p class="page-sub">나의 별에 심은 책들 · 씨앗에서 새싹, 꽃으로</p>
   <div class="shelf-chips"><div class="shelf-tabs" role="tablist">${FILTERS.filter(([k]) => !["ebook", "audio"].includes(k)).map(([k, l, fn]) =>
@@ -1438,9 +1441,9 @@ function formView(b){
 // ───────────────────────── 밑줄 모음 ─────────────────────────
 function quotesView(){
   const all = allQuotes().sort((x, y) => (y.createdAt || "").localeCompare(x.createdAt || ""));
-  return `<div class="page-title"><h1>여우</h1>
+  return `<div class="page-title"><h1>길들인 문장</h1>
     ${all.length ? `<button class="icon-btn" type="button" data-go="#/search" aria-label="찾기">${ICON_SEARCH}</button>` : ""}</div>
-  <p class="page-sub">여우와 길들인 문장들 · 밑줄 모음</p>
+  <p class="page-sub">여우처럼 하나씩 길들인 밑줄 모음</p>
   ${all.length ? `<div class="night-card" style="margin-bottom:16px"><span class="pic">${PIC_FOX.replace(/16/g, "30")}</span>
       <span class="tx"><span class="tag">길들인 문장</span><b class="num">${new Set(all.map(q => q.b.id)).size}권에서 ${all.length}개</b>
       <p>길들인 문장은 나에게 하나뿐인 문장이 돼요. 읽다가 멈춘 자리를 모아 두었어요.</p></span></div>
