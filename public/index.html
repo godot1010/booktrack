@@ -185,7 +185,18 @@ svg{display:block;flex:none}
 /* ── 서재: 칩 + 표지 격자 */
 .chips{display:flex;gap:8px;overflow-x:auto;margin:0 -20px 18px;padding:2px 20px;scrollbar-width:none}
 /* 서재: 칩은 내려도 화면 위에 붙어 있게, 그 아래 권수 + 정렬 */
-.shelf-chips{position:sticky;top:0;z-index:4;background:var(--bg);margin-bottom:6px;padding-block:10px}
+/* 서재 칸: 다섯 칸(전체·읽는 중·읽고 싶은·다 읽음·추천)이 폰 폭에 한 줄로 다 들어가게. 이름 아래 권수 */
+.shelf-chips{position:sticky;top:0;z-index:4;background:var(--bg);margin:0 -20px 6px;padding:8px 20px 10px}
+.shelf-tabs{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:3px;background:var(--soft);border-radius:14px;padding:3px}
+.shelf-tabs button{border:0;background:none;border-radius:11px;padding:7px 2px 6px;display:flex;flex-direction:column;align-items:center;gap:1px;color:var(--text-2);min-width:0}
+.shelf-tabs button b{font-size:12.5px;font-weight:600;white-space:nowrap;letter-spacing:-0.03em}
+.shelf-tabs button span{font-size:11.5px;color:var(--text-3)}
+.shelf-tabs button[aria-pressed="true"]{background:var(--coral);color:var(--on-accent)}
+.shelf-tabs button[aria-pressed="true"] b{font-weight:800}
+.shelf-tabs button[aria-pressed="true"] span{color:var(--on-accent);opacity:.75}
+.fchips{display:flex;gap:6px;align-items:center}
+.fchip{border:1px solid var(--line-2);background:var(--card);border-radius:999px;padding:5px 10px;font-size:12.5px;font-weight:600;color:var(--text-2)}
+.fchip[aria-pressed="true"]{background:var(--coral);border-color:var(--coral);color:var(--on-accent)}
 .shelf-bar{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;font-size:13px;color:var(--text-3)}
 .sort{appearance:none;-webkit-appearance:none;border:1px solid var(--line-2);background:var(--card) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%238a8597' stroke-width='3' stroke-linecap='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E") no-repeat right 10px center;
   border-radius:999px;padding:6px 28px 6px 12px;font-size:13px;font-weight:600;color:var(--text-2)}
@@ -788,6 +799,9 @@ function shelfView(){
   }[shelfFilter];
   const spot = b => `<button class="spot" type="button" data-open="${esc(b.id)}">${ribbonMark(b)}${cover(b, "fill")}
       <span class="t">${esc(b.title)}</span><span class="s">${shelfFilter === "all" ? STATUS_LABEL[b.status] : esc(b.author)}</span></button>`;
+  const fmtChips = FILTERS.filter(([k, , fn]) => ["ebook", "audio"].includes(k) && books.some(fn)).map(([k, l, fn]) =>
+    `<button class="fchip" type="button" data-go-replace="#/shelf/${k === shelfFilter ? "all" : k}" aria-pressed="${k === shelfFilter}">${l} <span class="num">${books.filter(fn).length}</span></button>`).join("");
+  const fmtWrap = fmtChips && `<span class="fchips">${fmtChips}</span>`;
   // 다 읽은 책을 최근 순으로 볼 때는 해마다 나눠 보여 준다
   let body;
   if(shelfFilter === "done" && shelfSort === "recent"){
@@ -798,9 +812,9 @@ function shelfView(){
   return `<div class="page-title"><h1>서재</h1>
     ${books.length ? `<button class="icon-btn" type="button" data-go="#/search" aria-label="찾기">${ICON_SEARCH}</button>` : ""}</div>
   <p class="page-sub">나의 별에 심은 책들</p>
-  <div class="chips shelf-chips" role="tablist">${FILTERS.filter(([k, , fn]) => !["ebook", "audio"].includes(k) || k === shelfFilter || books.some(fn)).map(([k, l, fn]) =>
-    `<button class="chip" role="tab" type="button" data-go-replace="#/shelf/${k}" aria-pressed="${k === shelfFilter}">${l}<span class="n num">${books.filter(fn).length}</span></button>`).join("")}</div>
-  ${list.length ? `<div class="shelf-bar"><span class="num">${list.length}권</span>
+  <div class="shelf-chips"><div class="shelf-tabs" role="tablist">${FILTERS.filter(([k]) => !["ebook", "audio"].includes(k)).map(([k, l, fn]) =>
+    `<button role="tab" type="button" data-go-replace="#/shelf/${k}" aria-pressed="${k === shelfFilter}"><b>${l}</b><span class="num">${books.filter(fn).length}</span></button>`).join("")}</div></div>
+  ${list.length ? `<div class="shelf-bar">${fmtWrap || `<span class="num">${list.length}권</span>`}
       <select id="shelf-sort" class="sort" aria-label="정렬">${SORTS.map(([k, l]) => `<option value="${k}"${k === shelfSort ? " selected" : ""}>${k === "recent" && shelfFilter === "done" ? "다 읽은 순" : l}</option>`).join("")}</select></div>
     ${body}`
     : `<div class="empty">${PIC_PLANE(44)}<p>${empty}</p>${["all", "reading", "want"].includes(shelfFilter) ? `<button class="btn" type="button" data-go="#/scan">책 등록하기</button>` : ""}</div>`}`;
