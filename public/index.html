@@ -356,6 +356,17 @@ nav.bottom .add:active{background:var(--gold)}
 .sheet .msg{font-size:16px;line-height:1.6}
 .sheet .msg small{display:block;color:var(--text-3);font-size:13.5px;margin-top:4px}
 .ocr{display:flex;flex-direction:column;gap:10px}
+/* 밑줄 긋기: 사진 / 읽어서 받아쓰기 두 단추 */
+.q-tools{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.q-tools.one{grid-template-columns:1fr}
+.q-tools .btn{padding:12px 8px;font-size:14px}
+#voice-btn[aria-pressed="true"]{background:var(--rose);border-color:var(--rose);color:#fff}
+.voice{display:flex;gap:10px;align-items:center;background:var(--night);color:#fdf3dc;border-radius:16px;padding:12px 14px;font-size:13.5px;line-height:1.55}
+.voice .ears{flex:none;width:36px;height:36px;border-radius:50%;background:rgba(255,255,255,.12);display:flex;align-items:center;justify-content:center;position:relative}
+.voice.on .ears::after{content:"";position:absolute;inset:-4px;border-radius:50%;border:2px solid #f6c453;opacity:0}
+@media (prefers-reduced-motion:no-preference){.voice.on .ears::after{animation:listen 1.4s ease-out infinite}
+  @keyframes listen{0%{transform:scale(.8);opacity:.9}100%{transform:scale(1.35);opacity:0}}}
+.voice small{display:block;color:rgba(253,243,220,.65);font-size:11.5px;margin-top:2px}
 /* 사진 위 네모: 바깥은 어둡게, 손잡이(동그라미·막대)는 손가락으로 잡기 쉽게 크게 */
 .crop-wrap{background:#111;border-radius:14px;overflow:hidden;padding:18px}
 .crop{position:relative;width:fit-content;max-width:100%;margin:0 auto;touch-action:none;user-select:none;-webkit-user-select:none;line-height:0}
@@ -638,6 +649,7 @@ function render(animate){
 }
 window.addEventListener("hashchange", () => {
   summaryOpen = false;
+  stopVoice();
   $("#modal").hidden = true;
   // 바코드 화면을 떠나면 카메라를 끄고, 새로 들어오면 처음부터
   const rn = parseRoute().name;
@@ -866,7 +878,12 @@ function openQuoteSheet(b){
   m.innerHTML = `<form class="sheet" role="dialog" aria-modal="true" aria-label="밑줄 긋기" data-quickform>
     <h2>밑줄 긋기</h2>
     <p class="hint" style="margin-top:-10px">${esc(b.title)}</p>
-    <button class="btn line wide" type="button" id="ocr-pick">${ICON_CAMERA}사진에서 글자 가져오기</button>
+    <div class="q-tools${VOICE_OK ? "" : " one"}">
+      <button class="btn line" type="button" id="ocr-pick">${ICON_CAMERA}${VOICE_OK ? "사진으로" : "사진에서 글자 가져오기"}</button>
+      ${VOICE_OK ? `<button class="btn line" type="button" id="voice-btn" aria-pressed="false">${ICON_MIC}읽어서 받아쓰기</button>` : ""}</div>
+    <div id="voice-area" class="voice" hidden role="status"><span class="ears">${PIC_FOX.replace(/16/g, "22")}</span>
+      <span><span id="voice-msg">여우가 귀 기울여 듣고 있어요. 밑줄 친 문장을 또박또박 읽어 주세요.</span>
+      <small>말한 내용은 글자로 바꾸려고 구글(아이폰은 애플) 음성 인식을 거쳐요. 목소리는 앱에 남기지 않아요.</small></span></div>
     <input id="ocr-file" type="file" accept="image/*" capture="environment" hidden>
     <div id="ocr-area" class="ocr" hidden>
       <p class="hint">네모의 동그란 손잡이를 끌어서 밑줄 친 부분에 맞춰 주세요. 네모 안쪽을 끌면 통째로 옮겨져요.</p>
@@ -883,8 +900,59 @@ function openQuoteSheet(b){
   </form>`;
   m.hidden = false;
   m.dataset.book = b.id;
-  $("#qq-close").onclick = () => m.hidden = true;
+  $("#qq-close").onclick = () => { stopVoice(); m.hidden = true; };
   setupOcr();
+  setupVoice();
+}
+
+// ───────────────────────── 읽어서 받아쓰기 (음성 인식) ─────────────────────────
+// 폰 브라우저에 들어 있는 음성 인식(Web Speech API)을 쓴다. 무료, 키 없음.
+// 단, 목소리는 글자로 바꾸려고 구글(안드로이드 크롬)·애플(아이폰 사파리) 서버를 거친다 → 창에 안내.
+// 말하는 동안 글자가 실시간으로 칸에 들어가고, 멈추면 확정된다. 지원하지 않는 브라우저는 단추를 숨긴다.
+const SpeechRec = window.SpeechRecognition || window.webkitSpeechRecognition;
+const VOICE_OK = !!SpeechRec;
+const ICON_MIC = svg('<rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5.5 11a6.5 6.5 0 0 0 13 0M12 17.5V21"/>', 18);
+let voiceRec = null;
+// "마침표", "줄 바꿈"처럼 말한 문장 부호를 기호로
+const spokenMarks = t => t.replace(/\s*마침표\s*/g, ". ").replace(/\s*쉼표\s*/g, ", ").replace(/\s*물음표\s*/g, "? ")
+  .replace(/\s*느낌표\s*/g, "! ").replace(/\s*줄\s?바꿈\s*/g, "\n").replace(/ +$/, "");
+function stopVoice(){ if(voiceRec){ const r = voiceRec; voiceRec = null; try { r.stop(); } catch {} } }
+function setupVoice(){
+  const btn = $("#voice-btn"); if(!btn) return;
+  const area = $("#voice-area"), msg = $("#voice-msg"), ta = $("#qq-text");
+  const setOn = on => { btn.setAttribute("aria-pressed", on); btn.innerHTML = `${ICON_MIC}${on ? "멈추기" : "읽어서 받아쓰기"}`; area.classList.toggle("on", on); };
+  btn.onclick = () => {
+    if(voiceRec){ stopVoice(); return; }
+    const rec = new SpeechRec();
+    rec.lang = "ko-KR"; rec.interimResults = true; rec.continuous = true;
+    const base = ta.value.trim() ? ta.value.replace(/\s+$/, "") + " " : "";
+    let done = "";
+    rec.onresult = e => {
+      if($("#modal").hidden) return stopVoice();
+      let interim = "";
+      for(let i = e.resultIndex; i < e.results.length; i++){
+        const t = e.results[i][0].transcript;
+        if(e.results[i].isFinal) done += (done && !/\s$/.test(done) ? " " : "") + spokenMarks(t.trim());
+        else interim += t;
+      }
+      ta.value = base + done + (interim ? (done ? " " : "") + interim : "");
+    };
+    rec.onerror = e => {
+      msg.textContent = {"not-allowed": "마이크를 쓸 수 있게 허락해 주세요. (브라우저 주소창 옆 자물쇠 → 마이크)",
+        "service-not-allowed": "이 브라우저에서는 받아쓰기를 쓸 수 없어요. 자판의 마이크를 써 주세요.",
+        "network": "인터넷이 연결되면 다시 해 보세요.", "no-speech": "목소리가 들리지 않았어요. 다시 눌러서 읽어 주세요.",
+        "audio-capture": "마이크를 찾지 못했어요."}[e.error] || "받아쓰기가 멈췄어요. 다시 눌러 주세요.";
+    };
+    rec.onend = () => {
+      if(voiceRec === rec) voiceRec = null;
+      setOn(false);
+      ta.value = ta.value.trim();
+      if(done && !/허락|인터넷|들리지|찾지|쓸 수 없/.test(msg.textContent)) msg.textContent = "다 받아 적었어요. 틀린 글자를 고친 뒤 저장해 주세요.";
+    };
+    msg.textContent = "여우가 귀 기울여 듣고 있어요. 밑줄 친 문장을 또박또박 읽어 주세요.";
+    area.hidden = false; setOn(true); voiceRec = rec;
+    try { rec.start(); } catch { voiceRec = null; setOn(false); msg.textContent = "받아쓰기를 시작하지 못했어요. 다시 눌러 주세요."; }
+  };
 }
 
 // ───────────────────────── 사진에서 글자 가져오기 ─────────────────────────
@@ -1724,6 +1792,7 @@ document.addEventListener("submit", async e => {
 
   // 밑줄 긋기 창
   if(f.hasAttribute("data-quickform")){
+    stopVoice();
     const b = findBook($("#modal").dataset.book); if(!b) return;
     const text = $("#qq-text").value.trim();
     if(!text){ $("#qq-text").focus(); toast("문장을 적어 주세요"); return; }
