@@ -155,6 +155,20 @@ svg{display:block;flex:none}
 .night-card b{font-size:20px;font-weight:800;letter-spacing:-0.02em}
 .night-card p{font-size:13.5px;line-height:1.6;color:rgba(253,243,220,.82)}
 .night-card .btn{align-self:flex-start;margin-top:6px;background:#f6c453;color:#1f2a55}
+/* 조종사 화면 위: 한 장의 비행 일지 (왕의 명령 + 숫자 네 칸) */
+.logbook{background:var(--night);color:#fdf3dc;border-radius:20px;padding:14px 16px 12px}
+.goal-row{display:flex;align-items:center;gap:12px}
+.goal-row .pic{flex:none;width:44px;height:44px;border-radius:14px;background:rgba(255,255,255,.1);border:1px solid rgba(246,196,83,.35);display:flex;align-items:center;justify-content:center}
+.goal-row .g{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px}
+.goal-row .tag{font-size:12px;font-weight:700;color:#f6c453}
+.goal-row b{font-size:18px;font-weight:800;letter-spacing:-0.02em}
+.goal-row b small{font-size:12.5px;font-weight:500;color:rgba(253,243,220,.7);margin-left:6px}
+.goal-row .sub{font-size:12.5px;color:rgba(253,243,220,.7)}
+.goal-row .lk{flex:none;border:1px solid rgba(246,196,83,.55);background:none;color:#f6c453;border-radius:999px;padding:5px 12px;font-size:12.5px;font-weight:700}
+.mini-stats{display:grid;grid-template-columns:repeat(4,1fr);margin-top:12px;padding-top:10px;border-top:1px solid rgba(255,255,255,.12);text-align:center}
+.mini-stats span{display:flex;flex-direction:column;align-items:center;gap:1px;font-size:11px;color:rgba(253,243,220,.7)}
+.mini-stats svg{width:18px;height:18px}
+.mini-stats b{font-size:17px;font-weight:800;color:#fdf3dc}
 .goal-bar{height:8px;border-radius:99px;background:rgba(255,255,255,.16);overflow:hidden;margin-top:4px}
 .goal-bar i{display:block;height:100%;background:#f6c453;border-radius:99px}
 .page-sub{font-size:13px;color:var(--text-3);margin:-8px 0 16px;display:flex;align-items:center;gap:6px}
@@ -1734,18 +1748,18 @@ function meView(){
   const goal = goalOf(year), pct = goal ? Math.min(100, Math.round(doneYear.length / goal * 100)) : 0;
   return `<div class="page-title"><h1>${titleIcon("nav-me")}조종사</h1></div>
   <p class="page-sub">조종사의 비행 일지 · 나의 기록과 백업</p>
-  <div class="night-card" style="margin-bottom:12px"><span class="pic">${PIC_CROWN}</span>
-    <span class="tx"><span class="tag">왕의 명령 · ${year}년 목표</span>
-      ${goal ? `<b class="num">${doneYear.length} / ${goal}권</b><span class="goal-bar"><i style="width:${pct}%"></i></span>
-        <p>${doneYear.length >= goal ? "명령을 다 지켰어요! 왕이 아주 흐뭇해해요." : `${goal - doneYear.length}권 남았어요. 왕은 지킬 수 있는 명령만 내려요.`}</p>`
-      : `<b>올해 몇 권 읽을까요?</b><p>왕은 지킬 수 있는 명령만 내려요. 나에게 알맞은 목표를 정해 보세요.</p>`}
-      <button class="btn sm" type="button" data-goal>${goal ? "목표 바꾸기" : "목표 정하기"}</button></span></div>
-  <div class="stats">
-    <div class="stat main"><span>${year}년에 다 읽은 책</span><b class="num">${doneYear.length}권</b></div>
-    <div class="stat"><span>지금 읽는 책</span><b class="num">${books.filter(b => b.status === "reading").length}</b></div>
-    <div class="stat"><span>읽고 싶은 책</span><b class="num">${books.filter(b => b.status === "want").length}</b></div>
-    <div class="stat"><span>밑줄 친 문장</span><b class="num">${allQuotes().length}</b></div>
-    <div class="stat"><span>정원의 모든 책</span><b class="num">${books.length}</b></div>
+  <div class="logbook">
+    <div class="goal-row"><span class="pic">${PIC_CROWN}</span>
+      <span class="g"><span class="tag">왕의 명령 · ${year}년</span>
+        ${goal ? `<b class="num">${doneYear.length} / ${goal}권<small>· ${doneYear.length >= goal ? "명령을 다 지켰어요!" : `${goal - doneYear.length}권 남았어요`}</small></b><span class="goal-bar"><i style="width:${pct}%"></i></span>`
+          : `<b class="num">${doneYear.length}권 읽었어요</b><span class="sub">올해 목표를 정해 보세요</span>`}</span>
+      <button class="lk" type="button" data-goal>${goal ? "바꾸기" : "정하기"}</button></div>
+    <div class="mini-stats">
+      <span>${GROW_SVG.sprout}<b class="num">${books.filter(b => b.status === "reading").length}</b>읽는 중</span>
+      <span>${GROW_SVG.seed}<b class="num">${books.filter(b => b.status === "want").length}</b>읽고 싶은</span>
+      <span>${PIC_FOX.replace(/16/g, "17")}<b class="num">${allQuotes().length}</b>밑줄</span>
+      <span>${GROW_SVG.flower}<b class="num">${books.length}</b>정원 전체</span>
+    </div>
   </div>
   <section class="section"><div class="sec-head"><h2>나의 별 지도<small>· 다 읽은 책 하나가 별 하나</small></h2></div>
     <div class="starmap">${starMap(doneYear)}<div class="cap"><span>1월</span><span>${year}년 · 별 ${doneYear.length}개</span><span>12월</span></div></div>
