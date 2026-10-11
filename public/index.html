@@ -374,8 +374,18 @@ nav.bottom{position:fixed;left:0;right:0;bottom:0;background:color-mix(in srgb,v
 nav.bottom .in{max-width:480px;margin:0 auto;display:grid;grid-template-columns:repeat(5,1fr);align-items:center}
 nav.bottom button{border:0;background:none;padding:6px 0;font-size:11px;font-weight:600;color:var(--text-3);display:flex;flex-direction:column;align-items:center;gap:3px}
 nav.bottom button[aria-current="page"]{color:var(--text)}
-nav.bottom .add{justify-self:center;background:var(--star);color:#1f2a55;width:52px;height:52px;border-radius:50%;justify-content:center;padding:0;box-shadow:0 6px 16px -6px var(--gold)}
-nav.bottom .add:active{background:var(--gold)}
+#nav-home[aria-current="page"]{color:#2b3a72;--ic-acc:#e4574f;--ic-fill:#f6e3ad}
+#nav-shelf[aria-current="page"]{color:#3d8a5a;--ic-acc:#5aa874;--ic-fill:#e1eedd}
+#nav-quotes[aria-current="page"]{color:#c75b2a;--ic-fill:#f8d2bc}
+#nav-me[aria-current="page"]{color:#2b3a72;--ic-acc:#e4574f;--ic-fill:#f6c453}
+@media (prefers-color-scheme: dark){
+  #nav-home[aria-current="page"]{color:#f5eedc;--ic-fill:#4a4430}
+  #nav-shelf[aria-current="page"]{color:#7fcf98;--ic-fill:#1e3a2e}
+  #nav-quotes[aria-current="page"]{color:#f0a070;--ic-fill:#4a2e22}
+  #nav-me[aria-current="page"]{color:#f5eedc}}
+/* 가운데 별 단추: 책 등록(씨앗 심기) */
+nav.bottom .add{justify-self:center;width:58px;height:58px;margin-top:-22px;justify-content:center;padding:0;background:none;filter:drop-shadow(0 4px 8px rgba(224,168,35,.45))}
+nav.bottom .add:active{transform:scale(.94)}
 
 /* ── 창, 알림 */
 .modal{position:fixed;inset:0;background:var(--scrim);display:flex;align-items:flex-end;justify-content:center;z-index:30}
@@ -431,11 +441,11 @@ nav.bottom .add:active{background:var(--gold)}
 
 <nav class="bottom" aria-label="메뉴">
   <div class="in">
-    <button id="nav-home" type="button"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="15" r="6"/><path d="M12 9V5.5"/><path d="M12 5.5c-2 0-2.6-1.8-2-3 .8.2 1.4.6 2 1.2.6-.6 1.2-1 2-1.2.6 1.2 0 3-2 3z" fill="currentColor"/></svg>나의 별</button>
-    <button id="nav-shelf" type="button"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="4" width="4.5" height="16" rx="1"/><rect x="10" y="4" width="4.5" height="16" rx="1"/><path d="m16.5 5.2 3.6 14.3"/></svg>서재</button>
-    <button id="nav-add" class="add" type="button" aria-label="책 등록"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg></button>
-    <button id="nav-quotes" type="button"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 4v7a5 5 0 0 0 10 0V4"/><path d="M4 20h16"/></svg>밑줄</button>
-    <button id="nav-me" type="button"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="8.5" r="3.8"/><path d="M5 20a7 7 0 0 1 14 0"/></svg>나</button>
+    <button id="nav-home" type="button"><svg width="24" height="24" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="15" r="6.2" fill="var(--ic-fill,none)" stroke="currentColor" stroke-width="1.9"/><path d="M12 8.8a6.2 6.2 0 0 1 0 12.4a7.6 7.6 0 0 0 0-12.4z" fill="currentColor" opacity=".35"/><circle cx="9.6" cy="17" r="1.7" fill="none" stroke="currentColor" stroke-width="1.2"/><circle cx="9.4" cy="12.6" r=".75" fill="currentColor"/><path d="M12 8.8V5.6" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"/><path d="M12 5.6c-2 0-2.6-1.8-2-3 .8.2 1.4.6 2 1.2.6-.6 1.2-1 2-1.2.6 1.2 0 3-2 3z" fill="var(--ic-acc,currentColor)"/></svg>나의 별</button>
+    <button id="nav-shelf" type="button"><svg width="24" height="24" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 14h12l-1.6 6.2a1 1 0 0 1-1 .8H8.6a1 1 0 0 1-1-.8z" fill="var(--ic-fill,none)" stroke="currentColor" stroke-width="1.9" stroke-linejoin="round"/><path d="M12 14V9" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"/><path d="M12 9.5c0-3-2.2-4.6-5.2-4.6 0 3 2.2 4.6 5.2 4.6zM12 8c0-3 2.2-4.6 5.2-4.6 0 3-2.2 4.6-5.2 4.6z" fill="var(--ic-acc,currentColor)"/></svg>정원</button>
+    <button id="nav-add" class="add" type="button" aria-label="책 등록 (씨앗 심기)"><svg width="56" height="56" viewBox="0 0 52 52" aria-hidden="true"><path d="M26 2.5l6.6 14.3 15.6 1.8-11.6 10.6 3.2 15.4L26 36.8l-13.8 7.8 3.2-15.4L3.8 18.6l15.6-1.8z" fill="#f6c453" stroke="#e0a823" stroke-width="1.5" stroke-linejoin="round"/><path d="M26 18.5v13M19.5 25h13" stroke="#1f2a55" stroke-width="2.8" stroke-linecap="round"/></svg></button>
+    <button id="nav-quotes" type="button"><svg width="24" height="24" viewBox="0 0 24 24" aria-hidden="true"><path d="M3.5 4l5 5h7l5-5-1 9.5-7.5 7.5-7.5-7.5z" fill="var(--ic-fill,none)" stroke="currentColor" stroke-width="1.9" stroke-linejoin="round"/><circle cx="9.3" cy="12" r="1.1" fill="currentColor"/><circle cx="14.7" cy="12" r="1.1" fill="currentColor"/><path d="M11 16h2" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"/></svg>여우</button>
+    <button id="nav-me" type="button"><svg width="24" height="24" viewBox="0 0 24 24" aria-hidden="true"><g transform="rotate(45 12 12)"><path d="M12 2.6c.9 0 1.5.8 1.5 1.8v5.2l7.3 4.3v1.9l-7.3-2.2v4.6l2.2 1.7v1.6L12 20.6l-3.7.9v-1.6l2.2-1.7v-4.6l-7.3 2.2v-1.9l7.3-4.3V4.4c0-1 .6-1.8 1.5-1.8z" fill="var(--ic-acc,none)" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/></g></svg>조종사</button>
   </div>
 </nav>
 <button id="to-top" class="to-top" type="button" aria-label="맨 위로" hidden><svg width="22" height="22" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3l2.6 5.6 6 .7-4.5 4.1 1.2 6-5.3-3-5.3 3 1.2-6L3.4 9.3l6-.7z" fill="currentColor"/></svg></button>
@@ -538,7 +548,7 @@ const statusSeg = (attr, cur) => `<div class="seg" role="group" aria-label="읽�
 const pickedStatus = box => box.querySelector('[data-fstatus][aria-pressed="true"]')?.dataset.fstatus || "reading";
 // 새 책의 날짜: 읽고 싶은 책은 아직 시작 전
 const newDates = st => ({startedAt: st === "want" ? "" : nowIso(), finishedAt: st === "done" ? nowIso() : ""});
-const addedToast = st => st === "want" ? "읽고 싶은 책에 담았어요" : "서재에 꽂았어요";
+const addedToast = st => st === "want" ? "읽고 싶은 책에 담았어요" : "정원에 심었어요";
 const ribbonMark = b => b.rec ? '<span class="ribbon" aria-label="추천"></span>' : "";
 
 // 아이콘
@@ -815,9 +825,9 @@ function shelfView(){
     list.forEach(b => { const y = b.finishedAt ? new Date(b.finishedAt).getFullYear() + "년" : "날짜 없음"; if(!years.has(y)) years.set(y, []); years.get(y).push(b); });
     body = [...years].map(([y, bs]) => `<h2 class="year-head">${y}<small>${bs.length}권</small></h2><div class="grid">${bs.map(spot).join("")}</div>`).join("");
   } else body = `<div class="grid">${list.map(spot).join("")}</div>`;
-  return `<div class="page-title"><h1>서재</h1>
+  return `<div class="page-title"><h1>정원</h1>
     ${books.length ? `<button class="icon-btn" type="button" data-go="#/search" aria-label="찾기">${ICON_SEARCH}</button>` : ""}</div>
-  <p class="page-sub">나의 별에 심은 책들</p>
+  <p class="page-sub">나의 별에 심은 책들 · 씨앗에서 새싹, 꽃으로</p>
   <div class="shelf-chips"><div class="shelf-tabs" role="tablist">${FILTERS.filter(([k]) => !["ebook", "audio"].includes(k)).map(([k, l, fn]) =>
     `<button class="t-${k}" role="tab" type="button" data-go-replace="#/shelf/${k}" aria-pressed="${k === shelfFilter}"><b>${l}</b><span class="num">${books.filter(fn).length}</span></button>`).join("")}</div></div>
   ${list.length ? `<div class="shelf-bar">${fmtWrap || `<span class="num">${list.length}권</span>`}
@@ -1207,7 +1217,7 @@ function isbnCells(digits){
 function scanResultView(){
   const s = scanState;
   if(s.status === "loading") return `<p class="hint" style="text-align:center;padding:24px 0">책 정보를 찾는 중이에요…</p>`;
-  if(s.status === "dup") return `<div class="found"><p>『${esc(s.book.title)}』은(는) 이미 서재에 있어요.</p>
+  if(s.status === "dup") return `<div class="found"><p>『${esc(s.book.title)}』은(는) 이미 정원에 있어요.</p>
     <div class="two"><button class="btn ghost" type="button" data-scanagain>다른 책 찍기</button><button class="btn" type="button" data-open="${esc(s.book.id)}">책 보러 가기</button></div></div>`;
   if(s.status === "error") return `<div class="found">${oops(esc(s.message))}
     <div class="two"><button class="btn ghost" type="button" data-scanagain>다시 찍기</button><button class="btn" type="button" data-manual-isbn>직접 입력하기</button></div></div>`;
@@ -1223,7 +1233,7 @@ function scanResultView(){
     <div><div class="sub" style="margin-bottom:8px">형태</div>${formatSeg(lastFormat())}</div>
     ${statusSeg("fstatus", "reading")}
     <label class="check" style="display:flex"><input id="found-rec" type="checkbox"> 추천 목록에도 넣기</label>
-    <button class="btn wide" type="button" data-addfound>서재에 꽂기</button>
+    <button class="btn wide" type="button" data-addfound>정원에 심기</button>
   </div>`;
 }
 
@@ -1421,16 +1431,16 @@ function formView(b){
       <label class="check"><input id="f-rec" type="checkbox"> 추천 목록에도 넣기</label>` : ""}
     <label>책 소개 <span class="opt">안 써도 돼요</span><textarea id="f-summary" rows="4">${esc(b.summary)}</textarea></label>
     <label>작가 소개 <span class="opt">안 써도 돼요</span><textarea id="f-bio" rows="3">${esc(b.authorBio)}</textarea></label>
-    <button class="btn wide" type="submit">${isNew ? "서재에 꽂기" : "저장하기"}</button>
+    <button class="btn wide" type="submit">${isNew ? "정원에 심기" : "저장하기"}</button>
   </form>`;
 }
 
 // ───────────────────────── 밑줄 모음 ─────────────────────────
 function quotesView(){
   const all = allQuotes().sort((x, y) => (y.createdAt || "").localeCompare(x.createdAt || ""));
-  return `<div class="page-title"><h1>밑줄</h1>
+  return `<div class="page-title"><h1>여우</h1>
     ${all.length ? `<button class="icon-btn" type="button" data-go="#/search" aria-label="찾기">${ICON_SEARCH}</button>` : ""}</div>
-  <p class="page-sub">여우와 길들인 문장들</p>
+  <p class="page-sub">여우와 길들인 문장들 · 밑줄 모음</p>
   ${all.length ? `<div class="night-card" style="margin-bottom:16px"><span class="pic">${PIC_FOX.replace(/16/g, "30")}</span>
       <span class="tx"><span class="tag">길들인 문장</span><b class="num">${new Set(all.map(q => q.b.id)).size}권에서 ${all.length}개</b>
       <p>길들인 문장은 나에게 하나뿐인 문장이 돼요. 읽다가 멈춘 자리를 모아 두었어요.</p></span></div>
@@ -1446,7 +1456,8 @@ function meView(){
   const months = Array.from({length: 12}, (_, m) => doneYear.filter(b => new Date(b.finishedAt).getMonth() === m).length);
   const max = Math.max(1, ...months);
   const goal = goalOf(year), pct = goal ? Math.min(100, Math.round(doneYear.length / goal * 100)) : 0;
-  return `<div class="page-title"><h1>나</h1></div>
+  return `<div class="page-title"><h1>조종사</h1></div>
+  <p class="page-sub">${PIC_PLANE(20)}조종사의 비행 일지 · 나의 기록과 백업</p>
   <div class="night-card" style="margin-bottom:12px"><span class="pic">${PIC_CROWN}</span>
     <span class="tx"><span class="tag">왕의 명령 · ${year}년 목표</span>
       ${goal ? `<b class="num">${doneYear.length} / ${goal}권</b><span class="goal-bar"><i style="width:${pct}%"></i></span>
@@ -1458,7 +1469,7 @@ function meView(){
     <div class="stat"><span>지금 읽는 책</span><b class="num">${books.filter(b => b.status === "reading").length}</b></div>
     <div class="stat"><span>읽고 싶은 책</span><b class="num">${books.filter(b => b.status === "want").length}</b></div>
     <div class="stat"><span>밑줄 친 문장</span><b class="num">${allQuotes().length}</b></div>
-    <div class="stat"><span>서재의 모든 책</span><b class="num">${books.length}</b></div>
+    <div class="stat"><span>정원의 모든 책</span><b class="num">${books.length}</b></div>
   </div>
   <section class="section"><div class="sec-head"><h2>나의 별 지도<small>· ${year}년 달마다 다 읽은 책</small></h2></div>
     <div class="months">${months.map((n, m) => `<div><i class="${n ? "" : "zero"}" style="height:${n ? Math.round(n / max * 70) + 6 : 3}px" title="${m+1}월 ${n}권"></i><small>${m+1}</small></div>`).join("")}</div>
@@ -1605,7 +1616,7 @@ function popularBox(n){
   return `<div class="ranks">${d.items.slice(0, n).map((it, i) => `<button class="rank-row" type="button" data-pop-item="${i}">
       <span class="no num${it.rank <= 3 ? " top" : ""}">${it.rank}</span>${cover(it, "sm")}
       <span class="t"><h3>${esc(it.title)}</h3><span class="by">${esc([it.author, it.publisher].filter(Boolean).join(" · "))}</span></span>
-      ${mineIsbn.has(it.isbn) ? `<span class="mine">서재에 있음</span>` : ""}</button>`).join("")}</div>
+      ${mineIsbn.has(it.isbn) ? `<span class="mine">정원에 있음</span>` : ""}</button>`).join("")}</div>
     ${n < d.items.length ? `<button class="btn ghost more-btn" type="button" data-go="#/popular/${popularPeriod}">더 보기 (${d.items.length}위까지)</button>` : ""}
     <p class="src-note">전국 공공도서관에서 많이 빌린 책 · ${short(d.start)}~${short(d.end)} · 도서관 정보나루</p>`;
 }
@@ -1625,7 +1636,7 @@ function openPopularSheet(it){
       <span class="hint" style="font-size:12.5px">${it.rank}위${it.genre ? " · " + esc(it.genre) : ""}</span>
       <h2 style="line-height:1.35">${esc(it.title)}</h2>
       <span class="hint" style="font-size:13.5px">${esc([it.author, it.publisher, it.year].filter(Boolean).join(" · "))}</span></div></div>
-    ${mine ? `<p class="hint">이미 서재에 있는 책이에요. (${STATUS_LABEL[mine.status]})</p>
+    ${mine ? `<p class="hint">이미 정원에 있는 책이에요. (${STATUS_LABEL[mine.status]})</p>
       <div class="two"><button class="btn ghost" type="button" id="pop-close">닫기</button><button class="btn" type="button" id="pop-open">책 보러 가기</button></div>`
     : `<button class="btn wide" type="button" id="pop-add">읽고 싶은 책에 담기</button>
       <button class="linkbtn muted" type="button" id="pop-close">닫기</button>`}
@@ -1767,7 +1778,7 @@ document.addEventListener("click", e => {
   if(t.dataset.status){
     if(cur.status === t.dataset.status) return;
     cur.status = t.dataset.status;
-    if(cur.status === "done"){ cur.finishedAt = nowIso(); cur.startedAt ||= nowIso(); toast("다 읽었어요. 서재에 꽂았어요"); }
+    if(cur.status === "done"){ cur.finishedAt = nowIso(); cur.startedAt ||= nowIso(); toast("다 읽었어요. 꽃이 피었어요"); }
     else if(cur.status === "reading"){ cur.finishedAt = ""; cur.startedAt ||= nowIso(); toast("오늘부터 읽는 중이에요"); }
     else { cur.startedAt = ""; cur.finishedAt = ""; toast("읽고 싶은 책으로 옮겼어요"); }
     saveBook(cur); return render();
