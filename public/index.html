@@ -749,12 +749,13 @@ function todayCard(){
     <div class="row"><span class="tag">오늘의 노을 문장<small>· 오늘의 밑줄</small></span>
       ${all.length > 1 ? `<button class="shuffle" type="button" data-shuffle>${ICON_SHUFFLE}다른 문장</button>` : ""}</div>
     <button class="open" type="button" data-open="${esc(q.b.id)}"><p><span class="ul">${esc(q.text)}</span></p>
-      <span class="src">${esc(q.b.title)}${q.page ? ` · p.${esc(q.page)}` : ""}${q.createdAt ? ` · ${fmtDate(q.createdAt)}에 그음` : ""}</span></button>
+      <span class="src">${esc(q.b.title)}${q.page ? ` · ${esc(fmtPos(q.page, q.b.format))}` : ""}${q.createdAt ? ` · ${fmtDate(q.createdAt)}에 그음` : ""}</span></button>
     ${PIC_LAMP}</div>`;
 }
 
 // ───────────────────────── 서재 ─────────────────────────
 function shelfView(){
+  if(["ebook", "audio"].includes(shelfFilter) && !books.some(FILTERS.find(x => x[0] === shelfFilter)[2])) shelfFilter = "all";
   const f = FILTERS.find(x => x[0] === shelfFilter);
   const list = books.filter(f[2]).sort((a, b) =>
     shelfFilter === "done" ? (b.finishedAt || "").localeCompare(a.finishedAt || "") : (b.createdAt || "").localeCompare(a.createdAt || ""));
@@ -1474,7 +1475,7 @@ function shareData(){
   const feel = $("#share-feel")?.checked ? b.feeling : "";
   const cut = (s, n) => s.length > n ? s.slice(0, n) + "…" : s;
   return {t: b.title, a: b.author, p: b.publisher, g: b.genre, c: b.cover, r: b.rec ? 1 : 0, s: b.status === "done" ? 1 : b.status === "want" ? 2 : 0,
-    f: cut(feel || "", 400), q: q ? cut(q.text, 300) : "", qp: q?.page || "", w: ($("#share-to")?.value || "").trim().slice(0, 12)};
+    f: cut(feel || "", 400), q: q ? cut(q.text, 300) : "", qp: q ? fmtPos(q.page, b.format) : "", w: ($("#share-to")?.value || "").trim().slice(0, 12)};
 }
 
 function shareUrl(d){
@@ -1494,7 +1495,7 @@ function shareCardHtml(d){
       <h3>${esc(d.t)}</h3><span class="by">${esc([d.a, d.p].filter(Boolean).join(" · "))}</span>
       <span class="by">${["지금 읽고 있어요", "다 읽었어요", "읽고 싶은 책이에요"][d.s || 0]}</span></div></div>
     ${d.f ? `<p class="feel">${esc(d.f)}</p>` : ""}
-    ${d.q ? `<p class="q"><span class="ul">${esc(d.q)}</span>${d.qp ? ` <span class="hint num" style="font-size:12px">p.${esc(d.qp)}</span>` : ""}</p>` : ""}
+    ${d.q ? `<p class="q"><span class="ul">${esc(d.q)}</span>${d.qp ? ` <span class="hint num" style="font-size:12px">${esc(d.qp)}</span>` : ""}</p>` : ""}
   </div>`;
 }
 
@@ -1560,7 +1561,8 @@ function popularBox(n){
 }
 
 function popularView(){
-  return `<div class="topbar"><button class="back" type="button" data-back aria-label="뒤로">${ICON_BACK}</button><h1>요즘 많이 읽는 책</h1>${popSeg()}</div>
+  return `<div class="topbar"><button class="back" type="button" data-back aria-label="뒤로">${ICON_BACK}</button><h1>다른 별에서는</h1>${popSeg()}</div>
+  <p class="page-sub" style="margin:0 0 10px">${PIC_TRAIN}요즘 전국 도서관에서 많이 읽는 책</p>
   <div id="popular-page" style="margin-top:6px">${popularBox(20)}</div>`;
 }
 
@@ -1748,8 +1750,8 @@ document.addEventListener("click", e => {
     }, true);
   }
 });
-$("#modal").addEventListener("click", e => { if(e.target.id === "modal") e.target.hidden = true; });
-document.addEventListener("keydown", e => { if(e.key === "Escape") $("#modal").hidden = true; });
+$("#modal").addEventListener("click", e => { if(e.target.id === "modal"){ stopVoice(); e.target.hidden = true; } });
+document.addEventListener("keydown", e => { if(e.key === "Escape"){ stopVoice(); $("#modal").hidden = true; } });
 
 // 느낌은 쓰는 동안 자동 저장
 document.addEventListener("input", e => {
