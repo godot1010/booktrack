@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="ko"><head><meta charset="utf-8">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Jua&display=swap">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
+<style>
+html,body{margin:0;width:1024px;height:500px;overflow:hidden}
+body{background:linear-gradient(160deg,#141a33 0%,#24305f 55%,#6b4a7a 85%,#e98a6a 100%);font-family:"Pretendard Variable",sans-serif;color:#fdf3dc;position:relative}
+.stars circle{fill:#fff}
+.wrap{position:absolute;left:84px;top:0;bottom:0;display:flex;flex-direction:column;justify-content:center;gap:18px}
+.name{font-family:Jua,sans-serif;font-size:96px;line-height:1;color:#f6c453}
+.name i{font-style:normal;font-size:.56em;color:#fdf3dc}
+.tag{font-size:34px;font-weight:700;letter-spacing:-0.02em}
+.sub{font-size:22px;line-height:1.6;color:rgba(253,243,220,.8)}
+svg.scene{position:absolute;right:6px;bottom:-40px}
+</style></head>
+<body>
+<svg class="stars" width="1024" height="500" style="position:absolute;inset:0" id="st"></svg>
+<div class="wrap">
+  <div class="name">B<i>ook</i>612</div>
+  <div class="tag">책을 심고, 마음에 남은 문장을 가꾸는 곳</div>
+  <div class="sub">바코드로 간편하게 담고, 밑줄을 모으고,<br>언제든 다시 꺼내 보는 독서 기록장</div>
+</div>
+<svg class="scene" width="380" height="400" viewBox="0 0 340 340">
+  <circle cx="170" cy="240" r="120" fill="#f5eedc"/>
+  <path d="M170 120a120 120 0 0 1 0 240a146 146 0 0 0 0-240z" fill="#c9b893" opacity=".5"/>
+  <circle cx="118" cy="270" r="18" fill="#b9a982"/><circle cx="114" cy="266" r="12" fill="#9c8b62"/>
+  <circle cx="228" cy="292" r="13" fill="#b9a982"/><circle cx="222" cy="200" r="7" fill="#b9a982"/>
+  <g transform="translate(212 124) scale(2.2)">
+    <path d="M0 0c-.6-5 .4-9 0-12" stroke="#3d8a5a" stroke-width="1.8" fill="none" stroke-linecap="round"/>
+    <path d="M0-5c-4-.4-6-3-5.8-5.6 3 .2 5.4 2 5.8 5.6z" fill="#3d8a5a"/>
+    <path d="M0-12c-5-1-6.4-5.6-4.4-9.4 1.6-2 3.6-1.8 4.4.2.8-2 2.8-2.2 4.4-.2 2 3.8.6 8.4-4.4 9.4z" fill="#e4574f"/>
+  </g>
+  <g transform="translate(150 98)">
+    <rect x="0" y="0" width="26" height="22" rx="3.6" fill="#f6c453" stroke="#d99a16" stroke-width="2"/>
+    <path d="M5 0v22" stroke="#d99a16" stroke-width="1.8"/><path d="M18 0h4v7l-2-1.6-2 1.6z" fill="#e4574f"/>
+    <path d="M13 0v-22" stroke="#3d8a5a" stroke-width="3.4" stroke-linecap="round"/>
+    <path d="M13-12c0-9-6-14-15-14 0 9 6 14 15 14zM13-16c0-9 6-14 15-14 0 9-6 14-15 14z" fill="#5aa874"/>
+  </g>
+  <path d="M120 122q50-12 100 0" stroke="#9c8b62" stroke-width="4" fill="none" stroke-linecap="round"/>
+  <path d="M296 40l3.4 7.4 8 .9-6 5.4 1.6 8-7-4-7 4 1.6-8-6-5.4 8-.9z" fill="#f6c453"/>
+</svg>
+<script>
+const st = document.getElementById('st');
+let seed = 7; const r = () => (seed = (seed * 16807) % 2147483647) / 2147483647;
+st.innerHTML = Array.from({length: 70}, () => `<circle cx="${(r()*1024).toFixed(0)}" cy="${(r()*330).toFixed(0)}" r="${r() > .85 ? 1.8 : 1}" opacity="${(.4 + r()*.6).toFixed(2)}"/>`).join('');
+</script>
+</body></html>

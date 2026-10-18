@@ -1,7 +1,7 @@
 // Book612(옛 이름 서고·북트랙) 서비스 워커: 인터넷이 없어도 앱이 열리게 한다.
 // HTML은 인터넷 우선(새 버전을 바로 받음), 나머지는 저장본 우선.
-const CACHE = "booktrack-v8";
-const CORE = ["./", "index.html", "manifest.json", "icon-192.png", "icon-512.png"];
+const CACHE = "booktrack-v9";
+const CORE = ["./", "index.html", "manifest.json", "icon-192.png", "icon-512.png", "icon-maskable-192.png"];
 
 self.addEventListener("install", e => {
   e.waitUntil(caches.open(CACHE).then(c => c.addAll(CORE)).then(() => self.skipWaiting()));

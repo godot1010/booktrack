@@ -82,8 +82,11 @@
 public/                    # 실제로 배포되는 사이트 (Cloudflare Pages 출력 폴더)
   index.html               # 앱 전체 (순수 JS, 빌드 과정 없음)
   manifest.json, sw.js     # PWA 설정 / 서비스 워커 (HTML은 인터넷 우선)
-  icon-*.png               # 아이콘 (tools/make_icons.py로 생성)
+  icon-*.png               # 아이콘 (tools/make_icons.py로 생성, maskable 192·512 포함)
+  privacy.html             # 개인정보처리방침 (https://booktrack.pages.dev/privacy, 플레이스토어용)
+  s.html                   # 친구가 받는 책 카드 (/s#...)
 tools/make_icons.py        # 아이콘 그리는 스크립트 (외부 도구 없이 PNG 생성)
+store-assets/              # 플레이스토어 자료 (배포 안 함): 등록 순서, 등록정보·데이터 보안 답변, 테스터 문구, 아이콘·대표 그래픽·스크린샷
 booktrack-mockup.html      # 2단계 화면 시안 (배포 안 함)
 ```
 
@@ -271,6 +274,18 @@ booktrack-mockup.html      # 2단계 화면 시안 (배포 안 함)
   아래 = 새싹 읽는 중 · 씨앗 읽고 싶은 · 여우 밑줄 · 꽃 정원 전체 한 줄. '올해 다 읽은 책' 칸은 목표 숫자와 겹쳐서 뺌. 높이 약 1/3.
   백업 칸 세 개(폰 안 저장 안내 / 저장 / 불러오기)도 **'기록 지키기 · 백업' 한 칸**으로: 안내 두 줄 + [백업 저장][불러오기] 나란히 + '마지막 백업 날짜'(`bt_last_backup`, 없으면 '아직 백업한 적이 없어요').
   (비행 일지·백업 칸, 형 확인 후 실제 배포)
+- 2026-10-18: **전체 다시 점검**(형 요청). node 문법 검사·선언 안 된 이름 0, 미리보기 주소에서 빈 상태/실제 흐름(제목 검색 등록·상태·밑줄·느낌·공유·
+  정렬·여우·노을·순위 담기·찾기·조종사)·백업 불러오기(옛 형식·목표)·320/360px 밝은/어두운 모드 넘침 검사 → 오류 0.
+  고친 것: **별 지도와 하늘의 별이 사선으로 줄지어 찍힘**(곱셈 나머지로 자리 계산) → 흩뿌림 함수 `scatter`.
+  여우 그림을 메뉴의 앉아 있는 여우로 통일(길들인 문장 카드·빈 화면·비행 일지·받아쓰기). 안 쓰는 코드(옛 칩·숫자 칸 CSS, addedToast, PIC_STARMAP) 정리.
+- 2026-10-18: **플레이스토어 준비**(미리보기). 개인정보처리방침 `public/privacy.html`(문의 메일은 BARAM과 같은 형 메일), 조종사 화면 맨 아래 링크.
+  manifest: id "/", portrait, ko-KR, categories(books·education·lifestyle), maskable 192 추가. 서비스 워커 v9.
+  `store-assets/`: `등록-순서.md`(형이 할 일 + BARAM 교훈), `스토어-등록정보.md`(이름·설명·분류·콘텐츠 등급·타겟 13세 이상·**데이터 보안 답변**),
+  `테스터-모집-카톡.md`, 아이콘 512, 대표 그래픽 1024×500(`feature-graphic.html`로 그림), 스크린샷 1080×1920 6장.
+  스크린샷은 **가상의 책·지은이·문장**으로 채운 사본(`screenshot-demo.py`)을 크롬 headless로 찍음(원작·실제 책 문장 안 씀).
+  주의: 컴퓨터용 크롬은 창 폭을 약 500px보다 좁게 못 해서 360px로 찍으면 오른쪽이 잘림 → 540×960 창 × 2배.
+  패키지 이름 제안 `dev.pages.booktrack.twa`(BARAM과 같은 규칙). 다음: 형이 Play Console에 앱 만들기 → PWABuilder로 .aab(새 서명 키, 키 파일은 안전한 곳)
+  → assetlinks.json 내용 받아 `public/.well-known/`에 → 첫 업로드 뒤 Play 앱 서명 SHA-256도 추가.
 
 ## 다음 후보 (2026-10-11 마무리 때 기준)
 - 플레이스토어 등록(비공개 시험 12명·14일) / 전자책 앱에서 '공유 → Book612'로 밑줄 보내기(Web Share Target, 스토어와 함께) / 형이 쓰면서 찍어 보내는 화면 다듬기.

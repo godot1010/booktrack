@@ -141,4 +141,5 @@ def make(size, k, name):
 
 make(192, 1.0, "icon-192.png")
 make(512, 1.0, "icon-512.png")
+make(192, 0.8, "icon-maskable-192.png")
 make(512, 0.8, "icon-maskable-512.png")

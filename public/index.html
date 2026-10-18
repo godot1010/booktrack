@@ -198,7 +198,6 @@ svg{display:block;flex:none}
 .cover.lg{width:140px;--ts:17px;--as:11px;--pad:18px 14px 14px 18px;margin-inline:auto;box-shadow:0 2px 4px rgba(0,0,0,.08),0 18px 32px -14px rgba(25,31,40,.45)}
 
 /* ── 서재: 칩 + 표지 격자 */
-.chips{display:flex;gap:8px;overflow-x:auto;margin:0 -20px 18px;padding:2px 20px;scrollbar-width:none}
 /* 서재: 칩은 내려도 화면 위에 붙어 있게, 그 아래 권수 + 정렬 */
 /* 서재 칸: 다섯 칸(전체·읽는 중·읽고 싶은·다 읽음·추천)이 폰 폭에 한 줄로 다 들어가게. 이름 아래 권수 */
 .shelf-chips{position:sticky;top:0;z-index:4;background:var(--bg);margin:0 -20px 6px;padding:8px 20px 10px}
@@ -227,11 +226,6 @@ svg{display:block;flex:none}
 /* 맨 위로: 많이 내려가면 오른쪽 아래에 별 단추 */
 .to-top{position:fixed;right:max(16px,calc(50% - 224px));bottom:calc(84px + env(safe-area-inset-bottom,0px));z-index:6;width:46px;height:46px;border-radius:50%;
   border:0;background:var(--night);color:#f6c453;display:flex;align-items:center;justify-content:center;box-shadow:0 6px 16px -6px rgba(20,26,51,.6)}
-.chips::-webkit-scrollbar{display:none}
-.chip{flex:none;border:1px solid var(--line-2);background:var(--card);border-radius:999px;padding:8px 14px;font-size:14px;color:var(--text-2);font-weight:500}
-.chip .n{margin-left:5px;color:var(--text-3);font-weight:500}
-.chip[aria-pressed="true"]{background:var(--text);border-color:var(--text);color:var(--bg);font-weight:700}
-.chip[aria-pressed="true"] .n{color:var(--bg);opacity:.7}
 .grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:22px 14px}
 .spot{border:0;background:none;padding:0;display:flex;flex-direction:column;gap:7px;text-align:left;min-width:0;position:relative}
 .spot .t{font-size:13px;font-weight:600;line-height:1.35;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
@@ -368,12 +362,6 @@ mark{background:var(--gold-soft);color:inherit;border-radius:3px;padding:0 1px}
 .row-card .by{font-size:12.5px;color:var(--text-3)}
 
 /* ── 나 */
-.stats{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-.stat{background:var(--soft);border-radius:16px;padding:14px 16px;display:flex;flex-direction:column;gap:2px}
-.stat span{font-size:13px;color:var(--text-2)}
-.stat b{font-size:26px;font-weight:800;letter-spacing:-0.02em}
-.stat.main{grid-column:1/-1;background:var(--coral-soft)}
-.stat.main b{color:var(--coral-ink)}
 .months{display:flex;align-items:flex-end;gap:5px;height:90px;margin-top:6px}
 .months div{flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;height:100%;justify-content:flex-end}
 .months i{display:block;width:100%;max-width:18px;border-radius:5px 5px 2px 2px;background:var(--gold);min-height:3px}
@@ -698,7 +686,6 @@ const statusSeg = (attr, cur) => `<div class="seg" role="group" aria-label="읽�
 const pickedStatus = box => box.querySelector('[data-fstatus][aria-pressed="true"]')?.dataset.fstatus || "reading";
 // 새 책의 날짜: 읽고 싶은 책은 아직 시작 전
 const newDates = st => ({startedAt: st === "want" ? "" : nowIso(), finishedAt: st === "done" ? nowIso() : ""});
-const addedToast = st => st === "want" ? "읽고 싶은 책에 담았어요" : "정원에 심었어요";
 const ribbonMark = b => b.rec ? '<span class="ribbon" aria-label="추천"></span>' : "";
 
 // 아이콘
@@ -729,7 +716,6 @@ const PIC_BOTTLE = `<svg width="40" height="40" viewBox="0 0 24 24" aria-hidden=
 const PIC_LETTER = `<svg width="22" height="22" viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="6" width="18" height="13" rx="2" fill="#fdf3dc" stroke="#2b3a72" stroke-width="1.5"/><path d="M3.8 7l8.2 6.5L20.2 7" stroke="#2b3a72" stroke-width="1.5" fill="none"/><path d="M12 12.2l.9 1.9 2 .2-1.5 1.4.4 2-1.8-1-1.8 1 .4-2-1.5-1.4 2-.2z" fill="#e0a823"/></svg>`;
 // 술 주정뱅이: 일이 잘 안 풀렸을 때(불러오기 실패 등)
 const oops = msg => `<div class="oops">${PIC_BOTTLE}<span>${msg}</span><small>술 주정뱅이처럼 잠깐 헤매고 있어요</small></div>`;
-const PIC_STARMAP = `<svg width="56" height="44" viewBox="0 0 56 44" aria-hidden="true"><path d="M6 34L18 12 32 22 48 6" stroke="#f6c453" stroke-width="1" stroke-dasharray="2 2" fill="none" opacity=".6"/><circle class="lg-tw" cx="6" cy="34" r="2.6" fill="#f6c453"/><circle class="lg-tw" style="animation-delay:.6s" cx="18" cy="12" r="2.2" fill="#fff"/><circle class="lg-tw" style="animation-delay:1.2s" cx="32" cy="22" r="2.6" fill="#f6c453"/><circle class="lg-tw" style="animation-delay:1.8s" cx="48" cy="6" r="2.2" fill="#fff"/></svg>`;
 // 로고: 소행성 B612 위의 장미 한 송이 (확정 시안 design/book612-logo.html, 바탕화면 아이콘은 tools/make_icons.py)
 // 좌표는 104×104. 별 위치 [x, y, 반지름, 금색?] — 행성(가운데 52,70 반지름 22)과 장미를 피해서 찍음
 const LOGO_DOTS = [[18,20,1.6,1],[90,44,1.2],[13,52,1],[28,36,.9],[9,30,.8],[36,12,1.1],[62,9,.9],[72,24,1.3,1],[95,62,.9],
@@ -899,12 +885,14 @@ function homeView(){
   </section>`;
 }
 // ───────────────────────── 동화 장치들 ─────────────────────────
+// 씨앗이 같으면 늘 같은 값을 내는 흩뿌림 수(0~1). 단순한 곱셈 나머지로는 별이 사선으로 줄지어 찍혀서 바꿨다
+const scatter = n => { let x = Math.imul((n >>> 0) ^ 0x9e3779b9, 2654435761) >>> 0; x ^= x >>> 15; x = Math.imul(x, 2246822519) >>> 0; x ^= x >>> 13; return (x >>> 0) / 4294967296; };
 const reducedMotion = () => matchMedia("(prefers-reduced-motion: reduce)").matches;
 // ① 시간 따라 바뀌는 하늘 (폰 시각): 새벽 5~8시 / 낮 8~17시 / 노을 17~19시 / 밤
 const skyPhase = h => h >= 5 && h < 8 ? "dawn" : h >= 8 && h < 17 ? "day" : h >= 17 && h < 19 ? "dusk" : "night";
 const SKY_WORD = {dawn: "새벽 하늘", day: "맑은 낮", dusk: "노을 지는 저녁", night: "별이 뜬 밤"};
 function skyArt(phase){
-  const stars = Array.from({length: 18}, (_, i) => { const x = (i * 53 + 17) % 360, y = (i * 29 + 7) % 70; return `<circle class="tw" style="animation-delay:${(i * .37) % 2.6}s" cx="${x}" cy="${y}" r="${i % 4 === 0 ? 1.4 : .8}" fill="#fff"/>`; }).join("");
+  const stars = Array.from({length: 18}, (_, i) => { const x = Math.round(scatter(i * 2 + 1) * 360), y = Math.round(scatter(i * 2 + 2) * 72); return `<circle class="tw" style="animation-delay:${(i * .37) % 2.6}s" cx="${x}" cy="${y}" r="${i % 4 === 0 ? 1.4 : .8}" fill="#fff"/>`; }).join("");
   const art = {
     dawn: `<circle cx="60" cy="96" r="22" fill="#fbd9a0" opacity=".9"/><g class="drift" opacity=".7"><ellipse cx="250" cy="34" rx="34" ry="8" fill="#fff"/><ellipse cx="275" cy="28" rx="20" ry="7" fill="#fff"/></g>`,
     day: `<circle cx="262" cy="28" r="16" fill="#fbe08a"/><circle cx="262" cy="28" r="24" fill="#fbe08a" opacity=".25"/><g class="drift" opacity=".85"><ellipse cx="90" cy="30" rx="36" ry="9" fill="#fff"/><ellipse cx="116" cy="23" rx="20" ry="8" fill="#fff"/><ellipse cx="230" cy="58" rx="26" ry="6" fill="#fff"/></g>`,
@@ -930,9 +918,9 @@ const growBadge = b => { const k = isBaobab(b) ? "baobab" : {want: "seed", readi
 function starMap(done, w = 320, h = 150, small = false){
   const list = done.slice().sort((a, b) => (a.finishedAt || "").localeCompare(b.finishedAt || ""));
   const pts = list.map(b => { const d = new Date(b.finishedAt), hs = titleHash(b.id);
-    return {b, x: 14 + ((d.getMonth() + (d.getDate() - 1) / 31) / 12) * (w - 28) + ((hs % 9) - 4), y: 14 + (hs >> 4) % (h - 34)}; });
+    return {b, x: 14 + ((d.getMonth() + (d.getDate() - 1) / 31) / 12) * (w - 28) + (scatter(hs) * 8 - 4), y: 16 + scatter(hs + 7) * (h - 40)}; });
   const line = pts.length > 1 ? `<path d="M${pts.map(p => `${p.x.toFixed(1)} ${p.y.toFixed(1)}`).join("L")}" stroke="#f6c453" stroke-width="${small ? .8 : 1}" stroke-dasharray="3 3" fill="none" opacity=".55"/>` : "";
-  const bg = Array.from({length: small ? 6 : 26}, (_, i) => `<circle class="tw" style="animation-delay:${(i * .41) % 2.4}s" cx="${(i * 67 + 11) % w}" cy="${(i * 31 + 5) % h}" r=".7" fill="#fff" opacity=".6"/>`).join("");
+  const bg = Array.from({length: small ? 6 : 26}, (_, i) => `<circle class="tw" style="animation-delay:${(i * .41) % 2.4}s" cx="${(scatter(i * 3 + 11) * w).toFixed(1)}" cy="${(scatter(i * 3 + 12) * h).toFixed(1)}" r="${scatter(i * 3 + 13) > .8 ? 1.1 : .7}" fill="#fff" opacity=".6"/>`).join("");
   const stars = pts.map((p, i) => { const last = i === pts.length - 1, r = small ? (last ? 2.6 : 1.8) : (last ? 4 : 2.8);
     return `<path class="${last ? "newest" : ""}" d="M${p.x} ${p.y - r * 1.6}L${p.x + r * .5} ${p.y - r * .5}L${p.x + r * 1.6} ${p.y}L${p.x + r * .5} ${p.y + r * .5}L${p.x} ${p.y + r * 1.6}L${p.x - r * .5} ${p.y + r * .5}L${p.x - r * 1.6} ${p.y}L${p.x - r * .5} ${p.y - r * .5}z" fill="${i % 3 === 1 ? "#fff" : "#f6c453"}"><title>${esc(p.b.title)}</title></path>`; }).join("");
   const empty = !pts.length && !small ? `<text x="${w / 2}" y="${h / 2 + 4}" text-anchor="middle" fill="#fdf3dc" opacity=".6" font-size="12">다 읽은 책이 첫 별이 돼요</text>` : "";
@@ -1187,7 +1175,7 @@ function openQuoteSheet(b){
     <div class="q-tools${VOICE_OK ? "" : " one"}">
       <button class="btn line" type="button" id="ocr-pick">${ICON_CAMERA}${VOICE_OK ? "사진으로" : "사진에서 글자 가져오기"}</button>
       ${VOICE_OK ? `<button class="btn line" type="button" id="voice-btn" aria-pressed="false">${ICON_MIC}읽어서 받아쓰기</button>` : ""}</div>
-    <div id="voice-area" class="voice" hidden role="status"><span class="ears">${PIC_FOX.replace(/16/g, "22")}</span>
+    <div id="voice-area" class="voice" hidden role="status"><span class="ears">${titleIcon("nav-quotes", 24)}</span>
       <span><span id="voice-msg">여우가 귀 기울여 듣고 있어요. 밑줄 친 문장을 또박또박 읽어 주세요.</span>
       <small>말한 내용은 글자로 바꾸려고 구글(아이폰은 애플) 음성 인식을 거쳐요. 목소리는 앱에 남기지 않아요.</small></span></div>
     <input id="ocr-file" type="file" accept="image/*" capture="environment" hidden>
@@ -1709,14 +1697,14 @@ function quotesView(){
   return `<div class="page-title"><h1>${titleIcon("nav-quotes")}길들인 문장</h1>
     ${all.length ? `<button class="icon-btn" type="button" data-go="#/search" aria-label="찾기">${ICON_SEARCH}</button>` : ""}</div>
   <p class="page-sub">여우처럼 하나씩 길들인 밑줄 모음</p>
-  ${all.length ? `<div class="night-card" style="margin-bottom:14px"><span class="pic">${PIC_FOX.replace(/16/g, "30")}</span>
+  ${all.length ? `<div class="night-card" style="margin-bottom:14px"><span class="pic">${titleIcon("nav-quotes", 30)}</span>
       <span class="tx"><span class="tag">길들인 문장</span><b class="num">${nBooks}권에서 ${all.length}개</b>
       <p>길들인 문장은 나에게 하나뿐인 문장이 돼요. 읽다가 멈춘 자리를 모아 두었어요.</p>
       <button class="btn sm" type="button" data-foxpick>${svg('<path d="M12 3l2.6 5.6 6 .7-4.5 4.1 1.2 6-5.3-3-5.3 3 1.2-6L3.4 9.3l6-.7z"/>', 15, 2)}여우야, 문장 하나 꺼내 줘</button></span></div>
     <div class="shelf-bar"><span class="num">${all.length}개</span>
       <select id="quote-sort" class="sort" aria-label="정렬">${QSORTS.map(([k, l]) => `<option value="${k}"${k === quoteSort ? " selected" : ""}>${l}</option>`).join("")}</select></div>
     ${body}`
-    : `<div class="empty"><span class="pic">${PIC_FOX.replace(/16/g, "44")}</span><p>읽다가 마음에 남은 문장에 밑줄을 그으면<br>여우처럼 하나씩 길들여져 여기에 모여요.</p>
+    : `<div class="empty"><span class="pic">${titleIcon("nav-quotes", 52)}</span><p>읽다가 마음에 남은 문장에 밑줄을 그으면<br>여우처럼 하나씩 길들여져 여기에 모여요.</p>
       ${books.some(b => b.status === "reading") ? "" : `<button class="btn" type="button" data-go="#/scan">책 등록하기</button>`}</div>`}`;
 }
 
@@ -1759,7 +1747,7 @@ function meView(){
     <div class="mini-stats">
       <span>${GROW_SVG.sprout}<b class="num">${books.filter(b => b.status === "reading").length}</b>읽는 중</span>
       <span>${GROW_SVG.seed}<b class="num">${books.filter(b => b.status === "want").length}</b>읽고 싶은</span>
-      <span>${PIC_FOX.replace(/16/g, "17")}<b class="num">${allQuotes().length}</b>밑줄</span>
+      <span>${titleIcon("nav-quotes", 18)}<b class="num">${allQuotes().length}</b>밑줄</span>
       <span>${GROW_SVG.flower}<b class="num">${books.length}</b>정원 전체</span>
     </div>
   </div>
@@ -1775,6 +1763,7 @@ function meView(){
       <p>기록은 이 폰 안에만 있어요(서버로 보내지 않아요). 앱을 지우거나 폰을 바꾸기 전에 백업 파일을 만들어 카톡 나에게 보내기나 드라이브에 두세요.</p>
       <div class="two"><button class="btn sm" type="button" data-export>백업 저장</button><button class="btn sm line" type="button" data-import>불러오기</button></div>
       <span class="last">${(() => { try { const d = localStorage.getItem("bt_last_backup"); return d ? `마지막 백업 ${fmtDate(d)}` : "아직 백업한 적이 없어요"; } catch { return ""; } })()}</span></div>
+    <p class="hint" style="text-align:center;font-size:12.5px"><a href="privacy" style="color:inherit">개인정보처리방침</a> · 문의 a01083252780@gmail.com</p>
   </div></section>`;
 }
 
