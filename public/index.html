@@ -864,7 +864,7 @@ function homeView(){
         <button class="open" type="button" data-open="${esc(b.id)}" style="flex:none">${cover(b, "md")}</button>
         <div class="info"><button class="open" type="button" data-open="${esc(b.id)}"><h3>${esc(b.title)}</h3>
           <span class="meta">${esc(b.author)}${b.startedAt ? ` · ${fmtMonthDay(b.startedAt)}부터` : ""}${b.quotes.length ? ` · 문장 ${b.quotes.length}` : ""}</span></button>
-          <div class="actions"><button class="btn sm" type="button" data-quickquote="${esc(b.id)}">${PIC_FOX}문장 길들이기</button></div></div>
+          <div class="actions"><button class="btn sm" type="button" data-quickquote="${esc(b.id)}">${titleIcon("nav-quotes", 18)}문장 길들이기</button></div></div>
       </div>`).join("")}</div>`
       : `<div class="empty-card">지금 읽고 있는 책을 등록해 두면<br>여기서 바로 문장을 길들일 수 있어요.
           <button class="btn sm" type="button" data-go="#/scan">책 등록하기</button></div>`}
@@ -1018,7 +1018,7 @@ function todayCard(){
     <div class="row"><span class="tag">오늘의 노을 문장<small>· 길들인 문장 하나</small></span>
       ${all.length > 1 ? `<button class="shuffle" type="button" data-shuffle>${ICON_SHUFFLE}다른 문장</button>` : ""}</div>
     <button class="open" type="button" data-open="${esc(q.b.id)}"><p><span class="ul">${esc(q.text)}</span></p>
-      <span class="src">${esc(q.b.title)}${q.page ? ` · ${esc(fmtPos(q.page, q.b.format))}` : ""}${q.createdAt ? ` · ${fmtDate(q.createdAt)}에 그음` : ""}</span></button>
+      <span class="src">${esc(q.b.title)}${q.page ? ` · ${esc(fmtPos(q.page, q.b.format))}` : ""}${q.createdAt ? ` · ${fmtDate(q.createdAt)}에 길들임` : ""}</span></button>
     ${(() => { const n = sunsetCount(); return n ? `<span class="count">${n >= 44 ? "오늘 44번째 노을이에요. 어린 왕자도 이만큼 봤대요." : `오늘 ${n}번째 노을`}</span>` : ""; })()}
     <span class="sun" aria-hidden="true"></span>${PIC_LAMP}</div>`;
 }
@@ -2239,7 +2239,7 @@ const STORY = [
       <rect x="-34" y="-10" width="11" height="9" rx="2" fill="#3b5ba8" transform="rotate(26 -28 -5)"/><rect x="6" y="6" width="26" height="4" rx="2" fill="#fdf3dc" opacity=".35"/></g></g>
     <g transform="translate(188 74)">${[[0,0,1.9],[-4,2,2.2],[3,3,2.5],[-1,5,2.75]].map(([x, y, d]) => `<ellipse class="st-drop" style="animation-delay:${d}s" cx="${x}" cy="${y}" rx="1.5" ry="2.5" fill="#8ec5ff"/>`).join("")}</g>
     <g transform="translate(170 106)"><ellipse class="st-splash" style="animation-delay:1.9s" cx="0" cy="0" rx="9" ry="2.4" fill="none" stroke="#8ec5ff" stroke-width="1.2"/></g>`,
-   h: "“책 씨앗 심어 줄래?”", p: "책을 심고, 마음에 남은 문장을 가꿔 줘.<br>언제든 다시 꺼내 볼 수 있게."},
+   h: "“내 문장 길들여 줄래?”", p: "책을 읽고, 마음에 남은 문장을 가꿔 줘.<br>언제든 다시 꺼내 볼 수 있게."},
 ];
 const storySeen = () => { try { return localStorage.getItem("bt_story_seen") === "1"; } catch { return true; } };
 function openStory(){
