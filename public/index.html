@@ -2254,7 +2254,7 @@ function openStory(){
     el.querySelector(".stage").innerHTML = `<svg class="scene" viewBox="0 0 340 250" aria-hidden="true">${STORY[n].svg}</svg>
       <div class="txt"><h2>${STORY[n].h}</h2><p>${STORY[n].p}</p></div>`;
     el.querySelectorAll(".dots i").forEach((d, k) => d.classList.toggle("on", k === n));
-    el.querySelector(".nx").textContent = n < STORY.length - 1 ? "다음" : books.length ? "B612로 가기" : "첫 책 심기";
+    el.querySelector(".nx").textContent = n < STORY.length - 1 ? "다음" : books.length ? "Book612로 가기" : "첫 책 심기";
     el.querySelector(".skip").hidden = n === STORY.length - 1;
   };
   const close = () => {
