@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>Book612</title>
-<meta name="description" content="읽는 책, 읽고 싶은 책, 다 읽은 책과 밑줄 친 문장을 모아 두는 독서 기록장">
+<meta name="description" content="읽는 책, 읽고 싶은 책, 다 읽은 책과 길들인 문장을 모아 두는 독서 기록장">
 <meta name="theme-color" content="#f5eedc" media="(prefers-color-scheme: light)">
 <meta name="theme-color" content="#141a33" media="(prefers-color-scheme: dark)">
 <link rel="manifest" href="manifest.json">
@@ -863,10 +863,10 @@ function homeView(){
     ${reading.length ? `<div class="hscroll">${reading.map(b => `<div class="now">
         <button class="open" type="button" data-open="${esc(b.id)}" style="flex:none">${cover(b, "md")}</button>
         <div class="info"><button class="open" type="button" data-open="${esc(b.id)}"><h3>${esc(b.title)}</h3>
-          <span class="meta">${esc(b.author)}${b.startedAt ? ` · ${fmtMonthDay(b.startedAt)}부터` : ""}${b.quotes.length ? ` · 밑줄 ${b.quotes.length}` : ""}</span></button>
-          <div class="actions"><button class="btn sm" type="button" data-quickquote="${esc(b.id)}">${PIC_FOX}밑줄 긋기</button></div></div>
+          <span class="meta">${esc(b.author)}${b.startedAt ? ` · ${fmtMonthDay(b.startedAt)}부터` : ""}${b.quotes.length ? ` · 문장 ${b.quotes.length}` : ""}</span></button>
+          <div class="actions"><button class="btn sm" type="button" data-quickquote="${esc(b.id)}">${PIC_FOX}문장 길들이기</button></div></div>
       </div>`).join("")}</div>`
-      : `<div class="empty-card">지금 읽고 있는 책을 등록해 두면<br>여기서 바로 밑줄을 그을 수 있어요.
+      : `<div class="empty-card">지금 읽고 있는 책을 등록해 두면<br>여기서 바로 문장을 길들일 수 있어요.
           <button class="btn sm" type="button" data-go="#/scan">책 등록하기</button></div>`}
   </section>
   <section class="section">
@@ -881,7 +881,7 @@ function homeView(){
   ${popularSection()}
   <section class="section">
     <div class="sec-head"><h2>나의 별 지도<small>· ${year}년 기록</small></h2></div>
-    <button class="year-strip" type="button" data-go="#/me">${starMap(books.filter(b => b.status === "done" && b.finishedAt && new Date(b.finishedAt).getFullYear() === year), 72, 48, true)}<span class="t"><span class="big num">${doneThisYear}</span> 권을 다 읽고<br>밑줄 ${allQuotes().length}개를 별처럼 모았어요</span>${svg('<path d="m9 6 6 6-6 6"/>', 18)}</button>
+    <button class="year-strip" type="button" data-go="#/me">${starMap(books.filter(b => b.status === "done" && b.finishedAt && new Date(b.finishedAt).getFullYear() === year), 72, 48, true)}<span class="t"><span class="big num">${doneThisYear}</span> 권을 다 읽고<br>길들인 문장 ${allQuotes().length}개를 별처럼 모았어요</span>${svg('<path d="m9 6 6 6-6 6"/>', 18)}</button>
   </section>`;
 }
 // ───────────────────────── 동화 장치들 ─────────────────────────
@@ -1010,12 +1010,12 @@ function fitLockups(root = document){
 let quoteShift = 0;
 function todayCard(){
   const all = allQuotes().sort((x, y) => (x.createdAt || "").localeCompare(y.createdAt || "") || x.id.localeCompare(y.id));
-  if(!all.length) return `<div class="today empty-today"><div class="row"><span class="tag">오늘의 노을 문장<small>· 오늘의 밑줄</small></span></div>
-    <p>마음에 남은 문장에 밑줄을 그어 두면,<br>날마다 여기서 하나씩 다시 꺼내 드려요.</p>${PIC_LAMP}</div>`;
+  if(!all.length) return `<div class="today empty-today"><div class="row"><span class="tag">오늘의 노을 문장<small>· 길들인 문장 하나</small></span></div>
+    <p>마음에 남은 문장을 길들여 두면,<br>날마다 여기서 하나씩 다시 꺼내 드려요.</p>${PIC_LAMP}</div>`;
   const d = new Date();
   const q = all[(titleHash(`${d.getFullYear()}-${d.getMonth()}-${d.getDate()}`) + quoteShift) % all.length];
   return `<div class="today">
-    <div class="row"><span class="tag">오늘의 노을 문장<small>· 오늘의 밑줄</small></span>
+    <div class="row"><span class="tag">오늘의 노을 문장<small>· 길들인 문장 하나</small></span>
       ${all.length > 1 ? `<button class="shuffle" type="button" data-shuffle>${ICON_SHUFFLE}다른 문장</button>` : ""}</div>
     <button class="open" type="button" data-open="${esc(q.b.id)}"><p><span class="ul">${esc(q.text)}</span></p>
       <span class="src">${esc(q.b.title)}${q.page ? ` · ${esc(fmtPos(q.page, q.b.format))}` : ""}${q.createdAt ? ` · ${fmtDate(q.createdAt)}에 그음` : ""}</span></button>
@@ -1077,7 +1077,7 @@ function rowCard(b){
 let searchQuery = "";
 function searchView(){
   return `<div class="topbar"><button class="back" type="button" data-back aria-label="뒤로">${ICON_BACK}</button>
-    <label class="searchbar">${ICON_SEARCH}<input id="search-input" type="search" placeholder="제목, 지은이, 밑줄, 느낌에서 찾기" value="${esc(searchQuery)}" autocomplete="off" enterkeyhint="search"></label></div>
+    <label class="searchbar">${ICON_SEARCH}<input id="search-input" type="search" placeholder="제목, 지은이, 문장, 느낌에서 찾기" value="${esc(searchQuery)}" autocomplete="off" enterkeyhint="search"></label></div>
   <div id="results">${searchResults()}</div>`;
 }
 
@@ -1103,7 +1103,7 @@ function quoteCard(q, hl){
 
 function searchResults(){
   const q = searchQuery.trim();
-  if(!q) return `<div class="empty">${PIC_GLOBE(44)}<p class="hint">지리학자처럼 기록을 뒤져 찾아 드려요.<br>책 제목이나 지은이, 밑줄 친 문장,<br>내가 쓴 느낌 속 단어로 찾아요.</p></div>`;
+  if(!q) return `<div class="empty">${PIC_GLOBE(44)}<p class="hint">지리학자처럼 기록을 뒤져 찾아 드려요.<br>책 제목이나 지은이, 길들인 문장,<br>내가 쓴 느낌 속 단어로 찾아요.</p></div>`;
   const has = v => String(v || "").toLowerCase().includes(q.toLowerCase());
   const bookHits = books.filter(b => has(b.title) || has(b.author) || has(b.publisher));
   const quoteHits = allQuotes().filter(x => has(x.text));
@@ -1111,7 +1111,7 @@ function searchResults(){
   if(!bookHits.length && !quoteHits.length && !feelHits.length)
     return `<p class="hint" style="text-align:center;padding:40px 0">‘${esc(q)}’이(가) 들어간 기록이 없어요.</p>`;
   let html = "";
-  if(quoteHits.length) html += `<div class="result-head">밑줄<span>${quoteHits.length}</span></div><div class="list">${quoteHits.map(x => quoteCard(x, q)).join("")}</div>`;
+  if(quoteHits.length) html += `<div class="result-head">길들인 문장<span>${quoteHits.length}</span></div><div class="list">${quoteHits.map(x => quoteCard(x, q)).join("")}</div>`;
   if(bookHits.length) html += `<div class="result-head">책<span>${bookHits.length}</span></div><div class="list">${bookHits.map(rowCard).join("")}</div>`;
   if(feelHits.length) html += `<div class="result-head">느낌·줄거리<span>${feelHits.length}</span></div><div class="list">${feelHits.map(b =>
     `<button class="feel-hit" type="button" data-open="${esc(b.id)}"><strong>${esc(b.title)}</strong><p>${around(has(b.feeling) ? b.feeling : b.summary, q)}</p></button>`).join("")}</div>`;
@@ -1142,8 +1142,8 @@ function detailView(b){
     <div class="two"><button class="btn sm" type="button" data-status="reading">읽기 시작</button><button class="btn sm ghost" type="button" data-delbook>뽑기</button></div></div>` : ""}
   ${dates ? `<p class="dates num">${dates}</p>` : ""}
 
-  <section class="block"><div class="block-head"><h3>밑줄${b.quotes.length ? `<span>${b.quotes.length}</span>` : ""}</h3>
-    <button class="btn sm soft" type="button" data-quickquote="${esc(b.id)}">${ICON_PEN}밑줄 긋기</button></div>
+  <section class="block"><div class="block-head"><h3>길들인 문장${b.quotes.length ? `<span>${b.quotes.length}</span>` : ""}</h3>
+    <button class="btn sm soft" type="button" data-quickquote="${esc(b.id)}">${ICON_PEN}문장 길들이기</button></div>
     ${b.quotes.length ? `<div class="list">${b.quotes.slice().reverse().map(q => `<div class="quote"><p><span class="ul">${esc(q.text)}</span></p><div class="src">
       <span class="num">${q.page ? esc(fmtPos(q.page, b.format)) + " · " : ""}${q.createdAt ? fmtDate(q.createdAt) : ""}</span>
       <button class="del" type="button" data-delquote="${esc(q.id)}">지우기</button></div></div>`).join("")}</div>`
@@ -1169,14 +1169,14 @@ function detailView(b){
 // 밑줄 긋기 창: 홈과 책 화면 어디서든 바로 쓸 수 있게 아래에서 올라오는 창으로
 function openQuoteSheet(b){
   const m = $("#modal");
-  m.innerHTML = `<form class="sheet" role="dialog" aria-modal="true" aria-label="밑줄 긋기" data-quickform>
-    <h2>밑줄 긋기</h2>
+  m.innerHTML = `<form class="sheet" role="dialog" aria-modal="true" aria-label="문장 길들이기" data-quickform>
+    <h2>문장 길들이기 <small style="font-size:13px;font-weight:500;color:var(--text-3)">(밑줄 긋기)</small></h2>
     <p class="hint" style="margin-top:-10px">${esc(b.title)}</p>
     <div class="q-tools${VOICE_OK ? "" : " one"}">
       <button class="btn line" type="button" id="ocr-pick">${ICON_CAMERA}${VOICE_OK ? "사진으로" : "사진에서 글자 가져오기"}</button>
       ${VOICE_OK ? `<button class="btn line" type="button" id="voice-btn" aria-pressed="false">${ICON_MIC}읽어서 받아쓰기</button>` : ""}</div>
     <div id="voice-area" class="voice" hidden role="status"><span class="ears">${titleIcon("nav-quotes", 24)}</span>
-      <span><span id="voice-msg">여우가 귀 기울여 듣고 있어요. 밑줄 친 문장을 또박또박 읽어 주세요.</span>
+      <span><span id="voice-msg">여우가 귀 기울여 듣고 있어요. 길들일 문장을 또박또박 읽어 주세요.</span>
       <small>말한 내용은 글자로 바꾸려고 구글(아이폰은 애플) 음성 인식을 거쳐요. 목소리는 앱에 남기지 않아요.</small></span></div>
     <input id="ocr-file" type="file" accept="image/*" capture="environment" hidden>
     <div id="ocr-area" class="ocr" hidden>
@@ -1249,7 +1249,7 @@ function setupVoice(){
       ta.value = ta.value.trim();
       if(heard && !/허락|인터넷|들리지|찾지|쓸 수 없/.test(msg.textContent)) msg.textContent = "다 받아 적었어요. 틀린 글자를 고친 뒤 저장해 주세요.";
     };
-    msg.textContent = "여우가 귀 기울여 듣고 있어요. 밑줄 친 문장을 또박또박 읽어 주세요.";
+    msg.textContent = "여우가 귀 기울여 듣고 있어요. 길들일 문장을 또박또박 읽어 주세요.";
     area.hidden = false; setOn(true); voiceRec = rec;
     try { rec.start(); } catch { voiceRec = null; setOn(false); msg.textContent = "받아쓰기를 시작하지 못했어요. 다시 눌러 주세요."; }
   };
@@ -1696,7 +1696,7 @@ function quotesView(){
   }
   return `<div class="page-title"><h1>${titleIcon("nav-quotes")}길들인 문장</h1>
     ${all.length ? `<button class="icon-btn" type="button" data-go="#/search" aria-label="찾기">${ICON_SEARCH}</button>` : ""}</div>
-  <p class="page-sub">여우처럼 하나씩 길들인 밑줄 모음</p>
+  <p class="page-sub">마음에 남은 문장을 여우처럼 하나씩</p>
   ${all.length ? `<div class="night-card" style="margin-bottom:14px"><span class="pic">${titleIcon("nav-quotes", 30)}</span>
       <span class="tx"><span class="tag">길들인 문장</span><b class="num">${nBooks}권에서 ${all.length}개</b>
       <p>길들인 문장은 나에게 하나뿐인 문장이 돼요. 읽다가 멈춘 자리를 모아 두었어요.</p>
@@ -1704,7 +1704,7 @@ function quotesView(){
     <div class="shelf-bar"><span class="num">${all.length}개</span>
       <select id="quote-sort" class="sort" aria-label="정렬">${QSORTS.map(([k, l]) => `<option value="${k}"${k === quoteSort ? " selected" : ""}>${l}</option>`).join("")}</select></div>
     ${body}`
-    : `<div class="empty"><span class="pic">${titleIcon("nav-quotes", 52)}</span><p>읽다가 마음에 남은 문장에 밑줄을 그으면<br>여우처럼 하나씩 길들여져 여기에 모여요.</p>
+    : `<div class="empty"><span class="pic">${titleIcon("nav-quotes", 52)}</span><p>읽다가 마음에 남은 문장을 적어 두면<br>여우처럼 하나씩 길들여져 여기에 모여요.</p>
       ${books.some(b => b.status === "reading") ? "" : `<button class="btn" type="button" data-go="#/scan">책 등록하기</button>`}</div>`}`;
 }
 
@@ -1747,7 +1747,7 @@ function meView(){
     <div class="mini-stats">
       <span>${GROW_SVG.sprout}<b class="num">${books.filter(b => b.status === "reading").length}</b>읽는 중</span>
       <span>${GROW_SVG.seed}<b class="num">${books.filter(b => b.status === "want").length}</b>읽고 싶은</span>
-      <span>${titleIcon("nav-quotes", 18)}<b class="num">${allQuotes().length}</b>밑줄</span>
+      <span>${titleIcon("nav-quotes", 18)}<b class="num">${allQuotes().length}</b>문장</span>
       <span>${GROW_SVG.flower}<b class="num">${books.length}</b>정원 전체</span>
     </div>
   </div>
@@ -1782,7 +1782,7 @@ function openShare(b){
     <div id="share-preview"></div>
     <div class="share-opts">
       ${b.feeling ? `<label><input id="share-feel" type="checkbox" checked> 내 느낌도 함께 보내기</label>` : ""}
-      ${b.quotes.length ? `<span class="opt-title">함께 보낼 밑줄</span>
+      ${b.quotes.length ? `<span class="opt-title">함께 보낼 문장</span>
         <label><input type="radio" name="share-q" value=""> 보내지 않기</label>
         ${b.quotes.map((q, i) => `<label><input type="radio" name="share-q" value="${esc(q.id)}" ${i === b.quotes.length - 1 ? "checked" : ""}><span class="qtext">${esc(q.text)}</span></label>`).join("")}` : ""}
     </div>
@@ -2084,12 +2084,12 @@ document.addEventListener("click", e => {
   if(t.hasAttribute("data-share")) return openShare(cur);
   if(t.dataset.delquote){
     const id = t.dataset.delquote;
-    return ask(`<span class="ask-pic">${PIC_SNAKE}</span>이 밑줄을 지울까요?<small>지운 밑줄은 되돌릴 수 없어요.</small>`, "지우기", () => {
-      cur.quotes = cur.quotes.filter(q => q.id !== id); saveBook(cur); render(); toast("밑줄을 지웠어요");
+    return ask(`<span class="ask-pic">${PIC_SNAKE}</span>이 문장을 지울까요?<small>지운 문장은 되돌릴 수 없어요.</small>`, "지우기", () => {
+      cur.quotes = cur.quotes.filter(q => q.id !== id); saveBook(cur); render(); toast("문장을 지웠어요");
     }, true);
   }
   if(t.hasAttribute("data-delbook")){
-    return ask(`<span class="ask-pic">${PIC_SNAKE}</span>『${esc(cur.title)}』을(를) 지울까요?<small>한번 떠난 책은 돌아오지 않아요. 느낌과 밑줄도 함께 지워져요.</small>`, "지우기", async () => {
+    return ask(`<span class="ask-pic">${PIC_SNAKE}</span>『${esc(cur.title)}』을(를) 지울까요?<small>한번 떠난 책은 돌아오지 않아요. 느낌과 길들인 문장도 함께 지워져요.</small>`, "지우기", async () => {
       books = books.filter(b => b !== cur);
       try { await dbDelete(cur.id); } catch(e){ console.error(e); }
       toast("책을 지웠어요"); goReplace("#/shelf/" + shelfFilter);
