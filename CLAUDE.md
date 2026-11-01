@@ -298,8 +298,8 @@ booktrack-mockup.html      # 2단계 화면 시안 (배포 안 함)
 - 2026-10-27: BARAM 테스트 통과(최종 승인 대기). 형 결정: Book612는 **독서를 좋아하는 테스터 20명을 먼저 모은 뒤** 테스트 시작(실제로 책을 읽어야 14일을 쓴다).
   모집 글 `store-assets/테스터-모집-카톡.md` 0번(독서 좋아하는 분께).
 
-- 2026-11-02: **주소 이사 booktrack → book612.pages.dev**(형 A안, 무료). 형 "할 수 있는 데까지 해"로 Claude가 `wrangler pages project create book612` 실행.
-  Git 연결 없는 직접 올리기 프로젝트(대시보드 로그인을 Claude가 할 수 없어서). → 배포는 이 PC에서 wrangler로(아래 '배포').
+- 2026-11-02: **주소 이사 booktrack → book612.pages.dev**(형 A안, 무료). 처음엔 Claude가 wrangler로 Git 연결 없는 프로젝트를 만들었으나,
+  BARAM·booktrack과 같은 방식이 좋아서 형 결정으로 **지우고 형이 대시보드에서 GitHub 연결로 다시 만들기로** 함(wrangler로는 Git 연결 프로젝트를 만들 수 없다).
   옛 주소는 지우지 않고 맨 위에 이사 안내 + 백업 단추(`movedNotice`, `ON_OLD_HOST`, 옛 주소에서만 보임). 패키지 이름 `dev.pages.book612.twa`.
   **Cloudflare 키 3개(KAKAO_REST_API_KEY, LIBRARY_API_KEY, NL_CERT_KEY)는 형이 새 프로젝트에 직접 넣어야 한다**(Claude는 키 값을 보지도 넣지도 않는다).
 
@@ -323,10 +323,8 @@ booktrack-mockup.html      # 2단계 화면 시안 (배포 안 함)
 ## 배포
 - GitHub: https://github.com/godot1010/booktrack (공개). Cloudflare **Pages** 프로젝트 `booktrack`
   (새 'Workers' 만들기 화면이 아니라 'Pages로 계속'으로 만듦). 빌드 명령 없음, 출력 폴더 `public`.
-- **새 주소(2026-11-02~)**: 실제 https://book612.pages.dev / 미리보기 https://preview.book612.pages.dev . Pages 프로젝트 `book612`(Git 연결 없음, git push로 배포 안 됨).
-  배포는 저장소 맨 위 폴더에서: 미리보기 `npx wrangler@3 pages deploy public --project-name book612 --branch preview --commit-dirty=true`,
-  형 오케이 후 실제 `... --branch main`. (`functions/`는 맨 위 폴더에서 실행해야 함께 올라간다. 이 PC의 wrangler는 형 계정으로 로그인돼 있음.)
-- 옛 주소: https://booktrack.pages.dev (`main`), https://preview.booktrack.pages.dev (`preview`) — Git 연결 그대로, push하면 자동 배포. 이사 안내용으로 남겨 둔다.
+- **새 주소(2026-11-02~)**: 실제 https://book612.pages.dev (`main`) / 미리보기 https://preview.book612.pages.dev (`preview`). Pages 프로젝트 `book612`, 같은 저장소에 GitHub 연결(형이 대시보드에서 만듦).
+- 옛 주소: https://booktrack.pages.dev (`main`), https://preview.booktrack.pages.dev (`preview`) — 같은 저장소라 push하면 함께 배포된다. 이사 안내용으로 남겨 둔다.
   git은 전처럼 `preview`에서 확인 → `git checkout main && git merge --ff-only preview && git push`.
 - 이 PC의 git은 저장소별 설정으로 user.name `godot1010`을 쓴다. push는 Windows 자격 증명으로 바로 됨.
 
