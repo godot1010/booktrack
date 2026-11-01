@@ -511,6 +511,8 @@ nav.bottom .nv:active svg{transform:scale(.9)}
 .box-seg button{border:0;background:none;border-radius:10px;padding:8px 0;font-size:14px;font-weight:600;color:var(--text-2)}
 .box-seg button[aria-pressed="true"]{background:var(--coral);color:var(--on-accent);font-weight:800}
 .btn.gold{background:var(--star);color:#1f2a55}
+.turn-row{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.turn-row .btn{padding:8px 4px;font-size:12.5px;white-space:nowrap}
 .pic-album{display:block;margin:6px auto 0;font-size:13px}
 .pic-chips{display:flex;gap:6px;margin:14px 0 12px}
 .pic-chips button{border:1px solid var(--line-2);background:var(--card);border-radius:999px;padding:5px 11px;font-size:12.5px;font-weight:600;color:var(--text-2)}
@@ -1251,6 +1253,7 @@ function openQuoteSheet(b){
       <p class="hint">네모의 동그란 손잡이를 끌어서 밑줄 친 부분에 맞춰 주세요. 네모 안쪽을 끌면 통째로 옮겨져요.</p>
       <div class="crop-wrap"><div class="crop" id="crop"><img id="crop-img" alt="찍은 책 페이지"><div class="sel" id="crop-sel" hidden>
         ${["nw", "n", "ne", "e", "se", "s", "sw", "w"].map(h => `<span class="h h-${h}" data-h="${h}"></span>`).join("")}</div></div></div>
+      <div class="turn-row"><button class="btn sm ghost" type="button" id="ocr-left">↺ 왼쪽으로 돌리기</button><button class="btn sm ghost" type="button" id="ocr-right">오른쪽으로 돌리기 ↻</button></div>
       <div class="two"><button class="btn ghost" type="button" id="ocr-retake">다시 찍기</button><button class="btn" type="button" id="ocr-read">이 부분 읽기</button></div>
       <button class="linkbtn muted" type="button" id="ocr-all">사진 전체 읽기</button>
       <p class="hint" id="ocr-status" role="status"></p>
@@ -1354,6 +1357,15 @@ function cleanOcr(text){
     .trim();
 }
 
+// 사진을 90도 돌린 새 캔버스(dir: 1 오른쪽, -1 왼쪽). 어차피 줄여 쓰므로 긴 쪽 2600px 이내로 해서 폰 메모리를 아낀다
+function rotatedPhoto(src, dir){
+  const k = Math.min(1, 2600 / Math.max(src.width, src.height)), w = Math.round(src.width * k), h = Math.round(src.height * k);
+  const c = document.createElement("canvas"); c.width = h; c.height = w;
+  const x = c.getContext("2d"); x.translate(h / 2, w / 2); x.rotate(dir * Math.PI / 2); x.drawImage(src, -w / 2, -h / 2, w, h);
+  return c;
+}
+// 고른 네모도 사진과 함께 돌린다
+const turnFrac = (f, dir) => dir > 0 ? {x: 1 - f.y - f.h, y: f.x, w: f.h, h: f.w} : {x: f.y, y: 1 - f.x - f.w, w: f.h, h: f.w};
 // 사진 위 네모 고르기 (문장 사진·그림 상자가 함께 쓴다). frac: 사진 크기에 대한 비율(0~1) → 화면 크기가 바뀌어도 어긋나지 않는다
 function makeCropper(crop, img, sel){
   let frac = null, drag = null;
@@ -1425,6 +1437,17 @@ function setupOcr(){
     area.scrollIntoView({block: "nearest"});
   };
 
+  const turn = async dir => {
+    if(!photo) return;
+    const f = turnFrac(cropper.frac || {x: 0.06, y: 0.4, w: 0.88, h: 0.14}, dir);
+    photo = rotatedPhoto(photo, dir);
+    const b = await canvasBlob(photo, "image/jpeg", 0.92);
+    URL.revokeObjectURL(img.src);
+    img.onload = () => cropper.start(f);
+    img.src = URL.createObjectURL(b);
+  };
+  $("#ocr-left").onclick = () => turn(-1);
+  $("#ocr-right").onclick = () => turn(1);
   $("#ocr-all").onclick = () => readOcr(true);
   $("#ocr-read").onclick = () => readOcr(false);
   async function readOcr(whole){
@@ -1837,12 +1860,14 @@ async function openPhotoSheet(file){
   let photo;
   try { photo = await createImageBitmap(file, {imageOrientation: "from-image"}); }
   catch { return toast("사진을 열지 못했어요"); }
-  const url = URL.createObjectURL(file), m = $("#modal");
+  let url = URL.createObjectURL(file);
+  const m = $("#modal");
   m.innerHTML = `<form class="sheet" role="dialog" aria-modal="true" aria-label="책 사진 담기" id="photo-form">
     <h2>책 사진 담기</h2>
     <p class="hint" style="margin-top:-10px">담고 싶은 부분만 네모로 골라 주세요. 사진은 이 폰 안에만 저장돼요.</p>
     <div class="crop-wrap"><div class="crop" id="pic-crop"><img id="pic-img" alt="고른 사진"><div class="sel" id="pic-sel" hidden>
       ${["nw", "n", "ne", "e", "se", "s", "sw", "w"].map(h => `<span class="h h-${h}" data-h="${h}"></span>`).join("")}</div></div></div>
+    <div class="turn-row"><button class="btn sm ghost" type="button" id="pic-left">↺ 왼쪽으로 돌리기</button><button class="btn sm ghost" type="button" id="pic-right">오른쪽으로 돌리기 ↻</button></div>
     ${bookSelect(picPendingBook)}
     <div class="qpage-row"><input id="pic-page" class="field num" type="text" placeholder="쪽" maxlength="20"><input id="pic-title" class="field" style="flex:1;width:auto" type="text" placeholder="한 줄 메모" maxlength="60"></div>
     <div class="two"><button class="btn ghost" type="button" id="pic-cancel">닫기</button><button class="btn" type="submit" id="pic-save">상자에 담기</button></div>
@@ -1853,6 +1878,16 @@ async function openPhotoSheet(file){
   img.src = url;
   const done = () => { URL.revokeObjectURL(url); m.hidden = true; };
   $("#pic-cancel").onclick = done;
+  const turn = async dir => {
+    const f = turnFrac(cropper.frac || {x: 0.06, y: 0.06, w: 0.88, h: 0.88}, dir);
+    photo = rotatedPhoto(photo, dir);
+    const b = await canvasBlob(photo, "image/jpeg", 0.9);
+    URL.revokeObjectURL(url); url = URL.createObjectURL(b);
+    img.onload = () => cropper.start(f);
+    img.src = url;
+  };
+  $("#pic-left").onclick = () => turn(-1);
+  $("#pic-right").onclick = () => turn(1);
   $("#photo-form").onsubmit = async e => {
     e.preventDefault();
     const btn = $("#pic-save"); btn.disabled = true;
