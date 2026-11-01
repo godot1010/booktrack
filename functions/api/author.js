@@ -5,7 +5,7 @@
 // 제목으로 못 가리면, 작가로 보이는 사람이 딱 한 명일 때만 쓴다.
 // 못 찾으면 404 → 앱은 작가 소개 칸을 숨기고, 형이 직접 쓸 수 있게 둔다. AI가 소개를 지어내지 않는다.
 
-const UA = "Book612/1.0 (https://book612.pages.dev; personal reading log)";
+const UA = "BookTrack/1.0 (https://booktrack.pages.dev; personal reading log)";
 const WRITER = /(작가|소설가|시인|수필가|저술가|문인|번역가|극작가|아동문학가|동화|평론가|칼럼니스트|저자|철학자|학자|교수|기자|만화가|일러스트레이터|에세이스트)/;
 const TIMEOUT_MS = 8000;
 
