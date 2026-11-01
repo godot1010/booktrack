@@ -506,6 +506,28 @@ nav.bottom .nv:active svg{transform:scale(.9)}
   @keyframes spark{0%,100%{opacity:0;transform:scale(.5)}50%{opacity:1;transform:scale(1.2) rotate(20deg)}}
 }
 @media (prefers-reduced-motion:reduce){.spark{opacity:.8}}
+/* 그림 상자 */
+.box-seg{display:grid;grid-template-columns:1fr 1fr;background:var(--soft);border-radius:13px;padding:3px;margin:-4px 0 10px}
+.box-seg button{border:0;background:none;border-radius:10px;padding:8px 0;font-size:14px;font-weight:600;color:var(--text-2)}
+.box-seg button[aria-pressed="true"]{background:var(--coral);color:var(--on-accent);font-weight:800}
+.btn.gold{background:var(--star);color:#1f2a55}
+.pic-chips{display:flex;gap:6px;margin:14px 0 12px}
+.pic-chips button{border:1px solid var(--line-2);background:var(--card);border-radius:999px;padding:5px 11px;font-size:12.5px;font-weight:600;color:var(--text-2)}
+.pic-chips button[aria-pressed="true"]{background:#c75b2a;border-color:#c75b2a;color:#fff}
+.pic-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.pic-card{border:1px solid var(--line);background:var(--card);border-radius:14px;padding:0;overflow:hidden;display:flex;flex-direction:column;text-align:left;min-width:0}
+.pic-card img{display:block;width:100%;aspect-ratio:5/6;object-fit:contain;background:var(--soft)}
+.pic-card b{font-size:13px;font-weight:600;padding:7px 9px 0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.pic-card small{font-size:11.5px;color:var(--text-3);padding:1px 9px 8px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.pic-big{display:block;width:100%;max-height:58vh;object-fit:contain;border-radius:12px;background:var(--soft)}
+.draw-holder{border-radius:14px;overflow:hidden;border:1px solid var(--line-2);line-height:0}
+.draw-canvas{display:block;width:100%;height:auto;touch-action:none;cursor:crosshair}
+.draw-colors{display:flex;justify-content:space-between;margin:12px 2px 10px}
+.draw-colors button{width:32px;height:32px;border-radius:50%;border:3px solid var(--bg);outline:2px solid transparent;background:var(--c);padding:0}
+.draw-colors button[aria-pressed="true"]{outline-color:var(--text)}
+.draw-tools{display:grid;grid-template-columns:repeat(4,1fr);gap:6px}
+.draw-tools button{border:1px solid var(--line-2);background:var(--card);border-radius:10px;padding:8px 0;font-size:13px;font-weight:600;color:var(--text-2)}
+.draw-tools button[aria-pressed="true"]{background:var(--coral);border-color:var(--coral);color:var(--on-accent)}
 /* ── 동화 장치들 (2026-10-11 형 "남은 동화 아이디어 다") ── */
 /* ① 시간 따라 바뀌는 하늘: 홈 맨 위 (새벽·낮·노을·밤), 밤엔 별과 별똥별 */
 .sky{position:relative;margin:0 -20px 6px;padding:0 20px 12px;border-radius:0 0 26px 26px;overflow:hidden}
@@ -591,17 +613,27 @@ nav.bottom .nv:active svg{transform:scale(.9)}
 <div id="toast" class="toast" role="status" hidden></div>
 <div id="modal" class="modal" hidden></div>
 <input id="import-file" type="file" accept=".json,application/json" hidden>
+<input id="pic-file" type="file" accept="image/*" hidden>
 
 <script>
 // ───────────────────────── 저장소 (폰 안의 IndexedDB) ─────────────────────────
 // 기록은 폰 안에만 저장한다. 서버로 보내지 않는다.
-const DB_NAME = "booktrack", STORE = "books";
+const DB_NAME = "booktrack", STORE = "books", PIC_STORE = "pictures";
 let dbPromise = null;
 function openDB(){
   if(!dbPromise) dbPromise = new Promise((res, rej) => {
-    const r = indexedDB.open(DB_NAME, 1);
-    r.onupgradeneeded = () => r.result.createObjectStore(STORE, {keyPath: "id"});
-    r.onsuccess = () => res(r.result);
+    // 버전 2(2026-11): 그림 상자 칸 추가. 책 칸은 건드리지 않는다
+    const r = indexedDB.open(DB_NAME, 2);
+    r.onupgradeneeded = () => {
+      const db = r.result;
+      if(!db.objectStoreNames.contains(STORE)) db.createObjectStore(STORE, {keyPath: "id"});
+      if(!db.objectStoreNames.contains(PIC_STORE)) db.createObjectStore(PIC_STORE, {keyPath: "id"});
+    };
+    r.onsuccess = () => {
+      // 다른 탭에 열린 새 버전이 저장소를 올리려 하면 길을 비켜 준다
+      r.result.onversionchange = () => { r.result.close(); dbPromise = null; };
+      res(r.result);
+    };
     r.onerror = () => rej(r.error);
   });
   return dbPromise;
@@ -611,6 +643,29 @@ async function dbAll(){
   return new Promise((res, rej) => {
     const r = db.transaction(STORE).objectStore(STORE).getAll();
     r.onsuccess = () => res(r.result); r.onerror = () => rej(r.error);
+  });
+}
+async function picAll(){
+  const db = await openDB();
+  return new Promise((res, rej) => {
+    const r = db.transaction(PIC_STORE).objectStore(PIC_STORE).getAll();
+    r.onsuccess = () => res(r.result); r.onerror = () => rej(r.error);
+  });
+}
+async function picPut(pic){
+  const db = await openDB();
+  return new Promise((res, rej) => {
+    const tx = db.transaction(PIC_STORE, "readwrite");
+    tx.objectStore(PIC_STORE).put(pic);
+    tx.oncomplete = () => res(); tx.onerror = () => rej(tx.error); tx.onabort = () => rej(tx.error);
+  });
+}
+async function picDelete(id){
+  const db = await openDB();
+  return new Promise((res, rej) => {
+    const tx = db.transaction(PIC_STORE, "readwrite");
+    tx.objectStore(PIC_STORE).delete(id);
+    tx.oncomplete = () => res(); tx.onerror = () => rej(tx.error);
   });
 }
 async function dbPut(book){
@@ -807,6 +862,8 @@ function render(animate){
     v.innerHTML = shelfView();
   }
   else if(r.name === "quotes") v.innerHTML = quotesView();
+  else if(r.name === "pictures") v.innerHTML = picturesView();
+  else if(r.name === "draw"){ drawBook = r.arg; v.innerHTML = drawView(); mountDraw(); }
   else if(r.name === "popular"){ if(r.arg === "month" || r.arg === "week") popularPeriod = r.arg; v.innerHTML = popularView(); loadPopular(popularPeriod); }
   else if(r.name === "me" || r.name === "settings") v.innerHTML = meView();
   else if(r.name === "search"){
@@ -817,7 +874,7 @@ function render(animate){
   fitLockups(v);
   if(animate){ v.classList.remove("view-in"); void v.offsetWidth; v.classList.add("view-in"); starDust(); }
   if(r.name === "home" || r.name === "") loadPopular(popularPeriod);
-  const tab = {home: "nav-home", popular: "nav-home", lookup: "", scan: "", add: "", shelf: "nav-shelf", book: "nav-shelf", quotes: "nav-quotes", me: "nav-me", settings: "nav-me"}[r.name] || (r.name === "" ? "nav-home" : "");
+  const tab = {home: "nav-home", popular: "nav-home", lookup: "", scan: "", add: "", shelf: "nav-shelf", book: "nav-shelf", quotes: "nav-quotes", pictures: "nav-quotes", draw: "nav-quotes", me: "nav-me", settings: "nav-me"}[r.name] || (r.name === "" ? "nav-home" : "");
   ["nav-home", "nav-shelf", "nav-quotes", "nav-me"].forEach(id => {
     const el = $("#" + id);
     if(id === tab) el.setAttribute("aria-current", "page"); else el.removeAttribute("aria-current");
@@ -935,6 +992,8 @@ const CB_SCENE = {
   flower: `<ellipse cx="75" cy="118" rx="58" ry="12" fill="#c9b893"/><g class="cb-grow" style="animation-delay:.1s"><path d="M75 112V56" stroke="#3d8a5a" stroke-width="3.4" stroke-linecap="round"/><path d="M75 92c-12 .6-17-6-17-12 9-.6 15 4 17 12z" fill="#5aa874"/></g>
     <g class="cb-bloom"><path d="M75 60c-14-2-17-15-12-25 5-5 9-4 12 1 3-5 7-6 12-1 5 10 2 23-12 25z" fill="#e4574f"/><path d="M69 42c3 4 9 4 12 0" stroke="#c43c35" stroke-width="2" fill="none"/></g>
     <path class="cb-fly" d="M98 40l2.6 5.6 6 .7-4.5 4.1 1.2 6-5.3-3-5.3 3 1.2-6-4.5-4.1 6-.7z" fill="#f6c453"/>`,
+  box: `<g class="cb-hop" transform="translate(33 16) scale(3.5)"><path d="M4 9l8-4 8 4v10l-8 3.5L4 19z" fill="#f6e3ad" stroke="#d99a16" stroke-width="1" stroke-linejoin="round"/><path d="M4 9l8 3.5L20 9M12 12.5V22" fill="none" stroke="#d99a16" stroke-width="1"/><circle cx="8" cy="14" r=".8" fill="#8a6a3b"/><circle cx="9" cy="17" r=".8" fill="#8a6a3b"/><circle cx="16" cy="14" r=".8" fill="#8a6a3b"/></g>
+    <text class="cb-spark" x="20" y="28" fill="#f6c453" font-size="16">✦</text><text class="cb-spark" style="animation-delay:.5s" x="122" y="24" fill="#f6c453" font-size="12">✦</text>`,
   fox: `<g class="cb-hop" transform="translate(33 8) scale(3.4)"><path d="M14.6 20.4c4.4.4 7.2-2 6.6-5.8-1.4 1.6-3.6 2.4-5.6 2" fill="#f08a5d" stroke="#c75b2a" stroke-width="1.2" stroke-linejoin="round" class="nv-tail"/><path d="M7.6 21c-1.6 0-2.4-1.2-2.2-2.8.3-2.8 1.6-5.2 3.4-6.6L8.2 6.4l2 1.7 2-1.7-.4 5.2c1.6 1.3 2.6 3.7 2.6 6v1c0 1.4-1 2.4-2.4 2.4z" fill="#f08a5d" stroke="#c75b2a" stroke-width="1.2" stroke-linejoin="round"/><path d="M7.4 21c.2-2 1.4-3.4 2.6-3.4s2.2 1.4 2.4 3.4" fill="#fdf3dc"/><circle cx="9.4" cy="10.6" r=".8" fill="#1f2a55" class="nv-blink"/></g>
     <text class="cb-spark" x="22" y="30" fill="#f6c453" font-size="16">✦</text><text class="cb-spark" style="animation-delay:.5s" x="120" y="22" fill="#f6c453" font-size="12">✦</text><text class="cb-spark" style="animation-delay:1s" x="128" y="70" fill="#f6c453" font-size="10">✦</text>`,
 };
@@ -1109,11 +1168,13 @@ function searchResults(){
   const bookHits = books.filter(b => has(b.title) || has(b.author) || has(b.publisher));
   const quoteHits = allQuotes().filter(x => has(x.text));
   const feelHits = books.filter(b => has(b.feeling) || has(b.summary));
-  if(!bookHits.length && !quoteHits.length && !feelHits.length)
+  const picHits = pictures.filter(p => has(p.title));
+  if(!bookHits.length && !quoteHits.length && !feelHits.length && !picHits.length)
     return `<p class="hint" style="text-align:center;padding:40px 0">‘${esc(q)}’이(가) 들어간 기록이 없어요.</p>`;
   let html = "";
   if(quoteHits.length) html += `<div class="result-head">길들인 문장<span>${quoteHits.length}</span></div><div class="list">${quoteHits.map(x => quoteCard(x, q)).join("")}</div>`;
   if(bookHits.length) html += `<div class="result-head">책<span>${bookHits.length}</span></div><div class="list">${bookHits.map(rowCard).join("")}</div>`;
+  if(picHits.length) html += `<div class="result-head">그림 상자<span>${picHits.length}</span></div><div class="pic-grid">${picHits.map(picCard).join("")}</div>`;
   if(feelHits.length) html += `<div class="result-head">느낌·줄거리<span>${feelHits.length}</span></div><div class="list">${feelHits.map(b =>
     `<button class="feel-hit" type="button" data-open="${esc(b.id)}"><strong>${esc(b.title)}</strong><p>${around(has(b.feeling) ? b.feeling : b.summary, q)}</p></button>`).join("")}</div>`;
   return html;
@@ -1151,6 +1212,10 @@ function detailView(b){
       : `<p class="hint">읽다가 마음에 남은 문장을 옮겨 적어 보세요.</p>`}
   </section>
 
+  ${(() => { const mine = pictures.filter(p => p.bookId === b.id).sort((x, y) => (y.createdAt || "").localeCompare(x.createdAt || ""));
+    return `<section class="block"><div class="block-head"><h3>그림 상자${mine.length ? `<span>${mine.length}</span>` : ""}</h3></div>
+      ${mine.length ? `<div class="pic-grid" style="margin-bottom:10px">${mine.map(picCard).join("")}</div>` : `<p class="hint" style="margin-bottom:10px">이 책에서 떠오른 장면을 그리거나, 책 속 그림을 담아 보세요.</p>`}
+      ${addPicButtons(b.id)}</section>`; })()}
   <section class="block"><div class="block-head"><h3>느낌</h3><span class="side" id="feel-state"></span></div>
     <textarea id="feel" class="feel" data-feel placeholder="이 책을 읽고 든 생각을 자유롭게 적어 보세요.">${esc(b.feeling)}</textarea>
   </section>
@@ -1287,29 +1352,9 @@ function cleanOcr(text){
     .trim();
 }
 
-function setupOcr(){
-  const file = $("#ocr-file"), area = $("#ocr-area"), img = $("#crop-img"), crop = $("#crop"), sel = $("#crop-sel"), status = $("#ocr-status");
-  // frac: 고른 네모를 사진 크기에 대한 비율(0~1)로 저장한다 → 화면 크기가 바뀌어도 어긋나지 않는다
-  let photo = null, frac = null, drag = null;
-
-  $("#ocr-pick").onclick = () => file.click();
-  $("#ocr-retake").onclick = () => file.click();
-  // 인식 프로그램은 버튼을 누르는 순간부터 미리 받아 둔다
-  $("#ocr-pick").addEventListener("click", () => getOcrWorker().catch(() => {}), {once: true});
-
-  file.onchange = async () => {
-    const f = file.files[0]; file.value = ""; if(!f) return;
-    try { photo = await createImageBitmap(f, {imageOrientation: "from-image"}); }
-    catch { return toast("사진을 열지 못했어요"); }
-    if(img.src) URL.revokeObjectURL(img.src);
-    sel.hidden = true; status.textContent = "";
-    // 사진이 화면에 나오면 가운데쯤에 기본 네모를 놓는다 (가로로 길게, 두세 줄 높이)
-    img.onload = () => { frac = {x: 0.06, y: 0.4, w: 0.88, h: 0.14}; draw(); };
-    img.src = URL.createObjectURL(f);
-    area.hidden = false; $("#ocr-pick").hidden = true;
-    area.scrollIntoView({block: "nearest"});
-  };
-
+// 사진 위 네모 고르기 (문장 사진·그림 상자가 함께 쓴다). frac: 사진 크기에 대한 비율(0~1) → 화면 크기가 바뀌어도 어긋나지 않는다
+function makeCropper(crop, img, sel){
+  let frac = null, drag = null;
   // ── 네모 맞추기: 손잡이를 끌면 크기 조절, 안쪽을 끌면 옮기기, 바깥을 끌면 새로 그리기
   const MIN = 28; // 네모의 가장 작은 크기(화면 px)
   const clamp = (v, a, b) => Math.min(Math.max(v, a), b);
@@ -1349,7 +1394,34 @@ function setupOcr(){
     draw();
   };
   crop.onpointerup = crop.onpointercancel = () => { drag = null; };
-  window.addEventListener("resize", () => { if(frac && !area.hidden) draw(); });
+  window.addEventListener("resize", () => { if(frac && img.isConnected && img.clientWidth) draw(); });
+
+  return {start(f){ frac = f; draw(); }, get frac(){ return frac; }};
+}
+
+function setupOcr(){
+  const file = $("#ocr-file"), area = $("#ocr-area"), img = $("#crop-img"), crop = $("#crop"), sel = $("#crop-sel"), status = $("#ocr-status");
+  // frac: 고른 네모를 사진 크기에 대한 비율(0~1)로 저장한다 → 화면 크기가 바뀌어도 어긋나지 않는다
+  let photo = null;
+  const cropper = makeCropper(crop, img, sel);
+
+  $("#ocr-pick").onclick = () => file.click();
+  $("#ocr-retake").onclick = () => file.click();
+  // 인식 프로그램은 버튼을 누르는 순간부터 미리 받아 둔다
+  $("#ocr-pick").addEventListener("click", () => getOcrWorker().catch(() => {}), {once: true});
+
+  file.onchange = async () => {
+    const f = file.files[0]; file.value = ""; if(!f) return;
+    try { photo = await createImageBitmap(f, {imageOrientation: "from-image"}); }
+    catch { return toast("사진을 열지 못했어요"); }
+    if(img.src) URL.revokeObjectURL(img.src);
+    sel.hidden = true; status.textContent = "";
+    // 사진이 화면에 나오면 가운데쯤에 기본 네모를 놓는다 (가로로 길게, 두세 줄 높이)
+    img.onload = () => cropper.start({x: 0.06, y: 0.4, w: 0.88, h: 0.14});
+    img.src = URL.createObjectURL(f);
+    area.hidden = false; $("#ocr-pick").hidden = true;
+    area.scrollIntoView({block: "nearest"});
+  };
 
   $("#ocr-all").onclick = () => readOcr(true);
   $("#ocr-read").onclick = () => readOcr(false);
@@ -1357,6 +1429,7 @@ function setupOcr(){
     if(!photo) return;
     const btn = $("#ocr-read"); btn.disabled = true;
     // 고른 부분만 잘라서, 글자가 작으면 키우고 흑백으로 또렷하게 만든다
+    const frac = cropper.frac;
     const r = whole || !frac ? {x: 0, y: 0, w: photo.width, h: photo.height}
       : {x: frac.x * photo.width, y: frac.y * photo.height, w: frac.w * photo.width, h: frac.h * photo.height};
     const s = Math.min(2, Math.max(1, 1400 / r.w), 4000 / Math.max(r.w, r.h));
@@ -1697,6 +1770,7 @@ function quotesView(){
   }
   return `<div class="page-title"><h1>${titleIcon("nav-quotes")}길들인 문장</h1>
     ${all.length ? `<button class="icon-btn" type="button" data-go="#/search" aria-label="찾기">${ICON_SEARCH}</button>` : ""}</div>
+  ${boxSeg("quotes")}
   <p class="page-sub">마음에 남은 문장을 여우처럼 하나씩</p>
   ${all.length ? `<div class="night-card" style="margin-bottom:14px"><span class="pic">${titleIcon("nav-quotes", 30)}</span>
       <span class="tx"><span class="tag">길들인 문장</span><b class="num">${nBooks}권에서 ${all.length}개</b>
@@ -1707,6 +1781,176 @@ function quotesView(){
     ${body}`
     : `<div class="empty"><span class="pic">${titleIcon("nav-quotes", 52)}</span><p>읽다가 마음에 남은 문장을 적어 두면<br>여우처럼 하나씩 길들여져 여기에 모여요.</p>
       ${books.some(b => b.status === "reading") ? "" : `<button class="btn" type="button" data-go="#/scan">책 등록하기</button>`}</div>`}`;
+}
+
+// ───────────────────────── 그림 상자 ─────────────────────────
+// 내가 그린 그림(draw)과 책에서 찍은 사진(photo)을 함께 모은다. 『어린 왕자』의 '양이 든 상자'에서 따온 이름.
+// 그림은 IndexedDB `pictures`에 Blob으로, 폰 안에만 저장한다(서버로 보내지 않는다). 책 없이도 담을 수 있다(bookId "").
+let pictures = [];
+let picFilter = "all";
+const picUrls = new Map();
+const picUrl = p => { if(!picUrls.has(p.id)) picUrls.set(p.id, URL.createObjectURL(p.blob)); return picUrls.get(p.id); };
+const findPic = id => pictures.find(p => p.id === id);
+const PIC_KIND = {draw: "내 그림", photo: "책 사진"};
+const PIC_BOX = `<svg width="56" height="56" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9l8-4 8 4v10l-8 3.5L4 19z" fill="#f6e3ad" stroke="#8a6a3b" stroke-width="1.5" stroke-linejoin="round"/><path d="M4 9l8 3.5L20 9M12 12.5V22" fill="none" stroke="#8a6a3b" stroke-width="1.5" stroke-linejoin="round"/><circle cx="8" cy="14" r=".9" fill="#8a6a3b"/><circle cx="9" cy="17" r=".9" fill="#8a6a3b"/><circle cx="16" cy="14" r=".9" fill="#8a6a3b"/></svg>`;
+const boxSeg = cur => `<div class="box-seg" role="tablist">
+  <button type="button" role="tab" data-go-replace="#/quotes" aria-pressed="${cur === "quotes"}">문장</button>
+  <button type="button" role="tab" data-go-replace="#/pictures" aria-pressed="${cur === "pictures"}">그림 상자</button></div>`;
+const picCard = p => { const b = findBook(p.bookId);
+  return `<button class="pic-card" type="button" data-pic="${esc(p.id)}"><img src="${picUrl(p)}" alt="" loading="lazy">
+    <b>${esc(p.title || PIC_KIND[p.kind])}</b><small>${[PIC_KIND[p.kind], b && esc(b.title)].filter(Boolean).join(" · ")}</small></button>`; };
+const addPicButtons = (bookId = "") => `<div class="two"><button class="btn sm" type="button" data-draw="${esc(bookId)}">그리기</button><button class="btn sm gold" type="button" data-picadd="${esc(bookId)}">사진 담기</button></div>`;
+function picturesView(){
+  const list = pictures.filter(p => picFilter === "all" || p.kind === picFilter).sort((a, b) => (b.createdAt || "").localeCompare(a.createdAt || ""));
+  const n = k => k === "all" ? pictures.length : pictures.filter(p => p.kind === k).length;
+  return `<div class="page-title"><h1>${titleIcon("nav-quotes")}길들인 문장</h1></div>
+  ${boxSeg("pictures")}
+  <p class="page-sub">내가 그린 그림과 책에서 담은 그림을 상자에</p>
+  ${addPicButtons()}
+  ${pictures.length ? `<div class="pic-chips">${[["all", "전체"], ["draw", "내 그림"], ["photo", "책 사진"]].map(([k, l]) =>
+      `<button type="button" data-picfilter="${k}" aria-pressed="${k === picFilter}">${l} <span class="num">${n(k)}</span></button>`).join("")}</div>
+    ${list.length ? `<div class="pic-grid">${list.map(picCard).join("")}</div>` : `<div class="empty"><p>이 칸에는 아직 담긴 그림이 없어요.</p></div>`}`
+    : `<div class="empty">${PIC_BOX}<p>아직 상자가 비어 있어요.<br>떠오른 장면을 그리거나, 책 속 그림을 담아 보세요.</p></div>`}`;
+}
+// 어느 책에 담을지 고르는 칸 (읽는 중인 책을 먼저)
+function bookSelect(cur){
+  const order = {reading: 0, want: 1, done: 2};
+  const list = books.slice().sort((a, b) => order[a.status] - order[b.status] || (b.updatedAt || "").localeCompare(a.updatedAt || ""));
+  return `<select id="pic-book" class="field" aria-label="어느 책"><option value="">책 고르지 않기</option>${list.map(b => `<option value="${esc(b.id)}"${b.id === cur ? " selected" : ""}>${esc(b.title)}</option>`).join("")}</select>`;
+}
+async function savePicture(fields){
+  const pic = {id: fields.id || newId(), kind: fields.kind, bookId: fields.bookId || "", title: fields.title || "", page: fields.page || "", blob: fields.blob, createdAt: fields.createdAt || nowIso()};
+  try { await picPut(pic); } catch(e){ console.error(e); toast("저장하지 못했어요. 폰 저장 공간을 확인해 주세요."); return false; }
+  pictures.push(pic);
+  return true;
+}
+const canvasBlob = (c, type, q) => new Promise(res => c.toBlob(res, type, q));
+
+// ── 사진 담기: 고르기(카메라 또는 앨범) → 네모로 잘라 내기 → 책·쪽수·메모
+let picPendingBook = "";
+function pickPhoto(bookId){ picPendingBook = bookId || ""; $("#pic-file").click(); }
+async function openPhotoSheet(file){
+  let photo;
+  try { photo = await createImageBitmap(file, {imageOrientation: "from-image"}); }
+  catch { return toast("사진을 열지 못했어요"); }
+  const url = URL.createObjectURL(file), m = $("#modal");
+  m.innerHTML = `<form class="sheet" role="dialog" aria-modal="true" aria-label="책 사진 담기" id="photo-form">
+    <h2>책 사진 담기</h2>
+    <p class="hint" style="margin-top:-10px">담고 싶은 부분만 네모로 골라 주세요. 사진은 이 폰 안에만 저장돼요.</p>
+    <div class="crop-wrap"><div class="crop" id="pic-crop"><img id="pic-img" alt="고른 사진"><div class="sel" id="pic-sel" hidden>
+      ${["nw", "n", "ne", "e", "se", "s", "sw", "w"].map(h => `<span class="h h-${h}" data-h="${h}"></span>`).join("")}</div></div></div>
+    ${bookSelect(picPendingBook)}
+    <div class="qpage-row"><input id="pic-page" class="field num" type="text" placeholder="쪽" maxlength="20"><input id="pic-title" class="field" style="flex:1;width:auto" type="text" placeholder="한 줄 메모" maxlength="60"></div>
+    <div class="two"><button class="btn ghost" type="button" id="pic-cancel">닫기</button><button class="btn" type="submit" id="pic-save">상자에 담기</button></div>
+  </form>`;
+  m.hidden = false;
+  const img = $("#pic-img"), cropper = makeCropper($("#pic-crop"), img, $("#pic-sel"));
+  img.onload = () => cropper.start({x: 0.06, y: 0.06, w: 0.88, h: 0.88});
+  img.src = url;
+  const done = () => { URL.revokeObjectURL(url); m.hidden = true; };
+  $("#pic-cancel").onclick = done;
+  $("#photo-form").onsubmit = async e => {
+    e.preventDefault();
+    const btn = $("#pic-save"); btn.disabled = true;
+    // 고른 부분만 잘라 긴 쪽 1280px 이내로 줄인다 (한 장에 약 200KB)
+    const f = cropper.frac || {x: 0, y: 0, w: 1, h: 1};
+    const r = {x: f.x * photo.width, y: f.y * photo.height, w: f.w * photo.width, h: f.h * photo.height};
+    const k = Math.min(1, 1280 / Math.max(r.w, r.h));
+    const c = document.createElement("canvas");
+    c.width = Math.max(1, Math.round(r.w * k)); c.height = Math.max(1, Math.round(r.h * k));
+    c.getContext("2d").drawImage(photo, r.x, r.y, r.w, r.h, 0, 0, c.width, c.height);
+    const blob = await canvasBlob(c, "image/jpeg", 0.82);
+    const ok = blob && await savePicture({kind: "photo", blob, bookId: $("#pic-book").value, page: $("#pic-page").value.trim(), title: $("#pic-title").value.trim()});
+    if(!ok){ btn.disabled = false; return; }
+    done(); render(); celebrate("box", "상자에 담았어요", "언제든 다시 꺼내 볼 수 있어요");
+  };
+}
+
+// ── 그리기: 그리던 그림은 화면을 옮겨도 남아 있다(캔버스를 하나만 두고 다시 붙인다)
+const DRAW_W = 800, DRAW_H = 960, DRAW_BG = "#fffdf6";
+const DRAW_COLORS = ["#1f2a55", "#e4574f", "#e0a823", "#3d8a5a", "#4a6fa5", "#f08a5d", "#8a6a3b"];
+let drawC = null, drawHist = [], drawColor = DRAW_COLORS[0], drawSize = 6, drawErase = false, drawDirty = false, drawBook = "";
+function drawView(){
+  return `<div class="topbar"><button class="back" type="button" data-back aria-label="뒤로">${ICON_BACK}</button><h1>양 한 마리 그려 줘</h1></div>
+  <div id="draw-holder" class="draw-holder"></div>
+  <div class="draw-colors">${DRAW_COLORS.map(c => `<button type="button" data-dcolor="${c}" style="--c:${c}" aria-label="색" aria-pressed="${!drawErase && c === drawColor}"></button>`).join("")}</div>
+  <div class="draw-tools">
+    <button type="button" data-dsize="6" aria-pressed="${!drawErase && drawSize === 6}">가늘게</button>
+    <button type="button" data-dsize="16" aria-pressed="${!drawErase && drawSize === 16}">굵게</button>
+    <button type="button" data-derase aria-pressed="${drawErase}">지우개</button>
+    <button type="button" data-dundo>되돌리기</button></div>
+  <div class="two" style="margin-top:10px"><button class="btn ghost" type="button" data-dclear>모두 지우기</button><button class="btn" type="button" data-dsave>상자에 담기</button></div>`;
+}
+function drawClear(){ const x = drawC.getContext("2d"); x.fillStyle = DRAW_BG; x.fillRect(0, 0, DRAW_W, DRAW_H); }
+function mountDraw(){
+  if(!drawC){
+    drawC = document.createElement("canvas");
+    drawC.width = DRAW_W; drawC.height = DRAW_H; drawC.className = "draw-canvas"; drawC.setAttribute("aria-label", "그림 그리는 칸");
+    drawClear();
+    const x = drawC.getContext("2d");
+    let active = null, last = null;
+    const pos = e => { const r = drawC.getBoundingClientRect(); return [(e.clientX - r.left) * DRAW_W / r.width, (e.clientY - r.top) * DRAW_H / r.height]; };
+    drawC.onpointerdown = e => {
+      if(active !== null) return;   // 두 번째 손가락은 무시
+      e.preventDefault();
+      active = e.pointerId; try { drawC.setPointerCapture(active); } catch {}
+      drawHist.push(x.getImageData(0, 0, DRAW_W, DRAW_H)); if(drawHist.length > 8) drawHist.shift();
+      last = pos(e);
+      x.lineCap = x.lineJoin = "round"; x.strokeStyle = drawErase ? DRAW_BG : drawColor; x.lineWidth = drawErase ? 40 : drawSize;
+      x.beginPath(); x.moveTo(...last); x.lineTo(last[0] + 0.01, last[1]); x.stroke();
+      drawDirty = true;
+    };
+    drawC.onpointermove = e => {
+      if(e.pointerId !== active) return;
+      const p = pos(e);
+      x.beginPath(); x.moveTo(...last); x.lineTo(...p); x.stroke(); last = p;
+    };
+    drawC.onpointerup = drawC.onpointercancel = e => { if(e.pointerId === active) active = null; };
+  }
+  $("#draw-holder").appendChild(drawC);
+}
+function openDrawSaveSheet(){
+  if(!drawDirty) return toast("먼저 그림을 그려 주세요");
+  const m = $("#modal");
+  m.innerHTML = `<form class="sheet" role="dialog" aria-modal="true" aria-label="그림 담기" id="draw-form">
+    <h2>상자에 담기</h2>
+    <input id="pic-title" class="field" type="text" placeholder="그림 이름 (예: 상자 속의 양)" maxlength="60">
+    ${bookSelect(drawBook)}
+    <div class="two"><button class="btn ghost" type="button" id="pic-cancel">닫기</button><button class="btn" type="submit" id="pic-save">담기</button></div></form>`;
+  m.hidden = false;
+  $("#pic-cancel").onclick = () => m.hidden = true;
+  $("#draw-form").onsubmit = async e => {
+    e.preventDefault();
+    const btn = $("#pic-save"); btn.disabled = true;
+    const blob = await canvasBlob(drawC, "image/webp", 0.9);   // webp를 못 만드는 폰은 png로 나온다
+    const ok = blob && await savePicture({kind: "draw", blob, bookId: $("#pic-book").value, title: $("#pic-title").value.trim()});
+    if(!ok){ btn.disabled = false; return; }
+    drawHist = []; drawDirty = false; drawClear();
+    m.hidden = true; goReplace("#/pictures"); celebrate("box", "상자에 담았어요", "언제든 다시 꺼내 볼 수 있어요");
+  };
+}
+// ── 크게 보기
+function openPicture(id){
+  const p = findPic(id); if(!p) return;
+  const b = findBook(p.bookId), m = $("#modal");
+  const meta = [PIC_KIND[p.kind], b && `『${esc(b.title)}』`, p.page && esc(fmtPos(p.page, b?.format)), p.createdAt && fmtDate(p.createdAt)].filter(Boolean).join(" · ");
+  const ext = (p.blob.type.split("/")[1] || "png").replace("jpeg", "jpg");
+  m.innerHTML = `<div class="sheet" role="dialog" aria-modal="true" aria-label="그림 크게 보기">
+    <img class="pic-big" src="${picUrl(p)}" alt="${esc(p.title || PIC_KIND[p.kind])}">
+    ${p.title ? `<h2>${esc(p.title)}</h2>` : ""}<p class="hint" style="font-size:13px">${meta}</p>
+    <div class="two">${b ? `<button class="btn ghost" type="button" id="pic-book-go">책 보러 가기</button>` : `<button class="btn ghost" type="button" id="pic-close">닫기</button>`}
+      <a class="btn line" style="text-decoration:none" href="${picUrl(p)}" download="book612-${esc(p.id.slice(0, 8))}.${ext}">폰에 내려받기</a></div>
+    <button class="linkbtn muted" type="button" id="pic-del">지우기</button>
+    ${b ? `<button class="linkbtn muted" type="button" id="pic-close">닫기</button>` : ""}</div>`;
+  m.hidden = false;
+  $("#pic-close").onclick = () => m.hidden = true;
+  if(b) $("#pic-book-go").onclick = () => { m.hidden = true; go("#/book/" + encodeURIComponent(b.id)); };
+  $("#pic-del").onclick = () => ask(`<span class="ask-pic">${PIC_SNAKE}</span>이 그림을 지울까요?<small>지운 그림은 되돌릴 수 없어요.</small>`, "지우기", async () => {
+    try { await picDelete(p.id); } catch(e){ console.error(e); return toast("지우지 못했어요"); }
+    pictures = pictures.filter(x => x !== p);
+    if(picUrls.has(p.id)){ URL.revokeObjectURL(picUrls.get(p.id)); picUrls.delete(p.id); }
+    render(); toast("그림을 지웠어요");
+  }, true);
 }
 
 // 여우가 골라 주는 문장: 예전 밑줄 하나를 크게 꺼내 보여 준다(방금 본 것은 건너뜀)
@@ -1964,13 +2208,43 @@ function openGoalSheet(){
   };
 }
 
-function exportBackup(){
-  const data = {app: "BOOKTRACK", version: 1, exportedAt: nowIso(), books, goals: loadGoals()};
-  const blob = new Blob([JSON.stringify(data, null, 2)], {type: "application/json"});
+// 그림은 무거워서 백업을 둘로 나눈다: 기록만(가벼움) / 그림까지
+const blobDataUrl = blob => new Promise((res, rej) => { const r = new FileReader(); r.onload = () => res(r.result); r.onerror = () => rej(r.error); r.readAsDataURL(blob); });
+function askBackup(){
+  if(!pictures.length) return exportBackup(false);
+  const mb = pictures.reduce((n, p) => n + (p.blob?.size || 0), 0) * 1.37 / 1048576;
+  const m = $("#modal");
+  m.innerHTML = `<div class="sheet" role="dialog" aria-modal="true" aria-label="백업 저장"><h2>무엇을 백업할까요?</h2>
+    <p class="hint">그림 ${pictures.length}장을 넣으면 파일이 약 ${mb < 0.1 ? "0.1" : mb.toFixed(1)}MB가 돼요. 카톡으로 보내기 어려우면 드라이브에 올려 주세요.</p>
+    <div class="two"><button class="btn ghost" type="button" id="bk-light">기록만</button><button class="btn" type="button" id="bk-full">그림까지</button></div>
+    <button class="linkbtn muted" type="button" id="bk-close">닫기</button></div>`;
+  m.hidden = false;
+  $("#bk-close").onclick = () => m.hidden = true;
+  $("#bk-light").onclick = () => { m.hidden = true; exportBackup(false); };
+  $("#bk-full").onclick = () => { m.hidden = true; exportBackup(true); };
+}
+async function exportBackup(withPics){
+  const head = {app: "BOOKTRACK", version: 1, exportedAt: nowIso(), books, goals: loadGoals()};
+  const parts = [JSON.stringify(head, null, 2)];
+  if(withPics){
+    toast("그림을 모으는 중이에요…");
+    // 큰 문자열 하나로 합치면 폰 메모리가 모자랄 수 있어 조각으로 이어 붙인다
+    parts[0] = parts[0].replace(/\s*\}\s*$/, "") + ',\n  "pictures": [';
+    let first = true;
+    for(const p of pictures){
+      try {
+        const {blob, ...meta} = p;
+        parts.push((first ? "" : ",") + JSON.stringify({...meta, data: await blobDataUrl(blob)}));
+        first = false;
+      } catch(e){ console.error(e); }
+    }
+    parts.push("]\n}");
+  }
+  const blob = new Blob(parts, {type: "application/json"});
   const a = document.createElement("a");
   const d = new Date();
   a.href = URL.createObjectURL(blob);
-  a.download = `booktrack-backup-${d.getFullYear()}${String(d.getMonth()+1).padStart(2,"0")}${String(d.getDate()).padStart(2,"0")}.json`;
+  a.download = `booktrack-backup${withPics ? "-pictures" : ""}-${d.getFullYear()}${String(d.getMonth()+1).padStart(2,"0")}${String(d.getDate()).padStart(2,"0")}.json`;
   document.body.appendChild(a); a.click(); a.remove();
   setTimeout(() => URL.revokeObjectURL(a.href), 5000);
   try { localStorage.setItem("bt_last_backup", nowIso()); } catch {}
@@ -2006,8 +2280,17 @@ async function importBackup(file){
     if(!cur){ books.push(b); added++; await dbPut(b); }
     else if((b.updatedAt || "") > (cur.updatedAt || "")){ Object.assign(cur, b); updated++; await dbPut(cur); }
   }
+  // 그림 상자: 이 폰에 없는 그림만 더한다. 그림 파일 형식만 받는다(다른 내용이 끼어들지 않게)
+  let picAdded = 0;
+  if(Array.isArray(data.pictures)) for(const raw of data.pictures){
+    if(!raw || !raw.id || findPic(String(raw.id)) || !PIC_KIND[raw.kind] || !/^data:image\/(jpeg|png|webp);base64,/.test(raw.data || "")) continue;
+    try {
+      const blob = await (await fetch(raw.data)).blob();
+      if(await savePicture({id: String(raw.id), createdAt: String(raw.createdAt || ""), kind: raw.kind, blob, bookId: String(raw.bookId || ""), title: String(raw.title || "").slice(0, 60), page: String(raw.page || "").slice(0, 20)})) picAdded++;
+    } catch(e){ console.error(e); }
+  }
   render();
-  toast(`새 책 ${added}권, 고친 책 ${updated}권을 불러왔어요`);
+  toast(`새 책 ${added}권, 고친 책 ${updated}권${picAdded ? `, 그림 ${picAdded}장` : ""}을 불러왔어요`);
 }
 
 // ───────────────────────── 버튼 처리 ─────────────────────────
@@ -2054,7 +2337,17 @@ document.addEventListener("click", e => {
     scanState = {status: "idle"};
     plantedScene(st); return goReplace("#/book/" + encodeURIComponent(b.id));
   }
-  if(t.hasAttribute("data-export")) return exportBackup();
+  if(t.hasAttribute("data-export")) return askBackup();
+  if(t.dataset.pic) return openPicture(t.dataset.pic);
+  if(t.dataset.picfilter){ picFilter = t.dataset.picfilter; return render(); }
+  if(t.dataset.draw !== undefined) return go("#/draw/" + encodeURIComponent(t.dataset.draw));
+  if(t.dataset.picadd !== undefined) return pickPhoto(t.dataset.picadd);
+  if(t.dataset.dcolor){ drawColor = t.dataset.dcolor; drawErase = false; const k = window.scrollY; $("#draw-holder").removeChild(drawC); render(); window.scrollTo(0, k); return; }
+  if(t.dataset.dsize){ drawSize = +t.dataset.dsize; drawErase = false; const k = window.scrollY; $("#draw-holder").removeChild(drawC); render(); window.scrollTo(0, k); return; }
+  if(t.hasAttribute("data-derase")){ drawErase = !drawErase; const k = window.scrollY; $("#draw-holder").removeChild(drawC); render(); window.scrollTo(0, k); return; }
+  if(t.hasAttribute("data-dundo")){ const h = drawHist.pop(); if(h) drawC.getContext("2d").putImageData(h, 0, 0); else toast("되돌릴 것이 없어요"); if(h) drawDirty = true; return; }
+  if(t.hasAttribute("data-dclear")){ const x = drawC.getContext("2d"); drawHist.push(x.getImageData(0, 0, DRAW_W, DRAW_H)); if(drawHist.length > 8) drawHist.shift(); drawClear(); drawDirty = false; return; }
+  if(t.hasAttribute("data-dsave")) return openDrawSaveSheet();
   if(t.hasAttribute("data-goal")) return openGoalSheet();
   if(t.hasAttribute("data-story")) return openStory();
   if(t.hasAttribute("data-foxpick")) return openFoxPick();
@@ -2090,9 +2383,10 @@ document.addEventListener("click", e => {
     }, true);
   }
   if(t.hasAttribute("data-delbook")){
-    return ask(`<span class="ask-pic">${PIC_SNAKE}</span>『${esc(cur.title)}』을(를) 지울까요?<small>한번 떠난 책은 돌아오지 않아요. 느낌과 길들인 문장도 함께 지워져요.</small>`, "지우기", async () => {
+    return ask(`<span class="ask-pic">${PIC_SNAKE}</span>『${esc(cur.title)}』을(를) 지울까요?<small>한번 떠난 책은 돌아오지 않아요. 느낌과 길들인 문장도 함께 지워져요. 그림 상자의 그림은 남아요.</small>`, "지우기", async () => {
       books = books.filter(b => b !== cur);
       try { await dbDelete(cur.id); } catch(e){ console.error(e); }
+      for(const p of pictures.filter(x => x.bookId === cur.id)){ p.bookId = ""; try { await picPut(p); } catch(e){ console.error(e); } }
       toast("책을 지웠어요"); goReplace("#/shelf/" + shelfFilter);
     }, true);
   }
@@ -2198,6 +2492,10 @@ window.addEventListener("scroll", () => { toTop.hidden = window.scrollY < innerH
 window.addEventListener("hashchange", () => { toTop.hidden = true; });
 toTop.addEventListener("click", () => window.scrollTo({top: 0, behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth"}));
 
+$("#pic-file").addEventListener("change", e => {
+  const file = e.target.files[0]; e.target.value = "";
+  if(file) openPhotoSheet(file);
+});
 $("#import-file").addEventListener("change", e => {
   const file = e.target.files[0]; e.target.value = "";
   if(file) importBackup(file);
@@ -2295,6 +2593,7 @@ function openStory(){
 (async () => {
   try { books = (await dbAll()).map(normalizeBook).filter(Boolean); }
   catch(e){ console.error(e); toast("기록을 불러오지 못했어요"); }
+  try { pictures = (await picAll()).filter(p => p && p.id && p.blob); } catch(e){ console.error(e); }
   // 브라우저가 저장 공간을 마음대로 비우지 않게 요청
   if(navigator.storage && navigator.storage.persist) navigator.storage.persist().catch(() => {});
   render(true);
