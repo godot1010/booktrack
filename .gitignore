@@ -4,3 +4,4 @@ __pycache__/
 signing-key-info.txt
 .env*
 screens/
+.wrangler/

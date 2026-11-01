@@ -42,8 +42,8 @@
   실제 획 경계(actualBoundingBox)로 재서 SVG로 배치한다(`lockup()`, `fitLockups()`). 처음엔 상자 기준으로 맞췄다가 형이 "안 맞는다"고 해서 고침.
   아이콘–글자 간격은 형 요청으로 절반(기본 8px, 맨 위 5px).
   **A안**: 앱 맨 위 작은 로고는 아이콘 32px + "서고"(주아 26px)만, 첫 화면·공유 화면처럼 큰 곳에만 "다시, 일어서고"까지.
-- **주소(booktrack.pages.dev)·저장소 이름·백업 파일의 `app:"BOOKTRACK"`는 그대로 둔다.** 폰 기록은 주소에 묶여 있어서 바꾸면 기록이 안 보이고,
-  백업 이름을 바꾸면 옛 백업을 못 읽는다.
+- **저장소 이름·백업 파일의 `app:"BOOKTRACK"`는 그대로 둔다.** 백업 이름을 바꾸면 옛 백업을 못 읽는다. 폰 기록은 주소에 묶여 있어서, 주소를 바꾸면 백업으로 옮겨야 한다.
+  주소는 2026-11-02 형 결정으로 **book612.pages.dev**로 이사(진행 기록 참고). **스토어 출시 뒤에는 주소를 다시 바꾸지 않는다.**
 - 분위기: **흰 바탕 + 코랄(#f76e5a) 포인트**, 산뜻하게. 색 시안 A 민트 / B 하늘 / **C 코랄** 중 형이 코랄을 골랐다.
 - 글꼴: **프리텐다드**(jsdelivr에서 불러옴). 예전 종이책 느낌(미색, 고운바탕)은 "별로"라서 버렸다.
 
@@ -298,6 +298,11 @@ booktrack-mockup.html      # 2단계 화면 시안 (배포 안 함)
 - 2026-10-27: BARAM 테스트 통과(최종 승인 대기). 형 결정: Book612는 **독서를 좋아하는 테스터 20명을 먼저 모은 뒤** 테스트 시작(실제로 책을 읽어야 14일을 쓴다).
   모집 글 `store-assets/테스터-모집-카톡.md` 0번(독서 좋아하는 분께).
 
+- 2026-11-02: **주소 이사 booktrack → book612.pages.dev**(형 A안, 무료). 형 "할 수 있는 데까지 해"로 Claude가 `wrangler pages project create book612` 실행.
+  Git 연결 없는 직접 올리기 프로젝트(대시보드 로그인을 Claude가 할 수 없어서). → 배포는 이 PC에서 wrangler로(아래 '배포').
+  옛 주소는 지우지 않고 맨 위에 이사 안내 + 백업 단추(`movedNotice`, `ON_OLD_HOST`, 옛 주소에서만 보임). 패키지 이름 `dev.pages.book612.twa`.
+  **Cloudflare 키 3개(KAKAO_REST_API_KEY, LIBRARY_API_KEY, NL_CERT_KEY)는 형이 새 프로젝트에 직접 넣어야 한다**(Claude는 키 값을 보지도 넣지도 않는다).
+
 ## 다음 후보 (2026-10-11 마무리 때 기준)
 - 플레이스토어 등록(비공개 시험 12명·14일) / 전자책 앱에서 '공유 → Book612'로 밑줄 보내기(Web Share Target, 스토어와 함께) / 형이 쓰면서 찍어 보내는 화면 다듬기.
 
@@ -318,9 +323,11 @@ booktrack-mockup.html      # 2단계 화면 시안 (배포 안 함)
 ## 배포
 - GitHub: https://github.com/godot1010/booktrack (공개). Cloudflare **Pages** 프로젝트 `booktrack`
   (새 'Workers' 만들기 화면이 아니라 'Pages로 계속'으로 만듦). 빌드 명령 없음, 출력 폴더 `public`.
-- 실제 사이트: https://booktrack.pages.dev (`main`) — 2026-10-05 형 확인 후 1단계 앱 배포.
-  배포 방법: `preview`에서 확인 → `git checkout main && git merge --ff-only preview && git push`.
-- 미리보기: https://preview.booktrack.pages.dev (`preview`) — 1단계 앱. 서비스 워커 정상 등록 확인.
+- **새 주소(2026-11-02~)**: 실제 https://book612.pages.dev / 미리보기 https://preview.book612.pages.dev . Pages 프로젝트 `book612`(Git 연결 없음, git push로 배포 안 됨).
+  배포는 저장소 맨 위 폴더에서: 미리보기 `npx wrangler@3 pages deploy public --project-name book612 --branch preview --commit-dirty=true`,
+  형 오케이 후 실제 `... --branch main`. (`functions/`는 맨 위 폴더에서 실행해야 함께 올라간다. 이 PC의 wrangler는 형 계정으로 로그인돼 있음.)
+- 옛 주소: https://booktrack.pages.dev (`main`), https://preview.booktrack.pages.dev (`preview`) — Git 연결 그대로, push하면 자동 배포. 이사 안내용으로 남겨 둔다.
+  git은 전처럼 `preview`에서 확인 → `git checkout main && git merge --ff-only preview && git push`.
 - 이 PC의 git은 저장소별 설정으로 user.name `godot1010`을 쓴다. push는 Windows 자격 증명으로 바로 됨.
 
 ## 배포 규칙

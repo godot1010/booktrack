@@ -506,6 +506,11 @@ nav.bottom .nv:active svg{transform:scale(.9)}
   @keyframes spark{0%,100%{opacity:0;transform:scale(.5)}50%{opacity:1;transform:scale(1.2) rotate(20deg)}}
 }
 @media (prefers-reduced-motion:reduce){.spark{opacity:.8}}
+/* 옛 주소 이사 안내 */
+.moved{background:var(--night);color:#fdf3dc;border-radius:16px;padding:14px 16px;margin:10px 0 12px;display:flex;flex-direction:column;gap:8px;font-size:13.5px;line-height:1.6}
+.moved b{color:#f6c453;font-size:15px}
+.moved a{text-decoration:none;text-align:center}
+.moved .btn{background:#f6c453;color:#1f2a55}.moved .btn.line{background:none;color:#fdf3dc;border-color:rgba(253,243,220,.5)}
 /* ── 동화 장치들 (2026-10-11 형 "남은 동화 아이디어 다") ── */
 /* ① 시간 따라 바뀌는 하늘: 홈 맨 위 (새벽·낮·노을·밤), 밤엔 별과 별똥별 */
 .sky{position:relative;margin:0 -20px 6px;padding:0 20px 12px;border-radius:0 0 26px 26px;overflow:hidden}
@@ -814,6 +819,7 @@ function render(animate){
     if(!searchQuery) $("#search-input").focus();
   }
   else v.innerHTML = homeView();
+  if(ON_OLD_HOST) v.insertAdjacentHTML("afterbegin", movedNotice());
   fitLockups(v);
   if(animate){ v.classList.remove("view-in"); void v.offsetWidth; v.classList.add("view-in"); starDust(); }
   if(r.name === "home" || r.name === "") loadPopular(popularPeriod);
@@ -980,6 +986,16 @@ function titleIcon(navId, size = 30){
   c.style.color = "var(--nv-c)";
   return c.outerHTML;
 }
+// ───────────────────────── 주소 이사 안내 ─────────────────────────
+// 2026-11: 주소를 booktrack.pages.dev → book612.pages.dev로 옮겼다. 폰 기록은 주소에 묶여 따라오지 않으므로
+// 옛 주소에서만 맨 위에 안내를 보여 주고, 백업 파일로 옮기게 한다(기록을 지우거나 강제로 넘기지 않는다).
+const NEW_HOME = "https://book612.pages.dev";
+const ON_OLD_HOST = /(^|\.)booktrack\.pages\.dev$/.test(location.hostname);
+const movedNotice = () => !ON_OLD_HOST ? "" : `<div class="moved"><b>Book612가 새 주소로 이사했어요</b>
+  ${books.length ? `<p>기록은 저절로 옮겨지지 않아요. ① 백업 저장 → ② 새 주소 열기 → ③ 새 주소의 '조종사'에서 불러오기 순서로 옮겨 주세요.</p>
+    <div class="two"><button class="btn sm" type="button" data-export>① 백업 저장</button><a class="btn sm line" href="${NEW_HOME}">② 새 주소 열기</a></div>`
+    : `<p>앞으로는 새 주소에서 만나요.</p><a class="btn sm" href="${NEW_HOME}">새 주소 열기</a>`}</div>`;
+
 // ───────────────────────── 큰 로고 (첫 화면) ─────────────────────────
 // 아이콘 아래 가운데 "Book612". 글자의 실제 획 왼쪽 끝(B)~오른쪽 끝(2)을 아이콘 폭에 딱 맞춘다.
 // 아이콘과 글자를 한 SVG(viewBox 하나)에 그린다 — 따로 그리면 좁은 화면에서 아이콘만 줄어 정렬이 깨진다.
