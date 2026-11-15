@@ -1,0 +1,8 @@
+[{
+      "relation": ["delegate_permission/common.handle_all_urls"],
+      "target": {
+        "namespace": "android_app",
+        "package_name": "dev.pages.booktrack.twa",
+        "sha256_cert_fingerprints": ["82:E1:E2:69:1E:2B:AB:E2:17:89:AD:5B:43:A8:7E:E2:84:C5:44:5E:D6:71:A4:CF:F6:FF:3A:4A:1D:BE:A8:F8"]
+      }
+    }]
