@@ -1,8 +1,11 @@
 [{
-      "relation": ["delegate_permission/common.handle_all_urls"],
-      "target": {
-        "namespace": "android_app",
-        "package_name": "dev.pages.booktrack.twa",
-        "sha256_cert_fingerprints": ["82:E1:E2:69:1E:2B:AB:E2:17:89:AD:5B:43:A8:7E:E2:84:C5:44:5E:D6:71:A4:CF:F6:FF:3A:4A:1D:BE:A8:F8"]
-      }
-    }]
+  "relation": ["delegate_permission/common.handle_all_urls"],
+  "target": {
+    "namespace": "android_app",
+    "package_name": "dev.pages.booktrack.twa",
+    "sha256_cert_fingerprints": [
+      "F7:20:6A:3C:65:B2:3E:E1:AA:D5:B2:B5:69:7E:A1:12:F9:8C:4C:2A:AC:CD:D1:5C:32:99:EF:BC:0B:C5:23:A3",
+      "82:E1:E2:69:1E:2B:AB:E2:17:89:AD:5B:43:A8:7E:E2:84:C5:44:5E:D6:71:A4:CF:F6:FF:3A:4A:1D:BE:A8:F8"
+    ]
+  }
+}]
