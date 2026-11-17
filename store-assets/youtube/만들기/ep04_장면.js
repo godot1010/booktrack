@@ -1,0 +1,18 @@
+  await p.evaluate(() => window.scrollTo(0, 0));
+  seg(0); await cap('Book612 사용법 ④\n<b>문장 다시 꺼내 보기</b>', 'top'); await fill(0);
+  seg(1); await cap('아래 <b>길들인 문장</b> 칸', 'top'); log.push(await hl('css:#nav-quotes', { scroll: false, up: true })); await sleep(3000);
+  await tap('css:#nav-quotes'); await sleep(1200); await fill(1);
+  seg(2); await cap('정렬 → <b>책별로</b>', 'top'); log.push(await hl('css:#quote-sort', { scroll: true, finger: true })); await sleep(2800);
+  await p.selectOption('#quote-sort', 'book'); await sleep(900); await p.evaluate(() => window.scrollBy({ top: 300, behavior: 'smooth' })); await fill(2);
+  seg(3); await cap('<b>여우야, 문장 하나 꺼내 줘</b>', 'top'); await p.evaluate(() => window.scrollTo({ top: 0, behavior: 'smooth' })); await sleep(900);
+  log.push(await hl('css:[data-foxpick]', { scroll: true, up: false })); await sleep(2800); await tap('css:[data-foxpick]'); await sleep(1500); await fill(3);
+  seg(4); await cap('<b>다른 문장</b> · <b>책 보러 가기</b>', 'top'); log.push(await hl('css:#fox-again', { scroll: false, finger: true, up: true })); await sleep(2600);
+  await tap('css:#fox-again'); await sleep(1500); log.push(await hl('css:#fox-open', { scroll: false, finger: true, up: true })); await fill(4);
+  seg(5); await cap('위쪽 <b>돋보기</b>로 찾기', 'low');
+  await p.evaluate(() => { document.getElementById('modal').hidden = true; window.scrollTo(0, 0); }); await sleep(700);
+  log.push(await hl('css:.page-title .icon-btn', { scroll: false, up: false })); await sleep(2200); await tap('css:.page-title .icon-btn'); await sleep(900);
+  await p.locator('#search-input').pressSequentially('바람', { delay: 300 }); await sleep(900); await fill(5);
+  seg(6); await cap('길들인 문장은 <b>언제든 다시</b>', 'top'); await sleep(7000);
+  await p.evaluate((NEXT) => { document.getElementById('__cap')?.remove(); const e = document.createElement('div'); e.id = '__end';
+    e.innerHTML = '<div style="font-family:Jua,sans-serif;font-size:64px;color:#f6c453">B<span style="font-size:.56em;color:#fdf3dc">ook</span>612</div><div class="t">' + NEXT + '</div><div class="s">구독하고 다음 편도 보세요</div>'; document.documentElement.appendChild(e); }, NEXT);
+  await fill(6);

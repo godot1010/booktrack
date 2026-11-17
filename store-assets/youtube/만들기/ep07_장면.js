@@ -1,0 +1,11 @@
+  await p.evaluate(() => window.scrollTo(0, 0));
+  seg(0); await cap('Book612 사용법 ⑦<br><b>친구에게 바치는 책</b>', 'top'); await fill(0);
+  seg(1); await cap('책 화면 → 위쪽 <b>공유</b>', 'top'); await p.evaluate(() => { location.hash = '#/book/d3'; }); await sleep(1500);
+  log.push(await hl('css:[data-share]', { scroll: false, up: false })); await sleep(2200); await tap('css:[data-share]'); await sleep(1200); await fill(1);
+  seg(2); await cap('친구 이름 → <b>어린 시절의 ○○에게</b>', 'top'); await p.locator('#share-to').click(); await p.locator('#share-to').pressSequentially('민지', { delay: 350 }); await sleep(1200); await fill(2);
+  seg(3); await cap('함께 보낼 <b>문장</b> 고르기', 'top'); log.push(await hl('css:.share-opts', { scroll: true, finger: false })); await fill(3);
+  seg(4); await cap('<b>공유하기</b> → 카톡으로', 'top'); log.push(await hl('css:#share-go', { scroll: true, up: true })); await fill(4);
+  seg(5); await cap('책 한 권으로 <b>마음을 전해요</b>', 'top'); await unhl(); await sleep(5200);
+  await p.evaluate((NEXT) => { document.getElementById('__cap')?.remove(); const e = document.createElement('div'); e.id = '__end';
+    e.innerHTML = '<div style="font-family:Jua,sans-serif;font-size:64px;color:#f6c453">B<span style="font-size:.56em;color:#fdf3dc">ook</span>612</div><div class="t">' + NEXT + '</div><div class="s">구독하고 다음 편도 보세요</div>'; document.documentElement.appendChild(e); }, NEXT);
+  await sleep(5500);

@@ -1,0 +1,13 @@
+  await p.evaluate(() => window.scrollTo(0, 0));
+  seg(0); await cap('Book612 사용법 ⑥<br><b>조종사 · 나의 별 지도</b>', 'top'); await fill(0);
+  seg(1); await cap('아래 맨 오른쪽 <b>조종사</b>', 'top'); log.push(await hl('css:#nav-me', { scroll: false, up: true })); await sleep(2800);
+  await tap('css:#nav-me'); await sleep(1200); await fill(1);
+  seg(2); await cap('왕의 명령 = <b>올해 목표</b>', 'top'); log.push(await hl('css:[data-goal]', { scroll: false, up: false })); await sleep(5200);
+  await tap('css:[data-goal]'); await sleep(1000); await fill(2);
+  seg(3); await cap('권수를 넣고 → <b>정하기</b>', 'top'); await p.locator('#goal-input').pressSequentially('12', { delay: 300 }); await sleep(600);
+  log.push(await hl('css:#goal-yes', { scroll: false, up: true })); await sleep(1500); await tap('css:#goal-yes'); await sleep(1500); await fill(3);
+  seg(4); await cap('책 한 권 = <b>별 하나</b>', 'top'); log.push(await hl('css:.starmap', { scroll: true, finger: false })); await fill(4);
+  seg(5); await cap('<b>달마다</b> 읽은 책', 'top'); log.push(await hl('css:.months', { scroll: true, finger: false })); await fill(5);
+  await p.evaluate((NEXT) => { document.getElementById('__cap')?.remove(); const e = document.createElement('div'); e.id = '__end';
+    e.innerHTML = '<div style="font-family:Jua,sans-serif;font-size:64px;color:#f6c453">B<span style="font-size:.56em;color:#fdf3dc">ook</span>612</div><div class="t">' + NEXT + '</div><div class="s">구독하고 다음 편도 보세요</div>'; document.documentElement.appendChild(e); }, NEXT);
+  await sleep(5500);

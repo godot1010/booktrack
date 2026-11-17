@@ -1,0 +1,12 @@
+  await p.evaluate(() => window.scrollTo(0, 0));
+  seg(0); await cap('Book612 사용법 ⑧<br><b>기록 지키기 · 백업</b>', 'top'); await fill(0);
+  seg(1); await cap('기록은 <b>이 폰 안에만</b> 저장돼요', 'top'); await tap('css:#nav-me'); await sleep(1200); await fill(1);
+  seg(2); await cap('맨 아래 → <b>백업 저장</b>', 'top'); await p.evaluate(() => document.querySelector('.backup').scrollIntoView({ behavior: 'smooth', block: 'center' })); await sleep(1200);
+  log.push(await hl('css:[data-export]', { scroll: false, up: true })); await sleep(2800);
+  await unhl(); { const dl = p.waitForEvent('download', { timeout: 6000 }).catch(() => null); await p.locator('[data-export]').click(); await dl; } await sleep(800); await fill(2);
+  seg(3); await cap('<b>백업 파일</b>을 안전한 곳에', 'top'); await sleep(1000); await fill(3);
+  seg(4); await cap('새 폰에서 → <b>불러오기</b>', 'top'); log.push(await hl('css:[data-import]', { scroll: false, up: true })); await fill(4);
+  seg(5); await cap('<b>마음 놓고</b> 기록해요', 'top'); await unhl(); await sleep(5200);
+  await p.evaluate((NEXT) => { document.getElementById('__cap')?.remove(); const e = document.createElement('div'); e.id = '__end';
+    e.innerHTML = '<div style="font-family:Jua,sans-serif;font-size:64px;color:#f6c453">B<span style="font-size:.56em;color:#fdf3dc">ook</span>612</div><div class="t">' + NEXT + '</div><div class="s">구독하고 다음 편도 보세요</div>'; document.documentElement.appendChild(e); }, NEXT);
+  await sleep(5500);

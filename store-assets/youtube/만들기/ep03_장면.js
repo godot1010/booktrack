@@ -1,0 +1,18 @@
+  await p.evaluate(() => window.scrollTo(0, 0));
+  seg(0); await cap('Book612 사용법 ③\n<b>문장 길들이기</b>', 'top'); await fill(0);
+  seg(1); await cap('지금 읽는 책 → <b>문장 길들이기</b>', 'top');
+  await p.evaluate(() => document.querySelector('.now')?.scrollIntoView({ behavior: 'smooth', block: 'center' }));
+  await sleep(900); log.push(await hl('css:.now .btn', { scroll: false, up: true })); await sleep(2600);
+  await tap('css:.now .btn'); await sleep(1000); await fill(1);
+  seg(2); await cap('<b>사진</b>·<b>목소리</b>로도 쓸 수 있어요', 'top');
+  log.push(await hl('css:#ocr-pick', { scroll: false, finger: false })); await sleep(2800);
+  log.push(await hl('css:#voice-btn', { scroll: false, finger: false })); await fill(2);
+  seg(3); await cap('마음에 남은 문장을 <b>적어요</b>', 'top'); await unhl();
+  await p.locator('#qq-text').click(); await p.locator('#qq-text').pressSequentially('먼 곳의 불빛은 늘 가까운 마음에서 켜진다.', { delay: 140 }); await sleep(600); await fill(3);
+  seg(4); await cap('쪽수를 넣고 → <b>저장</b>', 'top');
+  await p.locator('#qq-page').click(); await p.locator('#qq-page').pressSequentially('58', { delay: 250 }); await sleep(500);
+  log.push(await hl('css:.qpage-row .btn', { scroll: false, up: true })); await sleep(1800); await tap('css:.qpage-row .btn'); await fill(4);
+  seg(5); await cap('<b>여우</b>가 문장을 길들였어요', 'top'); await sleep(3400);
+  await p.evaluate((NEXT) => { document.getElementById('__cap')?.remove(); const e = document.createElement('div'); e.id = '__end';
+    e.innerHTML = '<div style="font-family:Jua,sans-serif;font-size:64px;color:#f6c453">B<span style="font-size:.56em;color:#fdf3dc">ook</span>612</div><div class="t">' + NEXT + '</div><div class="s">구독하고 다음 편도 보세요</div>'; document.documentElement.appendChild(e); }, NEXT);
+  await fill(5);

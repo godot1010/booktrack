@@ -337,6 +337,20 @@ booktrack-mockup.html      # 2단계 화면 시안 (배포 안 함)
   **다음**: 중간에 Play Console 대시보드의 프로덕션 신청 조건 두 번째 칸 확인 → 14일 뒤 프로덕션 신청 버튼이 파랗게 켜지면 설문(사실대로 '유료 테스트 업체') → 프로덕션 신청.
   참고: 크롬 확장에 브라우저가 둘 연결될 수 있음(한 쪽은 BARAM 메일 로그인). `list_connected_browsers`로 a01083252780 로그인 쪽을 골라 쓴다.
 
+- **2026-11-17 업체 안내 확인**: 현황 페이지 https://closedtest-status.pages.dev/?app=dev.pages.booktrack.twa (테스트 시작 11/17, 심사 제출 가능 12/1).
+  11/20쯤 Play Console 대시보드 '프로덕션 액세스 신청'에서 '테스터 12명 이상 참여' 체크·14일 날짜 세는지 확인. 테스트 중 앱 업데이트는 같은 트랙 '새 버전 만들기'로(테스터 목록·트랙은 지우지 말 것).
+  설문은 업체 예시를 베끼지 말고 우리 말로, **제출 전에 업체 채팅으로 보내 확인**받을 것, '유료 테스트 업체 이용' 사실대로. 프로덕션 신청 버튼은 개발자 계정 소유자(a01083252780)로 로그인해야 열림.
+
+- **2026-11-17 유튜브 채널 'Book612' 개설**(형 요청). 계정 godot.book612@gmail.com, 이름 Book612, 핸들 @Book612app, 채널 ID UCPDbzDSD_iRQgtACdMub5CA.
+  프로필 = 앱 아이콘, 배너 = `store-assets/youtube/유튜브배너-Book612.png`(`banner.html`로 그림), 설명·링크(booktrack.pages.dev)·문의 메일 게시 완료. 글 원본 `store-assets/youtube/채널-설명.md`.
+  **연결 요령**: 이 PC에서 godot.book612가 로그인된 크롬은 '초록색 창(별도 프로필)'이고 거기에 Claude 확장을 **형의 Claude 계정(a01083252780)으로** 로그인해야 연결됨(godot.book612로 로그인하면 '유료 플랜 필요'가 뜸).
+  앱 안 브라우저(Claude 데스크톱 오른쪽 창)에도 godot.book612가 로그인돼 있어 글 입력은 가능하지만, 컴퓨터의 파일(배너·영상) 올리기는 막혀 있음 → 파일은 크롬 확장 `file_upload`(10MB 이하)로.
+- **2026-11-17 사용법 쇼츠 9편 완성(아직 안 올림 — 형 결정: 앱이 스토어 통과한 뒤 같이 올리기)**. `store-assets/youtube/쇼츠/사용법01~09-*.mp4`(git 제외, 각 3~6MB, 40~60초), 올릴 글 `쇼츠-올릴글.md`.
+  ①첫 화면 ②책 심기 ③문장 길들이기 ④문장 다시 보기 ⑤그림 상자 ⑥조종사·별 지도 ⑦친구에게 바치기 ⑧백업 ⑨사진에서 글자. 홀수 F2·짝수 M1 목소리(Supertonic, 올릴 때 'AI 사용=예').
+  만드는 방법(`store-assets/youtube/만들기/`): `epNN_대본.json` → `목소리_만들기.py`(바람 때 만든 tts 가상환경 python) → `make.py epNN`이 `epNN_장면.js` + `rec_base.js` + `lib.js`(가상 책 10권 시드)를 묶어 `_run_epNN.js` 생성 → Playwright MCP `browser_run_code_unsafe`(filename)로 녹화(1080x1920, 앱을 preview 주소에서 열고 가상 책을 IndexedDB에 넣음) → `합치기.py`(목소리+배경음악.wav) → `sheet.py`로 장면 확인.
+  배운 점: Playwright run_code 안에는 require/fs가 없음(파일은 make.py가 코드에 끼워 넣음), 자막이 누를 곳을 가리면 클릭이 막혀 `pointer-events:none`, 확대(zoom) 때문에 아래에서 올라오는 창이 화면보다 커져 `#modal .sheet` 높이를 고정, 장면 파일 안의 줄바꿈은 `<br>`로(백슬래시 n은 도구에서 사라짐), 9편 사진은 직접 지어낸 문장을 그린 `가상의책쪽.png`(글자 인식 실제로 읽힘).
+  아직 못 만든 것: 안드로이드 설치법, 바코드 카메라 실제 모습, 읽어서 받아쓰기 실제 화면(실제 폰 녹화 필요).
+
 ## (옛) 지금 상태와 다음 할 일 (2026-11-11)
 - 실제 사이트 = 미리보기 = 같은 코드(그림 상자·사진 돌리기까지 배포 끝). 주소는 **booktrack.pages.dev 그대로**(형 결정).
 - **플레이스토어 준비 대기 중**: 형이 ① 독서 좋아하는 테스터 20명 모으기 ② Play Console 앱 만들기 ③ PWABuilder로 .aab(`dev.pages.booktrack.twa`, 새 서명 키)

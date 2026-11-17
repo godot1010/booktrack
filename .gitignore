@@ -5,3 +5,8 @@ signing-key-info.txt
 .env*
 screens/
 .wrangler/
+
+# 영상 제작 중 파일
+store-assets/youtube/쇼츠/
+store-assets/youtube/만들기/_run_*.js
+store-assets/youtube/만들기/*.wav
