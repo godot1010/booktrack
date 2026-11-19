@@ -254,6 +254,8 @@ svg{display:block;flex:none}
 .btn.line{background:none;border:1px solid var(--line-2);color:var(--text)}
 .btn.danger{background:#e5484d}
 .btn.wide{width:100%}
+.pop-btns{grid-template-columns:1fr 2fr}
+.pop-btns .btn{padding:10px 12px;font-size:14px;letter-spacing:.02em;word-spacing:.12em;border-radius:12px}
 .btn.sm{padding:8px 12px;font-size:13px;border-radius:10px}
 .btn.soft{background:var(--coral-soft);color:var(--coral-ink)}
 .linkbtn{border:0;background:none;color:var(--coral-ink);font-weight:600;padding:4px}
@@ -2207,8 +2209,7 @@ function openPopularSheet(it){
     <div id="pop-sum" class="hint" style="font-size:13.5px;line-height:1.6;max-height:34vh;overflow-y:auto;color:var(--text-2)">책 소개를 불러오는 중…</div>
     ${mine ? `<p class="hint">이미 정원에 있는 책이에요. (${STATUS_LABEL[mine.status]})</p>
       <div class="two"><button class="btn ghost" type="button" id="pop-close">닫기</button><button class="btn" type="button" id="pop-open">책 보러 가기</button></div>`
-    : `<button class="btn wide" type="button" id="pop-add">읽고 싶은 책에 담기</button>
-      <button class="linkbtn muted" type="button" id="pop-close">닫기</button>`}
+    : `<div class="two pop-btns"><button class="btn ghost" type="button" id="pop-close">닫기</button><button class="btn" type="button" id="pop-add">읽고 싶은 책에 담기</button></div>`}
   </div>`;
   m.hidden = false;
   $("#pop-close").onclick = () => m.hidden = true;
