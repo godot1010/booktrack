@@ -2204,6 +2204,7 @@ function openPopularSheet(it){
       <span class="hint" style="font-size:12.5px">${it.rank}위${it.genre ? " · " + esc(it.genre) : ""}</span>
       <h2 style="line-height:1.35">${esc(it.title)}</h2>
       <span class="hint" style="font-size:13.5px">${esc([it.author, it.publisher, it.year].filter(Boolean).join(" · "))}</span></div></div>
+    <div id="pop-sum" class="hint" style="font-size:13.5px;line-height:1.6;max-height:34vh;overflow-y:auto;color:var(--text-2)">책 소개를 불러오는 중…</div>
     ${mine ? `<p class="hint">이미 정원에 있는 책이에요. (${STATUS_LABEL[mine.status]})</p>
       <div class="two"><button class="btn ghost" type="button" id="pop-close">닫기</button><button class="btn" type="button" id="pop-open">책 보러 가기</button></div>`
     : `<button class="btn wide" type="button" id="pop-add">읽고 싶은 책에 담기</button>
@@ -2211,12 +2212,20 @@ function openPopularSheet(it){
   </div>`;
   m.hidden = false;
   $("#pop-close").onclick = () => m.hidden = true;
+  // 책 소개: 카카오 책 정보(ISBN)로, ISBN이 없으면 제목 검색으로 가져와 보여 준다
+  const infoP = (async () => {
+    try {
+      if(it.isbn){ const r = await fetch(`/api/book?isbn=${it.isbn}`); if(r.ok) return await r.json(); }
+      else { const r = await fetch(`/api/search?q=${encodeURIComponent(it.title)}`); if(r.ok){ const d = await r.json(); const k = x => x.replace(/\s/g, ""); return (d.items || []).find(x => k(x.title).startsWith(k(it.title))) || {}; } }
+    } catch {}
+    return {};
+  })();
+  infoP.then(info => { const el = $("#pop-sum"); if(el) el.textContent = info.summary || "책 소개를 찾지 못했어요."; });
   if(mine) $("#pop-open").onclick = () => { m.hidden = true; go("#/book/" + encodeURIComponent(mine.id)); };
   else $("#pop-add").onclick = async () => {
     const btn = $("#pop-add"); btn.disabled = true; btn.textContent = "담는 중…";
     // 카카오 책 정보로 소개·표지를 채우고, 위키백과 작가 소개도 함께 (못 가져오면 순위 정보만으로)
-    let info = {};
-    if(it.isbn){ try { const r = await fetch(`/api/book?isbn=${it.isbn}`); if(r.ok) info = await r.json(); } catch {} }
+    const info = await infoP;
     const bio = await fetchAuthorBio(info.author || it.author, it.title);
     const b = normalizeBook({id: newId(), title: info.title || it.title, author: info.author || it.author, publisher: info.publisher || it.publisher,
       isbn: it.isbn, cover: info.cover || it.cover, summary: info.summary || "", genre: GENRES.includes(info.genre) ? info.genre : (it.genre || "기타"),
