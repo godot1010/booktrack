@@ -2139,7 +2139,7 @@ const POP_TTL = 6 * 3600e3;
 function loadPopular(period){
   if(popularState[period] === "loading" || popularState[period] === "ok") return showPopular();
   try {
-    const saved = JSON.parse(localStorage.getItem("bt_popular_" + period) || "null");
+    const saved = JSON.parse(localStorage.getItem("bt_popular2_" + period) || "null");
     if(saved && Date.now() - saved.at < POP_TTL && saved.data?.items?.length){
       popular[period] = saved.data; popularState[period] = "ok"; return showPopular();
     }
@@ -2148,7 +2148,7 @@ function loadPopular(period){
   fetch(`/api/popular?period=${period}`).then(r => r.ok ? r.json() : Promise.reject(r.status)).then(d => {
     if(!d.items?.length) throw 0;
     popular[period] = d; popularState[period] = "ok";
-    try { localStorage.setItem("bt_popular_" + period, JSON.stringify({at: Date.now(), data: d})); } catch {}
+    try { localStorage.setItem("bt_popular2_" + period, JSON.stringify({at: Date.now(), data: d})); } catch {}
   }).catch(() => { popularState[period] = "error"; }).finally(showPopular);
 }
 
@@ -2170,7 +2170,7 @@ const popSeg = () => `<div class="mini-seg" role="group" aria-label="기간">
 
 function popularSection(){
   return `<section class="section" id="popular-sec"${popularState[popularPeriod] === "error" ? " hidden" : ""}>
-    <div class="sec-head"><h2>${PIC_TRAIN}다른 별에서는<small>· 많이 읽는 책</small></h2>${popSeg()}</div>
+    <div class="sec-head"><h2>${PIC_TRAIN}다른 별에서는<small>· 베스트셀러</small></h2>${popSeg()}</div>
     <div id="popular-box">${popularBox(5)}</div>
   </section>`;
 }
@@ -2186,12 +2186,12 @@ function popularBox(n){
       <span class="t"><h3>${esc(it.title)}</h3><span class="by">${esc([it.author, it.publisher].filter(Boolean).join(" · "))}</span></span>
       ${mineIsbn.has(it.isbn) ? `<span class="mine">정원에 있음</span>` : ""}</button>`).join("")}</div>
     ${n < d.items.length ? `<button class="btn ghost more-btn" type="button" data-go="#/popular/${popularPeriod}">더 보기 (${d.items.length}위까지)</button>` : ""}
-    <p class="src-note">전국 공공도서관에서 많이 빌린 책 · ${short(d.start)}~${short(d.end)} · 도서관 정보나루</p>`;
+    <p class="src-note">${d.kind === "bestseller" ? `${popularPeriod === "month" ? "이번 달" : "이번 주"} 많이 팔린 책 · 예스24 베스트셀러(국내도서)` : `전국 공공도서관에서 많이 빌린 책 · ${short(d.start)}~${short(d.end)} · 도서관 정보나루`}</p>`;
 }
 
 function popularView(){
   return `<div class="topbar"><button class="back" type="button" data-back aria-label="뒤로">${ICON_BACK}</button><h1>다른 별에서는</h1>${popSeg()}</div>
-  <p class="page-sub" style="margin:0 0 10px">${PIC_TRAIN}요즘 전국 도서관에서 많이 읽는 책</p>
+  <p class="page-sub" style="margin:0 0 10px">${PIC_TRAIN}요즘 서점에서 많이 팔리는 책</p>
   <div id="popular-page" style="margin-top:6px">${popularBox(20)}</div>`;
 }
 
