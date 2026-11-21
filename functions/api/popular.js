@@ -14,7 +14,7 @@ export async function onRequestGet({ request, env, waitUntil }) {
   const url = new URL(request.url);
   const period = url.searchParams.get("period") === "month" ? "month" : "week";
   const today = kstDate(new Date());
-  const cacheKey = new Request(`https://booktrack-cache/popular/${period}/${today}?v=3`);
+  const cacheKey = new Request(`https://booktrack-cache/popular/${period}/${today}?v=4`);
   const cache = caches.default;
   const hit = await cache.match(cacheKey);
   if (hit) return hit;
@@ -95,15 +95,19 @@ async function fetchYes24(period, env) {
     if (items.length >= SIZE) break;
   }
   // 카카오 책 검색으로 ISBN·종류 힌트를 채운다(못 찾으면 비워 둠 → 담을 때 제목으로 처리)
-  if (env.KAKAO_REST_API_KEY) await Promise.all(items.map(it => fillIsbn(it, env.KAKAO_REST_API_KEY).catch(() => {})));
+  if (env.KAKAO_REST_API_KEY) await Promise.all(items.map(async it => {
+    // 제목+지은이로 못 찾으면(예: '루키우스 안나이우스 세네카' ↔ 카카오 '세네카') 제목만으로 한 번 더
+    await fillIsbn(it, env.KAKAO_REST_API_KEY, true).catch(() => {});
+    if (!it.isbn) await fillIsbn(it, env.KAKAO_REST_API_KEY, false).catch(() => {});
+  }));
   return items.map((it, i) => ({ rank: i + 1, ...it }));
 }
 
-async function fillIsbn(it, key) {
+async function fillIsbn(it, key, withAuthor) {
   const ctl = new AbortController();
   const t = setTimeout(() => ctl.abort(), 5000);
   try {
-    const q = encodeURIComponent(`${it.title} ${it.author}`.trim());
+    const q = encodeURIComponent((withAuthor ? `${it.title} ${it.author}` : it.title).trim());
     const r = await fetch(`https://dapi.kakao.com/v3/search/book?size=5&query=${q}`, { headers: { Authorization: `KakaoAK ${key}` }, signal: ctl.signal });
     if (!r.ok) return;
     const norm = s => String(s || "").replace(/[\s:·,.\-!?'"()\[\]~]/g, "");

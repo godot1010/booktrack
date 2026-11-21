@@ -1176,7 +1176,7 @@ function searchResults(){
   const feelHits = books.filter(b => has(b.feeling) || has(b.summary));
   const picHits = pictures.filter(p => has(p.title));
   if(!bookHits.length && !quoteHits.length && !feelHits.length && !picHits.length)
-    return `<p class="hint" style="text-align:center;padding:40px 0">‘${esc(q)}’이(가) 들어간 기록이 없어요.</p>`;
+    return `<p class="hint" style="text-align:center;padding:40px 0">‘${esc(q)}’${josa(q, "이", "가")} 들어간 기록이 없어요.</p>`;
   let html = "";
   if(quoteHits.length) html += `<div class="result-head">길들인 문장<span>${quoteHits.length}</span></div><div class="list">${quoteHits.map(x => quoteCard(x, q)).join("")}</div>`;
   if(bookHits.length) html += `<div class="result-head">책<span>${bookHits.length}</span></div><div class="list">${bookHits.map(rowCard).join("")}</div>`;
@@ -1551,7 +1551,7 @@ function isbnCells(digits){
 function scanResultView(){
   const s = scanState;
   if(s.status === "loading") return waiting("scan");
-  if(s.status === "dup") return `<div class="found"><p>『${esc(s.book.title)}』은(는) 이미 정원에 있어요.</p>
+  if(s.status === "dup") return `<div class="found"><p>『${esc(s.book.title)}』${josa(s.book.title, "은", "는")} 이미 정원에 있어요.</p>
     <div class="two"><button class="btn ghost" type="button" data-scanagain>다른 책 찍기</button><button class="btn" type="button" data-open="${esc(s.book.id)}">책 보러 가기</button></div></div>`;
   if(s.status === "error") return `<div class="found">${oops(esc(s.message))}
     <div class="two"><button class="btn ghost" type="button" data-scanagain>다시 찍기</button><button class="btn" type="button" data-manual-isbn>직접 입력하기</button></div></div>`;
@@ -2183,10 +2183,11 @@ function popularBox(n){
   if(st !== "ok" || !d) return waiting("popular");
   const short = s => s.slice(5).replace("-", ".");
   const mineIsbn = new Set(books.map(b => b.isbn.replace(/\D/g, "")).filter(Boolean));
+  const mineTitle = new Set(books.map(b => titleKey(b.title)));
   return `<div class="ranks">${d.items.slice(0, n).map((it, i) => `<button class="rank-row" type="button" data-pop-item="${i}">
       <span class="no num${it.rank <= 3 ? " top" : ""}">${it.rank}</span>${cover(it, "sm")}
       <span class="t"><h3>${esc(it.title)}</h3><span class="by">${esc([it.author, it.publisher].filter(Boolean).join(" · "))}</span></span>
-      ${mineIsbn.has(it.isbn) ? `<span class="mine">정원에 있음</span>` : ""}</button>`).join("")}</div>
+      ${mineIsbn.has(it.isbn) || mineTitle.has(titleKey(it.title)) ? `<span class="mine">정원에 있음</span>` : ""}</button>`).join("")}</div>
     ${n < d.items.length ? `<button class="btn ghost more-btn" type="button" data-go="#/popular/${popularPeriod}">더 보기 (${d.items.length}위까지)</button>` : ""}
     <p class="src-note">${d.kind === "bestseller" ? `${popularPeriod === "month" ? "이번 달" : "이번 주"} 많이 팔린 책 · 예스24 베스트셀러(국내도서)` : `전국 공공도서관에서 많이 빌린 책 · ${short(d.start)}~${short(d.end)} · 도서관 정보나루`}</p>`;
 }
@@ -2197,10 +2198,20 @@ function popularView(){
   <div id="popular-page" style="margin-top:6px">${popularBox(20)}</div>`;
 }
 
+// 제목 비교용: 띄어쓰기·문장부호를 빼고 비교한다
+const titleKey = t => String(t || "").replace(/[\s:·,.\-!?'"()\[\]~…]/g, "").toLowerCase();
+// 받침에 따라 을/를, 이/가, 은/는 (한글이 아니면 '을(를)'처럼)
+function josa(word, withFinal, noFinal){
+  const c = String(word || "").trim().slice(-1).charCodeAt(0);
+  if(c >= 0xAC00 && c <= 0xD7A3) return (c - 0xAC00) % 28 ? withFinal : noFinal;
+  return `${withFinal}(${noFinal})`;
+}
+
 // 순위의 책을 누르면: 책 정보 + '읽고 싶은 책에 담기'
 function openPopularSheet(it){
   const m = $("#modal");
-  const mine = it.isbn && books.find(b => b.isbn.replace(/\D/g, "") === it.isbn);
+  // 이미 정원에 있는지: ISBN이 같거나, 제목이 같으면(순위 책은 ISBN이 비어 있을 때가 있다)
+  const mine = books.find(b => (it.isbn && b.isbn.replace(/\D/g, "") === it.isbn) || titleKey(b.title) === titleKey(it.title));
   m.innerHTML = `<div class="sheet" role="dialog" aria-modal="true" aria-label="${esc(it.title)}">
     <div style="display:flex;gap:14px">${cover(it, "md")}<div style="min-width:0;display:flex;flex-direction:column;gap:3px">
       <span class="hint" style="font-size:12.5px">${it.rank}위${it.genre ? " · " + esc(it.genre) : ""}</span>
@@ -2229,7 +2240,7 @@ function openPopularSheet(it){
     const info = await infoP;
     const bio = await fetchAuthorBio(info.author || it.author, it.title);
     const b = normalizeBook({id: newId(), title: info.title || it.title, author: info.author || it.author, publisher: info.publisher || it.publisher,
-      isbn: it.isbn, cover: info.cover || it.cover, summary: info.summary || "", genre: GENRES.includes(info.genre) ? info.genre : (it.genre || "기타"),
+      isbn: info.isbn || it.isbn, cover: info.cover || it.cover, summary: info.summary || "", genre: GENRES.includes(info.genre) ? info.genre : (it.genre || "기타"),
       authorBio: bio?.bio || "", authorBioUrl: bio?.url || "", status: "want", ...newDates("want"), quotes: [], createdAt: nowIso()});
     books.push(b); await saveBook(b);
     m.hidden = true; plantedScene("want");
@@ -2436,7 +2447,7 @@ document.addEventListener("click", e => {
     }, true);
   }
   if(t.hasAttribute("data-delbook")){
-    return ask(`<span class="ask-pic">${PIC_SNAKE}</span>『${esc(cur.title)}』을(를) 지울까요?<small>한번 떠난 책은 돌아오지 않아요. 느낌과 길들인 문장도 함께 지워져요. 그림 상자의 그림은 남아요.</small>`, "지우기", async () => {
+    return ask(`<span class="ask-pic">${PIC_SNAKE}</span>『${esc(cur.title)}』${josa(cur.title, "을", "를")} 지울까요?<small>한번 떠난 책은 돌아오지 않아요. 느낌과 길들인 문장도 함께 지워져요. 그림 상자의 그림은 남아요.</small>`, "지우기", async () => {
       books = books.filter(b => b !== cur);
       try { await dbDelete(cur.id); } catch(e){ console.error(e); }
       for(const p of pictures.filter(x => x.bookId === cur.id)){ p.bookId = ""; try { await picPut(p); } catch(e){ console.error(e); } }
