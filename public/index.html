@@ -491,6 +491,7 @@ nav.bottom .nv:active svg{transform:scale(.9)}
 .q-book .t span{font-size:12.5px;color:var(--text-3)}
 .q-book .n{font-size:13px;font-weight:700;color:#c75b2a}
 .fox-sheet{background:var(--night);color:#fdf3dc}
+.fox-why{display:block;font-size:13.5px;line-height:1.6;color:rgba(253,243,220,.85);margin:4px 0 8px;white-space:pre-wrap}
 .fox-pick{position:relative;display:flex;flex-direction:column;align-items:center;text-align:center;gap:12px;padding:6px 4px 4px}
 .fox-pick .fox-pic svg{overflow:visible}
 .fox-q{font-size:19px;line-height:1.7;font-weight:600;letter-spacing:-0.02em;overflow-wrap:anywhere}
@@ -548,6 +549,32 @@ nav.bottom .nv:active svg{transform:scale(.9)}
 .sky .date small{margin-left:6px;opacity:.8}
 /* ② 44번의 노을: '다른 문장'을 누르면 해가 한 번 진다 */
 .today .sun{position:absolute;right:58px;bottom:-14px;width:30px;height:30px;border-radius:50%;background:#f6a75a;box-shadow:0 0 18px 6px rgba(246,167,90,.5);opacity:0}
+.fox-ask{display:flex;flex-direction:column;gap:6px;background:var(--soft);border-radius:14px;padding:10px 12px}
+.fox-ask .q{display:flex;align-items:center;gap:6px;font-size:13.5px;font-weight:700;color:var(--text)}
+.fox-ask .q .re{margin-left:auto;flex:none;border:0;background:none;color:var(--text-3);font-size:12px;font-weight:500;padding:2px}
+.fox-ask textarea{border:0;background:var(--card);border-radius:10px;padding:8px 10px;font:inherit;font-size:14px;color:var(--text);resize:none}
+.why{display:flex;gap:6px;align-items:flex-start;font-size:13.5px;line-height:1.55;color:var(--text-2);background:var(--soft);border-radius:12px;padding:8px 10px;text-align:left;font-weight:500}
+.why svg{flex:none;margin-top:1px}
+.why .wq{display:block;font-size:11.5px;color:var(--text-3);margin-bottom:1px}
+.notes{display:flex;flex-direction:column;gap:6px;border-left:2px solid var(--line-2);padding-left:10px;text-align:left}
+.notes .n{font-size:13.5px;line-height:1.55;color:var(--text-2);white-space:pre-wrap;overflow-wrap:anywhere;font-weight:500}
+.notes .n small{display:block;font-size:11.5px;color:var(--text-3)}
+.letter{position:relative;margin-top:14px;border-radius:20px;padding:16px 16px 14px;background:var(--card);border:1px solid var(--line);display:flex;flex-direction:column;gap:10px}
+.letter .tag{display:flex;align-items:center;gap:6px;font-size:13px;font-weight:700;color:var(--text)}
+.letter .tag small{font-weight:500;color:var(--text-3)}
+.letter .stamp{position:absolute;right:14px;top:12px;width:34px;height:40px;border:2px dashed #e4574f;border-radius:4px;display:grid;place-items:center;transform:rotate(6deg);opacity:.85}
+.letter .lq{font-size:16px;line-height:1.7;font-weight:600;padding:0 40px 0 0;white-space:pre-wrap;overflow-wrap:anywhere;text-align:left;border:0;background:none;color:var(--text)}
+.letter .lsrc{font-size:12.5px;color:var(--text-3)}
+.rose-card{margin-top:14px;display:flex;align-items:center;gap:12px;width:100%;text-align:left;border:1px solid var(--line);background:var(--card);border-radius:20px;padding:10px 14px;color:var(--text)}
+.rose-card .t{display:flex;flex-direction:column;gap:2px;font-size:14px;font-weight:700;line-height:1.4}
+.rose-card .t small{font-size:12.5px;font-weight:500;color:var(--text-3)}
+.rose-card .rose{flex:none;width:52px;height:60px}
+.rose .head{transform-box:view-box;transform-origin:30px 30px;transition:transform .8s ease}
+.rose.droop .head{transform:translate(5px,3px) rotate(48deg)}
+.rose.wilt .head{transform:translate(10px,12px) rotate(115deg)}
+.rose.revive{animation:rose-up 1.2s ease}
+@keyframes rose-up{0%{transform:scale(.85)}50%{transform:scale(1.12)}100%{transform:scale(1)}}
+@media (prefers-reduced-motion: reduce){.rose .head{transition:none}.rose.revive{animation:none}}
 .today .count{font-size:11.5px;color:rgba(253,243,220,.75);margin-top:8px;display:block}
 /* ③ 자라는 정원: 표지 왼쪽 위 씨앗·새싹·꽃·바오밥 */
 .grow-badge{position:absolute;top:-7px;left:-7px;z-index:2;width:24px;height:24px;border-radius:50%;background:rgba(255,250,240,.95);display:flex;align-items:center;justify-content:center;box-shadow:0 1px 3px rgba(0,0,0,.2)}
@@ -921,6 +948,8 @@ function homeView(){
   return `<div class="sky sky-${phase}">${skyArt(phase)}${head}
   <p class="date">${now.getMonth()+1}월 ${now.getDate()}일 ${WEEKDAYS[now.getDay()]}요일<small>· ${SKY_WORD[phase]}</small></p></div>
   ${todayCard()}
+  ${roseCard()}
+  ${letterCard()}
   <section class="section">
     <div class="sec-head"><h2>${PIC_SPROUT}지금 읽는 책${reading.length ? `<span>${reading.length}</span>` : ""}<small>· 키우는 중</small></h2>
       ${reading.length ? `<button class="more" type="button" data-go="#/shelf/reading">모두 보기</button>` : ""}</div>
@@ -1071,6 +1100,115 @@ function fitLockups(root = document){
   });
 }
 
+// ───────────────────────── ④ 여우의 질문 ─────────────────────────
+// 문장을 길들일 때 여우가 한 가지를 묻는다. 답(why)은 그 문장 옆에 함께 남아, 나중에 문장보다 그때의 내 마음을 다시 보게 한다.
+const FOX_QS = ["이 문장이 왜 마음에 남았어?", "이 문장을 읽고 누가 떠올랐어?", "지금의 너에게 이 문장은 어떤 말이야?",
+  "이 문장을 언제 다시 읽고 싶어?", "이 문장 앞에서 왜 잠깐 멈췄어?", "이 문장을 누구에게 들려주고 싶어?"];
+function foxQuestion(not){ const pool = FOX_QS.filter(x => x !== not); return pool[Math.floor(Math.random() * pool.length)]; }
+// 문장 아래: 그때의 답 + 나중에 덧붙인 생각들(목록 카드에는 마지막 하나만)
+function quoteExtra(q, short){
+  let h = "";
+  if(q.why) h += `<span class="why">${titleIcon("nav-quotes", 16)}<span>${q.whyQ ? `<span class="wq">${esc(q.whyQ)}</span>` : ""}${esc(q.why)}</span></span>`;
+  const notes = q.notes || [];
+  if(notes.length){
+    const list = short ? notes.slice(-1) : notes;
+    h += `<span class="notes">${list.map(n => `<span class="n"><small>${n.at ? fmtDate(n.at) + "에 다시 읽고" : "다시 읽고"}</small>${esc(n.text)}</span>`).join("")}</span>`;
+  }
+  return h;
+}
+
+// ───────────────────────── ② 문장 편지 ─────────────────────────
+// 30일 넘게 지난 문장이 '그때의 나'가 보낸 편지처럼 홈에 돌아온다. 하루에 한 통(날짜로 고름).
+// 딱 100일·1년이 된 문장이 있으면 그 문장이 먼저. 지금의 생각을 덧붙이면 문장 아래에 날짜와 함께 쌓인다(notes).
+const LETTER_DAYS = 30;
+const daysAgo = iso => Math.floor((Date.now() - new Date(iso)) / 864e5);
+function letterQuote(){
+  const old = allQuotes().filter(q => q.createdAt && daysAgo(q.createdAt) >= LETTER_DAYS)
+    .sort((x, y) => x.createdAt.localeCompare(y.createdAt) || x.id.localeCompare(y.id));
+  if(!old.length) return null;
+  const anniv = old.find(q => { const d = daysAgo(q.createdAt); return d === 100 || (d >= 365 && d % 365 === 0); });
+  if(anniv) return anniv;
+  const d = new Date();
+  return old[titleHash(`letter-${d.getFullYear()}-${d.getMonth()}-${d.getDate()}`) % old.length];
+}
+const ago = days => days >= 365 ? `${Math.floor(days / 365)}년 전` : days >= 60 ? `${Math.floor(days / 30)}달 전` : `${days}일 전`;
+function letterCard(){
+  const q = letterQuote(); if(!q) return "";
+  const days = daysAgo(q.createdAt);
+  const last = (q.notes || []).slice(-1)[0];
+  const todayDone = last && last.at && new Date(last.at).toDateString() === new Date().toDateString();
+  return `<div class="letter">
+    <span class="stamp" aria-hidden="true">${titleIcon("nav-shelf", 22)}</span>
+    <span class="tag">${svg('<rect x="3" y="5" width="18" height="14" rx="2"/><path d="m3 7 9 6 9-6"/>', 17)}문장 편지<small>· ${ago(days)}의 내가 보냈어요</small></span>
+    <button class="lq" type="button" data-open="${esc(q.b.id)}">${esc(q.text)}</button>
+    <span class="lsrc">『${esc(q.b.title)}』${q.page ? ` · ${esc(fmtPos(q.page, q.b.format))}` : ""} · ${fmtDate(q.createdAt)}에 길들임</span>
+    ${quoteExtra(q, true)}
+    ${todayDone ? `<span class="lsrc">오늘 답장을 보냈어요. 내일 또 다른 편지가 와요.</span>`
+      : `<button class="btn sm soft" type="button" data-letter="${esc(q.id)}">지금의 생각 덧붙이기</button>`}
+  </div>`;
+}
+function openLetterReply(qid){
+  const q = allQuotes().find(x => x.id === qid); if(!q) return;
+  const m = $("#modal");
+  m.innerHTML = `<form class="sheet" role="dialog" aria-modal="true" aria-label="지금의 생각 덧붙이기" data-letterform>
+    <h2>지금의 생각 덧붙이기</h2>
+    <p class="hint" style="margin-top:-8px">${ago(daysAgo(q.createdAt))}에 길들인 문장이에요. 지금 다시 읽으니 어때요?</p>
+    <div class="quote"><p><span class="ul">${esc(q.text)}</span></p>${quoteExtra(q)}</div>
+    <textarea id="lt-text" class="field" rows="3" maxlength="1000" placeholder="그때와 같아도, 달라져도 좋아요"></textarea>
+    <div class="two"><button class="btn ghost" type="button" id="lt-close">닫기</button><button class="btn" type="submit">덧붙이기</button></div>
+  </form>`;
+  m.hidden = false; m.dataset.quote = qid; m.dataset.book = q.b.id;
+  $("#lt-close").onclick = () => m.hidden = true;
+}
+
+// ───────────────────────── ① 장미 돌보기 ─────────────────────────
+// 소행성의 장미는 날마다 돌봐야 한다. 문장을 다시 읽을 때(여우·노을 '다른 문장'·편지 답장·새로 길들이기)가 물 주는 때.
+// 2일까지 활짝 / 3~6일 목말라 고개를 숙임 / 7일부터 시듦. 장미를 누르면 여우가 문장 하나를 꺼내 주고 장미가 다시 핀다.
+// 폰 안 localStorage bt_rose_last(마지막으로 물 준 때). 알림은 보내지 않는다.
+const ROSE_KEY = "bt_rose_last";
+let roseRevive = false;
+function roseDays(){
+  try {
+    const v = localStorage.getItem(ROSE_KEY);
+    if(!v){ localStorage.setItem(ROSE_KEY, nowIso()); return 0; }
+    const a = new Date(v), b = new Date(); a.setHours(0, 0, 0, 0); b.setHours(0, 0, 0, 0);
+    return Math.max(0, Math.round((b - a) / 864e5));
+  } catch { return 0; }
+}
+function waterRose(){
+  const before = roseDays();
+  try { localStorage.setItem(ROSE_KEY, nowIso()); } catch {}
+  if(before >= 3) roseRevive = true;
+}
+function roseSvg(state){
+  const petal = state === "bloom" ? "#e4574f" : state === "droop" ? "#d9736c" : "#a8746e";
+  const leaf = state === "wilt" ? "#9a9a6a" : "#5b9a62";
+  return `<svg class="rose ${state}${roseRevive && state === "bloom" ? " revive" : ""}" viewBox="0 0 60 70" aria-hidden="true">
+    <ellipse cx="30" cy="66" rx="22" ry="4" fill="var(--soft)"/>
+    <path d="${state === "bloom" ? "M30 64 C30 50 31 40 30 28" : state === "droop" ? "M30 64 C30 50 31 38 35 31" : "M30 64 C30 52 34 42 40 41"}" stroke="${leaf}" stroke-width="3" fill="none" stroke-linecap="round"/>
+    <path d="M30 48 C22 46 18 40 19 36 C25 37 29 42 30 48Z" fill="${leaf}"/>
+    <path d="M30 42 C37 41 41 36 41 32 C35 32 31 36 30 42Z" fill="${leaf}"/>
+    <g class="head"><path d="M20 22 C20 12 26 8 30 10 C34 8 40 12 40 22 C40 28 35 30 30 30 C25 30 20 28 20 22Z" fill="${petal}"/>
+      <path d="M24 17 C27 14 33 14 36 17 C34 21 26 21 24 17Z" fill="#fff" opacity=".22"/>
+      <path d="M26 22 C28 26 32 26 34 22" stroke="#fff" stroke-opacity=".3" stroke-width="1.5" fill="none"/></g>
+    ${state === "wilt" ? `<path d="M44 62 c2-2 5-2 6 0 c-2 2-5 2-6 0Z" fill="${petal}"/>` : ""}
+    ${state === "bloom" ? `<path d="M48 10l1.2 2.6 2.8.3-2.1 1.9.6 2.8-2.5-1.4-2.5 1.4.6-2.8-2.1-1.9 2.8-.3z" fill="#f6c453"/>` : ""}
+  </svg>`;
+}
+function roseCard(){
+  if(!allQuotes().length) return "";
+  const d = roseDays();
+  const state = d <= 2 ? "bloom" : d <= 6 ? "droop" : "wilt";
+  const msg = {
+    bloom: ["장미가 활짝 피었어요", roseRevive ? "문장을 다시 읽어 줘서 장미가 살아났어요" : "길들인 문장을 다시 읽을 때마다 장미가 물을 마셔요"],
+    droop: ["장미가 조금 목말라해요", `${d}일째 문장을 다시 읽지 않았어요. 눌러서 하나 꺼내 볼까요?`],
+    wilt: ["장미가 고개를 숙였어요", "길들인 문장 하나만 다시 읽어 주면 다시 피어요"],
+  }[state];
+  const html = `<button class="rose-card" type="button" data-rose>${roseSvg(state)}<span class="t">${msg[0]}<small>${msg[1]}</small></span></button>`;
+  roseRevive = false;
+  return html;
+}
+
 // 오늘의 밑줄: 예전에 그은 밑줄 하나를 다시 보여 준다.
 // 같은 날에는 같은 문장이 나오고(날짜로 고름), '다른 문장'을 누르면 다음 것으로 넘어간다.
 let quoteShift = 0;
@@ -1162,7 +1300,7 @@ function around(text, q){
 }
 
 function quoteCard(q, hl){
-  return `<button class="quote" type="button" data-open="${esc(q.b.id)}"><p>${hl ? highlight(q.text, hl) : esc(q.text)}</p>
+  return `<button class="quote" type="button" data-open="${esc(q.b.id)}"><p>${hl ? highlight(q.text, hl) : esc(q.text)}</p>${quoteExtra(q, true)}
     <div class="src"><span class="book" style="--c:${coverColor(q.b.title)}"><i></i><span>${esc(q.b.title)} · ${esc(q.b.author)}</span></span>
     <span class="num">${esc(fmtPos(q.page, q.b.format))}</span></div></button>`;
 }
@@ -1172,7 +1310,7 @@ function searchResults(){
   if(!q) return `<div class="empty">${PIC_GLOBE(44)}<p class="hint">지리학자처럼 기록을 뒤져 찾아 드려요.<br>책 제목이나 지은이, 길들인 문장,<br>내가 쓴 느낌 속 단어로 찾아요.</p></div>`;
   const has = v => String(v || "").toLowerCase().includes(q.toLowerCase());
   const bookHits = books.filter(b => has(b.title) || has(b.author) || has(b.publisher));
-  const quoteHits = allQuotes().filter(x => has(x.text));
+  const quoteHits = allQuotes().filter(x => has(x.text) || has(x.why) || (x.notes || []).some(n => has(n.text)));
   const feelHits = books.filter(b => has(b.feeling) || has(b.summary));
   const picHits = pictures.filter(p => has(p.title));
   if(!bookHits.length && !quoteHits.length && !feelHits.length && !picHits.length)
@@ -1212,7 +1350,7 @@ function detailView(b){
 
   <section class="block"><div class="block-head"><h3>길들인 문장${b.quotes.length ? `<span>${b.quotes.length}</span>` : ""}</h3>
     <button class="btn sm soft" type="button" data-quickquote="${esc(b.id)}">${ICON_PEN}문장 길들이기</button></div>
-    ${b.quotes.length ? `<div class="list">${b.quotes.slice().reverse().map(q => `<div class="quote"><p><span class="ul">${esc(q.text)}</span></p><div class="src">
+    ${b.quotes.length ? `<div class="list">${b.quotes.slice().reverse().map(q => `<div class="quote"><p><span class="ul">${esc(q.text)}</span></p>${quoteExtra(q)}<div class="src">
       <span class="num">${q.page ? esc(fmtPos(q.page, b.format)) + " · " : ""}${q.createdAt ? fmtDate(q.createdAt) : ""}</span>
       <button class="del" type="button" data-delquote="${esc(q.id)}">지우기</button></div></div>`).join("")}</div>`
       : `<p class="hint">읽다가 마음에 남은 문장을 옮겨 적어 보세요.</p>`}
@@ -1261,6 +1399,9 @@ function openQuoteSheet(b){
       <p class="hint" id="ocr-status" role="status"></p>
     </div>
     <textarea id="qq-text" rows="4" placeholder="마음에 남은 문장을 옮겨 적어 보세요"></textarea>
+    <div class="fox-ask"><span class="q">${titleIcon("nav-quotes", 18)}<span id="qq-whyq">${esc(foxQuestion())}</span>
+      <button class="re" type="button" id="qq-reask">다른 질문</button></span>
+      <textarea id="qq-why" rows="2" maxlength="500" placeholder="한 줄이면 충분해요 (안 써도 돼요)"></textarea></div>
     <div class="qpage-row"><input id="qq-page" class="field num" type="text" inputmode="${POS_INPUT[b.format]?.mode || "numeric"}" placeholder="${POS_INPUT[b.format]?.ph || "쪽"}" maxlength="20">
       <button class="btn" type="submit" style="flex:1">저장</button></div>
     <button class="linkbtn muted" type="button" id="qq-close">닫기</button>
@@ -1268,6 +1409,7 @@ function openQuoteSheet(b){
   m.hidden = false;
   m.dataset.book = b.id;
   $("#qq-close").onclick = () => { stopVoice(); m.hidden = true; };
+  $("#qq-reask").onclick = () => { $("#qq-whyq").textContent = foxQuestion($("#qq-whyq").textContent); };
   setupOcr();
   setupVoice();
 }
@@ -2002,20 +2144,22 @@ let foxLast = "";
 function openFoxPick(){
   const all = allQuotes(); if(!all.length) return;
   const pool = all.length > 1 ? all.filter(q => q.id !== foxLast) : all;
-  const q = pool[Math.floor(Math.random() * pool.length)]; foxLast = q.id;
+  const q = pool[Math.floor(Math.random() * pool.length)]; foxLast = q.id; waterRose();
   const m = $("#modal");
   m.innerHTML = `<div class="sheet fox-sheet" role="dialog" aria-modal="true" aria-label="여우가 꺼내 준 문장">
     <div class="fox-pick">
       <span class="fox-pic">${$("#nav-quotes svg") ? $("#nav-quotes svg").outerHTML.replace(/width="26" height="26"/, 'width="54" height="54"') : ""}</span>
       <span class="spark s1">✦</span><span class="spark s2">✦</span><span class="spark s3">✦</span>
       <p class="fox-q"><span class="ul">${esc(q.text)}</span></p>
+      ${q.why ? `<span class="fox-why">그때 나는 이렇게 답했어요<br>“${esc(q.why)}”</span>` : ""}
       <span class="fox-src">『${esc(q.b.title)}』 ${esc(q.b.author)}${q.page ? ` · ${esc(fmtPos(q.page, q.b.format))}` : ""}${q.createdAt ? `<br>${fmtDate(q.createdAt)}에 길들인 문장` : ""}</span>
     </div>
     <div class="two"><button class="btn ghost" type="button" id="fox-again">${all.length > 1 ? "다른 문장" : "닫기"}</button><button class="btn" type="button" id="fox-open">책 보러 가기</button></div>
   </div>`;
   m.hidden = false;
-  $("#fox-again").onclick = () => all.length > 1 ? openFoxPick() : (m.hidden = true);
+  $("#fox-again").onclick = () => all.length > 1 ? openFoxPick() : (m.hidden = true, render());
   $("#fox-open").onclick = () => { m.hidden = true; go("#/book/" + encodeURIComponent(q.b.id)); };
+  setTimeout(() => { const c = $(".rose-card"); if(c) c.outerHTML = roseCard(); }, 0);
 }
 
 // ───────────────────────── 나: 기록과 백업 ─────────────────────────
@@ -2325,7 +2469,9 @@ function normalizeBook(x){
     startedAt: x.startedAt || "", finishedAt: x.finishedAt || "",
     summary: String(x.summary || ""), authorBio: String(x.authorBio || ""),
     authorBioUrl: /^https:\/\/ko\.(m\.)?wikipedia\.org\//.test(x.authorBioUrl || "") ? String(x.authorBioUrl) : "", feeling: String(x.feeling || ""),
-    quotes: Array.isArray(x.quotes) ? x.quotes.filter(q => q && q.text).map(q => ({id: String(q.id || newId()), text: String(q.text), page: q.page ? String(q.page) : "", createdAt: q.createdAt || ""})) : [],
+    quotes: Array.isArray(x.quotes) ? x.quotes.filter(q => q && q.text).map(q => ({id: String(q.id || newId()), text: String(q.text), page: q.page ? String(q.page) : "", createdAt: q.createdAt || "",
+      ...(q.why ? {why: String(q.why).slice(0, 500), whyQ: String(q.whyQ || "").slice(0, 60)} : {}),
+      ...(Array.isArray(q.notes) && q.notes.some(n => n && n.text) ? {notes: q.notes.filter(n => n && n.text).map(n => ({text: String(n.text).slice(0, 1000), at: n.at || ""}))} : {})})) : [],
     createdAt: x.createdAt || nowIso(), updatedAt: x.updatedAt || "",
   };
 }
@@ -2381,7 +2527,7 @@ document.addEventListener("click", e => {
     t.parentElement.querySelectorAll("button").forEach(x => x.setAttribute("aria-pressed", x === t));
     return;
   }
-  if(t.hasAttribute("data-shuffle")){ quoteShift++; bumpSunset(); render(); $(".today")?.classList.add("setting"); return; }
+  if(t.hasAttribute("data-shuffle")){ quoteShift++; bumpSunset(); waterRose(); render(); $(".today")?.classList.add("setting"); return; }
   if(t.dataset.pickgenre && scanState.book){
     scanState.book.genre = t.dataset.pickgenre;
     t.parentElement.querySelectorAll("button").forEach(x => x.setAttribute("aria-pressed", x === t));
@@ -2415,6 +2561,8 @@ document.addEventListener("click", e => {
   if(t.hasAttribute("data-goal")) return openGoalSheet();
   if(t.hasAttribute("data-story")) return openStory();
   if(t.hasAttribute("data-foxpick")) return openFoxPick();
+  if(t.hasAttribute("data-rose")) return openFoxPick();
+  if(t.dataset.letter) return openLetterReply(t.dataset.letter);
   if(t.hasAttribute("data-import")) return $("#import-file").click();
   if(!cur) return;
 
@@ -2503,14 +2651,27 @@ document.addEventListener("submit", async e => {
     return lookupIsbn(v);
   }
 
+  // 문장 편지: 지금의 생각 덧붙이기
+  if(f.hasAttribute("data-letterform")){
+    const m = $("#modal"), b = findBook(m.dataset.book); if(!b) return;
+    const q = b.quotes.find(x => x.id === m.dataset.quote); if(!q) return;
+    const text = $("#lt-text").value.trim();
+    if(!text){ $("#lt-text").focus(); toast("지금의 생각을 적어 주세요"); return; }
+    q.notes = [...(q.notes || []), {text, at: nowIso()}];
+    await saveBook(b); waterRose();
+    m.hidden = true; render(); toast("그때의 나에게 답장을 보냈어요");
+    return;
+  }
+
   // 밑줄 긋기 창
   if(f.hasAttribute("data-quickform")){
     stopVoice();
     const b = findBook($("#modal").dataset.book); if(!b) return;
     const text = $("#qq-text").value.trim();
     if(!text){ $("#qq-text").focus(); toast("문장을 적어 주세요"); return; }
-    b.quotes.push({id: newId(), text, page: $("#qq-page").value.trim(), createdAt: nowIso()});
-    await saveBook(b);
+    const why = $("#qq-why").value.trim();
+    b.quotes.push({id: newId(), text, page: $("#qq-page").value.trim(), createdAt: nowIso(), ...(why ? {why, whyQ: $("#qq-whyq").textContent} : {})});
+    await saveBook(b); waterRose();
     $("#modal").hidden = true; render(); celebrate("fox", "길들였어요", "이 문장은 이제 나에게 하나뿐인 문장이에요");
     return;
   }
